@@ -1,10 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import {
-  Black_Han_Sans,
-  Noto_Sans_KR,
-  Space_Grotesk,
-  Space_Mono,
-} from 'next/font/google';
+import { Black_Han_Sans, Noto_Sans_KR, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 
 // 한글 글리프는 subset으로 나눌 수 없어 preload를 끈다.
@@ -26,12 +21,6 @@ const grotesk = Space_Grotesk({
   subsets: ['latin'],
 });
 
-const spaceMono = Space_Mono({
-  variable: '--font-spacemono',
-  weight: '700',
-  subsets: ['latin'],
-});
-
 export const metadata: Metadata = {
   title: '춥나덥나',
   description: '오늘 날씨와 옷차림을 한 화면에서',
@@ -49,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="ko"
-      className={`${noto.variable} ${blackHan.variable} ${grotesk.variable} ${spaceMono.variable} antialiased`}
+      className={`${noto.variable} ${blackHan.variable} ${grotesk.variable} antialiased`}
     >
       <body className="font-sans">
         <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-5 px-5 pt-12 pb-8">

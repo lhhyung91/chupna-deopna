@@ -107,7 +107,6 @@
   --font-sans: var(--font-noto), system-ui, sans-serif;
   --font-display: var(--font-blackhan), sans-serif;
   --font-num: var(--font-grotesk), sans-serif;
-  --font-mono: var(--font-spacemono), monospace;
 }
 
 html {

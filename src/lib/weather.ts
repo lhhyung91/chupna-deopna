@@ -37,7 +37,6 @@ export type DayWeather = {
 };
 
 export type Forecast = {
-  updatedAt: string;
   today: DayWeather;
   tomorrow: DayWeather;
 };
@@ -256,7 +255,6 @@ export async function fetchForecast(now: Date): Promise<Forecast> {
   );
 
   return {
-    updatedAt: `${pad(latest.hour)}:00`,
     today: buildDay(
       grid,
       kst,

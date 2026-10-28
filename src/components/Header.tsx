@@ -12,32 +12,19 @@ const TABS: { id: Tab; label: string }[] = [
 
 type Props = {
   dateLabel?: string;
-  status?: string;
   tab?: Tab;
   onTabChange?: (tab: Tab) => void;
 };
 
-export function Header({
-  dateLabel,
-  status,
-  tab = 'today',
-  onTabChange,
-}: Props) {
+export function Header({ dateLabel, tab = 'today', onTabChange }: Props) {
   return (
     <header className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h1 className="font-display text-3xl">{LOCATION.name}</h1>
-          {dateLabel ? (
-            <p className="text-sm text-muted">{dateLabel}</p>
-          ) : (
-            <div className="mt-1 h-4 w-32 rounded-full bg-skeleton" />
-          )}
-        </div>
-        {status && (
-          <p className="mt-1 rounded-md border-2 border-ink bg-chip px-2 font-mono text-[11px] leading-4">
-            {status}
-          </p>
+      <div>
+        <h1 className="font-display text-3xl">{LOCATION.name}</h1>
+        {dateLabel ? (
+          <p className="text-sm text-muted">{dateLabel}</p>
+        ) : (
+          <div className="mt-1 h-4 w-32 rounded-full bg-skeleton" />
         )}
       </div>
       {/* 두 개 중 하나를 고르는 토글이라 탭 패턴 대신 aria-pressed 버튼 묶음으로 둔다 */}
