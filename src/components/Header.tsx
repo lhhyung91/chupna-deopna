@@ -11,7 +11,7 @@ const TABS: { id: Tab; label: string }[] = [
 
 type Props = {
   dateLabel?: string;
-  status: string;
+  status?: string;
   tab?: Tab;
   onTabChange?: (tab: Tab) => void;
 };
@@ -33,10 +33,11 @@ export function Header({
             <div className="mt-1 h-4 w-32 rounded-full bg-skeleton" />
           )}
         </div>
-        <p className="pt-2 text-xs text-muted">{status}</p>
+        {status && <p className="pt-2 text-xs text-muted">{status}</p>}
       </div>
+      {/* 두 개 중 하나를 고르는 토글이라 탭 패턴 대신 aria-pressed 버튼 묶음으로 둔다 */}
       <div
-        role="tablist"
+        role="group"
         aria-label="날짜 선택"
         className="grid grid-cols-2 gap-1 rounded-2xl p-1 inset-shadow-neu"
       >
@@ -46,11 +47,10 @@ export function Header({
             <button
               key={id}
               type="button"
-              role="tab"
-              aria-selected={selected}
+              aria-pressed={selected}
               disabled={!onTabChange}
               onClick={() => onTabChange?.(id)}
-              className={`h-11 rounded-xl text-base ${selected ? 'font-bold text-ink shadow-neu-sm' : 'font-medium text-muted'}`}
+              className={`h-11 rounded-xl text-base transition-colors duration-200 ${selected ? 'bg-point font-bold text-on-point shadow-neu-sm' : 'font-medium text-muted enabled:hover:text-ink'}`}
             >
               {label}
             </button>
