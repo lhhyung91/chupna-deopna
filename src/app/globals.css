@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 :root {
+  color-scheme: light dark;
   --bg: #e3e8ef;
   --ink: #283041;
   --muted: #535d6f;
@@ -77,9 +78,20 @@
   --font-num: var(--font-outfit), sans-serif;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
+}
+
+/* 뉴모피즘은 그림자로만 경계를 그려서 기본 포커스 링이 묻히므로 링크 색으로 또렷하게 */
+:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
 }
 
 /* 가로 스크롤은 유지하고 스크롤 바만 숨긴다 (Tailwind v4에 기본 클래스가 없음) */

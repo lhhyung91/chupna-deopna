@@ -12,21 +12,31 @@ export function HourlyForecast({ hourly, highlightFirst }: Props) {
     >
       <h2 className="px-5 font-bold">시간대별</h2>
       <ol className="scrollbar-none flex gap-2 overflow-x-auto px-5 pt-1 pb-2">
-        {hourly.map((h, i) => (
-          <li
-            key={h.label}
-            className={`flex h-28 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl ${i === 0 && highlightFirst ? 'inset-shadow-neu' : ''}`}
-          >
-            <span className="text-xs font-medium">{h.label}</span>
-            <WeatherIcon kind={h.sky} size={32} />
-            <span className="font-num font-semibold">{formatTemp(h.temp)}</span>
-            <span
-              className={`text-xs ${h.pop > 0 ? 'text-pop' : 'text-muted'}`}
+        {hourly.map((h, i) => {
+          const isNow = i === 0 && highlightFirst;
+          return (
+            <li
+              key={h.label}
+              className={`flex h-28 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl ${isNow ? 'inset-shadow-neu' : ''}`}
             >
-              {h.pop}%
-            </span>
-          </li>
-        ))}
+              {/* "지금" 칸을 오목한 그림자만으로 구분하지 않도록 글자색·굵기도 바꾼다 */}
+              <span
+                className={`text-xs ${isNow ? 'font-bold text-link' : 'font-medium'}`}
+              >
+                {h.label}
+              </span>
+              <WeatherIcon kind={h.sky} size={32} />
+              <span className="font-num font-semibold tabular-nums">
+                {formatTemp(h.temp)}
+              </span>
+              <span
+                className={`text-xs tabular-nums ${h.pop > 0 ? 'text-pop' : 'text-muted'}`}
+              >
+                {h.pop}%
+              </span>
+            </li>
+          );
+        })}
       </ol>
     </section>
   );

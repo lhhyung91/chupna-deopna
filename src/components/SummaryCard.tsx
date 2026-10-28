@@ -10,7 +10,7 @@ export function SummaryCard({ day }: { day: DayWeather }) {
     >
       <div className="flex flex-col gap-1">
         <span className="text-xs text-muted">최저 / 최고</span>
-        <span className="font-num text-xl font-semibold">
+        <span className="font-num text-xl font-semibold tabular-nums">
           {formatTemp(day.min)} / {formatTemp(day.max)}
         </span>
       </div>

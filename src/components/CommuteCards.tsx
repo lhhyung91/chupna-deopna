@@ -18,7 +18,7 @@ export function CommuteCards({ commutes }: { commutes: CommuteWeather[] }) {
           <div className="flex items-center gap-2">
             <WeatherIcon kind={c.sky} size={40} />
             {/* 320px 폰에서 두 칸에 기온이 넘치지 않도록 한 단계 줄인다 */}
-            <span className="font-num text-3xl font-medium min-[360px]:text-4xl">
+            <span className="font-num text-3xl font-medium tabular-nums min-[360px]:text-4xl">
               {formatTemp(c.temp)}
             </span>
           </div>
