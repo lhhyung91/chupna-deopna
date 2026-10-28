@@ -1,9 +1,14 @@
 import { ClothingIcon } from '@/components/ClothingIcon';
 import type { ClothingItem } from '@/lib/outfit';
 
-type Props = { title: string; basis: string; items: ClothingItem[] };
+type Props = {
+  title: string;
+  basis: string;
+  items: ClothingItem[];
+  notes: string[];
+};
 
-export function OutfitCard({ title, basis, items }: Props) {
+export function OutfitCard({ title, basis, items, notes }: Props) {
   return (
     <section aria-label="옷차림 추천" className="flex flex-col gap-4 card p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -29,6 +34,13 @@ export function OutfitCard({ title, basis, items }: Props) {
       <p className="font-display text-3xl text-balance break-keep">
         {items.map((item) => item.label).join(' + ')}
       </p>
+      {notes.length > 0 && (
+        <ul className="-mt-2 flex flex-col gap-0.5 text-sm break-keep text-muted">
+          {notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

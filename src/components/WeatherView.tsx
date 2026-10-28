@@ -6,10 +6,11 @@ import { FeedbackCard } from '@/components/FeedbackCard';
 import { Header, type Tab } from '@/components/Header';
 import { HourlyForecast } from '@/components/HourlyForecast';
 import { OutfitCard } from '@/components/OutfitCard';
+import { OutfitGuide } from '@/components/OutfitGuide';
 import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
 import { formatTemp } from '@/lib/format';
-import { getBanners, recommendOutfit } from '@/lib/outfit';
+import { getBanners, getLayerHint, getLevelIndex, LEVELS } from '@/lib/outfit';
 import type { Forecast } from '@/lib/weather';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -36,6 +37,12 @@ export function WeatherView({ forecast, evening }: Props) {
   // 하루 중 가장 추운 출근길만 보면 너무 두꺼워져서, 밖에 있는 두 시간대의 평균을 쓴다.
   const outsideFeel =
     day.commutes.reduce((sum, c) => sum + c.feel, 0) / day.commutes.length;
+  const levelIndex = getLevelIndex(outsideFeel - offset);
+  const level = LEVELS[levelIndex];
+  const notes = [
+    getLayerHint(day.commutes, offset, levelIndex),
+    level.tip,
+  ].filter((note) => note != null);
 
   // 저녁엔 피드백을 맨 위로 올린다. CSS order 대신 DOM 순서를 바꿔야 탭 이동 순서도 맞는다.
   const feedback = isToday && (
@@ -44,18 +51,14 @@ export function WeatherView({ forecast, evening }: Props) {
 
   return (
     <>
-      <Header
-        dateLabel={day.dateLabel}
-        status={`${forecast.updatedAt} 예보`}
-        tab={tab}
-        onTabChange={setTab}
-      />
+      <Header dateLabel={day.dateLabel} tab={tab} onTabChange={setTab} />
       <div className="flex flex-col gap-4">
         {evening && feedback}
         <OutfitCard
           title={isToday ? '오늘의 옷차림' : '내일의 옷차림'}
           basis={`출퇴근 평균 체감 ${formatTemp(outsideFeel)}`}
-          items={recommendOutfit(outsideFeel - offset)}
+          items={level.items}
+          notes={notes}
         />
         {/* 옷차림·시간대 띠 사이의 짧은 정보만 6칸 벤토로 묶는다 */}
         <div className="grid grid-cols-6 gap-3">
@@ -70,6 +73,7 @@ export function WeatherView({ forecast, evening }: Props) {
           highlightFirst={isToday}
         />
         {!evening && feedback}
+        <OutfitGuide currentIndex={levelIndex} offset={offset} />
       </div>
     </>
   );
