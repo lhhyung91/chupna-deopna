@@ -23,11 +23,12 @@ const RAIN_POP = 60;
 const STRONG_WIND = 9;
 
 // 체감온도가 minFeel 이상인 첫 단계를 쓴다.
+// 기온별 옷차림 표는 기온 기준이라 체감온도에 그대로 쓰면 하의가 과해져서, 하의는 영하 전까지 청바지·슬랙스로 둔다.
 const LEVELS: { minFeel: number; items: ClothingItem[] }[] = [
   {
     minFeel: 28,
     items: [
-      { label: '민소매', kind: 'tank' },
+      { label: '반팔', kind: 'tee' },
       { label: '반바지', kind: 'shorts' },
     ],
   },
@@ -35,7 +36,7 @@ const LEVELS: { minFeel: number; items: ClothingItem[] }[] = [
     minFeel: 23,
     items: [
       { label: '반팔', kind: 'tee' },
-      { label: '면반바지', kind: 'shorts_button' },
+      { label: '면바지', kind: 'pants' },
     ],
   },
   {
@@ -73,7 +74,15 @@ const LEVELS: { minFeel: number; items: ClothingItem[] }[] = [
     items: [
       { label: '코트', kind: 'zip_jacket' },
       { label: '니트', kind: 'sweatshirt' },
-      { label: '기모 바지', kind: 'wide_pants' },
+      { label: '청바지', kind: 'pants' },
+    ],
+  },
+  {
+    minFeel: 0,
+    items: [
+      { label: '패딩', kind: 'puffer' },
+      { label: '니트', kind: 'sweatshirt' },
+      { label: '청바지', kind: 'pants' },
     ],
   },
   {
@@ -81,7 +90,7 @@ const LEVELS: { minFeel: number; items: ClothingItem[] }[] = [
     items: [
       { label: '패딩', kind: 'puffer' },
       { label: '니트', kind: 'sweatshirt' },
-      { label: '방한 바지', kind: 'puffer_pants' },
+      { label: '기모 바지', kind: 'wide_pants' },
     ],
   },
 ];
