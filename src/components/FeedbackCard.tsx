@@ -53,7 +53,8 @@ export function FeedbackCard({ feeling, offset, onSelect }: Props) {
               onClick={() => onSelect(id)}
               className={`flex h-[88px] flex-col items-center justify-center gap-1 rounded-2xl text-sm font-bold ${pressed ? 'bg-point text-on-point inset-shadow-point' : 'shadow-neu-sm'}`}
             >
-              <WeatherIcon kind={id} size={44} />
+              {/* 몽실이는 가로로 넓은 구름이라 44px에선 표정이 작아서 키운다 */}
+              <WeatherIcon kind={id} size={56} />
               {label}
             </button>
           );

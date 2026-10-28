@@ -14,12 +14,12 @@ const FILES: Record<WeatherIconKind, string> = {
   snow: 'icon_snow',
   wind: 'icon_wind',
   umbrella: 'icon_umbrella',
-  hot: 'icon_sun_thermometer',
-  good: 'icon_smile',
-  cold: 'icon_snowflake_thermometer',
+  hot: 'icon_cloud_sun_thermometer',
+  good: 'icon_cloud_smile',
+  cold: 'icon_cloud_snowflake_thermometer',
 };
 
-type Props = { kind: WeatherIconKind; size: 24 | 32 | 40 | 44 | 96 };
+type Props = { kind: WeatherIconKind; size: 24 | 32 | 40 | 56 | 96 };
 
 // 장식용 아이콘이라 alt를 비우고, 의미는 옆의 텍스트 라벨이 전달한다.
 export function WeatherIcon({ kind, size }: Props) {
