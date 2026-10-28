@@ -5,13 +5,12 @@ type Props = { title: string; basis: string; items: ClothingItem[] };
 
 export function OutfitCard({ title, basis, items }: Props) {
   return (
-    <section
-      aria-label="옷차림 추천"
-      className="flex flex-col gap-4 rounded-3xl p-5 shadow-neu"
-    >
+    <section aria-label="옷차림 추천" className="flex flex-col gap-4 card p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-bold text-link">{title}</h2>
-        <span className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted inset-shadow-neu-chip">
+        <h2 className="-rotate-2 rounded-lg bg-ink px-2.5 py-0.5 font-display text-base leading-[22px] text-bg">
+          {title}
+        </h2>
+        <span className="shrink-0 rounded-full border-2 border-ink bg-chip px-3 py-0.5 text-xs">
           {basis}
         </span>
       </div>
@@ -20,14 +19,15 @@ export function OutfitCard({ title, basis, items }: Props) {
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex h-[92px] items-center justify-center rounded-3xl inset-shadow-neu"
+            className="flex h-[92px] items-center justify-center rounded-2xl border-2 border-ink bg-well shadow-well"
           >
             <ClothingIcon kind={item.kind} size={76} />
           </div>
         ))}
       </div>
-      <p className="text-2xl font-black tracking-tight break-keep">
-        {items.map((item) => item.label).join(' + ')}
+      {/* "+" 뒤를 줄바꿈 없는 공백으로 이어서, 줄이 바뀌어도 "+"가 줄 끝에 홀로 남지 않게 한다 */}
+      <p className="font-display text-3xl text-balance break-keep">
+        {items.map((item) => item.label).join(' + ')}
       </p>
     </section>
   );

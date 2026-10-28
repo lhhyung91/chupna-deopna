@@ -6,11 +6,11 @@ export function SummaryCard({ day }: { day: DayWeather }) {
   return (
     <section
       aria-label="요약"
-      className="grid grid-cols-3 gap-3 rounded-3xl px-5 py-4 shadow-neu"
+      className="grid grid-cols-3 gap-3 card px-5 py-4"
     >
       <div className="flex flex-col gap-1">
         <span className="text-xs text-muted">최저 / 최고</span>
-        <span className="font-num text-xl font-semibold tabular-nums">
+        <span className="font-num text-xl font-bold tabular-nums">
           {formatTemp(day.min)} / {formatTemp(day.max)}
         </span>
       </div>
@@ -23,7 +23,9 @@ export function SummaryCard({ day }: { day: DayWeather }) {
       </div>
       <div className="flex flex-col gap-1">
         <span className="text-xs text-muted">강수확률</span>
-        <span className="font-num text-xl font-semibold">{day.pop}%</span>
+        <span className="font-num text-xl font-bold tabular-nums">
+          {day.pop}%
+        </span>
       </div>
     </section>
   );

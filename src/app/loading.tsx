@@ -26,7 +26,7 @@ export default function Loading() {
               d="M12 3a9 9 0 0 1 9 9"
               strokeWidth="3"
               strokeLinecap="round"
-              className="stroke-link"
+              className="stroke-ink"
             />
           </svg>
           날씨 불러오는 중…

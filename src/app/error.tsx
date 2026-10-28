@@ -15,7 +15,7 @@ export default function ErrorPage({ error, retry }: Props) {
   return (
     <>
       <Header dateLabel={formatDateLabel(new Date())} />
-      <div className="mt-6 flex flex-col items-center gap-5 rounded-3xl px-6 pt-10 pb-8 shadow-neu">
+      <div className="mt-6 flex flex-col items-center gap-5 card px-6 pt-10 pb-8">
         <WeatherIcon kind="cloudy" size={96} />
         <div className="flex flex-col items-center gap-2 text-center">
           <h2 className="text-xl font-bold">날씨를 불러오지 못했어요</h2>
@@ -28,7 +28,7 @@ export default function ErrorPage({ error, retry }: Props) {
         <button
           type="button"
           onClick={retry}
-          className="h-12 rounded-full px-8 font-bold text-link shadow-neu-sm transition-shadow duration-150 active:shadow-none active:inset-shadow-neu"
+          className="h-12 rounded-xl border-[2.5px] border-ink bg-point px-8 font-bold text-on-bright shadow-hard-sm transition-[translate,box-shadow] duration-150 active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:active:translate-none"
         >
           다시 시도
         </button>
