@@ -1,3 +1,5 @@
+export const SITE_URL = 'https://chupna-deopna.vercel.app';
+
 // 개인용이라 위치를 기상청 격자 좌표로 고정한다 (서울 중구).
 export const LOCATION = { name: '서울 중구', nx: 60, ny: 127 };
 
@@ -8,3 +10,6 @@ export const COMMUTES = [
 
 // 퇴근 시간이 시작되면 피드백 카드를 맨 위로 올린다.
 export const EVENING_HOUR = COMMUTES[1].startHour;
+
+// 피드백으로 옷차림을 당기거나 미는 최대 폭(°). 서버에 저장할 때도 같은 범위로 자른다.
+export const MAX_OFFSET = 3;

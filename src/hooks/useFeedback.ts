@@ -1,10 +1,10 @@
+import { MAX_OFFSET } from '@/lib/config';
 import { useSyncExternalStore } from 'react';
 
 export type Feeling = 'hot' | 'good' | 'cold';
 
 const STORAGE_KEY = 'outfit-feedback';
 const KEEP_DAYS = 14;
-const MAX_OFFSET = 3;
 
 const listeners = new Set<() => void>();
 

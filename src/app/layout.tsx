@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/config';
 import type { Metadata, Viewport } from 'next';
 import { Black_Han_Sans, Noto_Sans_KR, Space_Grotesk } from 'next/font/google';
 import './globals.css';
@@ -25,7 +26,7 @@ const DESCRIPTION = '출근길 체감온도로 오늘 입을 옷을 골라줘요
 
 // 공유 미리보기 그림은 app/opengraph-image.jpg를 Next가 넣는다. 메신저가 읽으려면 절대 주소가 필요하다
 export const metadata: Metadata = {
-  metadataBase: new URL('https://chupna-deopna.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   title: '춥나덥나',
   description: DESCRIPTION,
   openGraph: {
