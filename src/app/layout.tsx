@@ -21,9 +21,21 @@ const grotesk = Space_Grotesk({
   subsets: ['latin'],
 });
 
+const DESCRIPTION = '출근길 체감온도로 오늘 입을 옷을 골라줘요';
+
+// 공유 미리보기 그림은 app/opengraph-image.jpg를 Next가 넣는다. 메신저가 읽으려면 절대 주소가 필요하다
 export const metadata: Metadata = {
+  metadataBase: new URL('https://chupna-deopna.vercel.app'),
   title: '춥나덥나',
-  description: '오늘 날씨와 옷차림을 한 화면에서',
+  description: DESCRIPTION,
+  openGraph: {
+    title: '춥나덥나',
+    description: DESCRIPTION,
+    siteName: '춥나덥나',
+    locale: 'ko_KR',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image' },
   appleWebApp: { title: '춥나덥나', capable: true },
 };
 
