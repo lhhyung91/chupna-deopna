@@ -5,8 +5,15 @@ export type ClothingKind =
   | 'tank'
   | 'tee'
   | 'sweatshirt'
+  | 'knit'
+  | 'cardigan'
+  | 'windbreaker'
   | 'zip_jacket'
+  | 'fleece'
+  | 'light_puffer'
+  | 'coat'
   | 'puffer'
+  | 'puffer_vest'
   | 'shorts'
   | 'shorts_button'
   | 'pants'
@@ -30,7 +37,15 @@ export type OutfitLevel = {
 };
 
 const THERMAL_TIP = '히트텍 챙기면 좋아요';
-const OUTERS = new Set<ClothingKind>(['zip_jacket', 'puffer']);
+const OUTERS = new Set<ClothingKind>([
+  'cardigan',
+  'windbreaker',
+  'zip_jacket',
+  'fleece',
+  'light_puffer',
+  'coat',
+  'puffer',
+]);
 
 // 체감온도가 minFeel 이상인 첫 단계를 쓴다.
 // 하의는 따뜻함이 실제로 달라지는 반바지·긴바지·기모 바지 세 가지만 구분한다(면바지·청바지 차이는 1~2° 수준).
@@ -52,7 +67,8 @@ export const LEVELS: OutfitLevel[] = [
   {
     minFeel: 20,
     items: [
-      { label: '긴팔', kind: 'sweatshirt' },
+      { label: '가디건', kind: 'cardigan' },
+      { label: '반팔', kind: 'tee' },
       { label: '긴바지', kind: 'pants' },
     ],
   },
@@ -64,34 +80,44 @@ export const LEVELS: OutfitLevel[] = [
     ],
   },
   {
-    minFeel: 12,
+    minFeel: 14,
     items: [
-      { label: '자켓', kind: 'zip_jacket' },
-      { label: '긴팔', kind: 'sweatshirt' },
+      { label: '바람막이', kind: 'windbreaker' },
+      { label: '맨투맨', kind: 'sweatshirt' },
       { label: '긴바지', kind: 'pants' },
     ],
   },
   {
+    minFeel: 12,
+    items: [
+      { label: '자켓', kind: 'zip_jacket' },
+      { label: '니트', kind: 'knit' },
+      { label: '긴바지', kind: 'pants' },
+    ],
+    tip: '플리스도 좋아요',
+  },
+  {
     minFeel: 9,
     items: [
-      { label: '트렌치코트', kind: 'zip_jacket' },
-      { label: '니트', kind: 'sweatshirt' },
+      { label: '경량 패딩', kind: 'light_puffer' },
+      { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
   },
   {
     minFeel: 5,
     items: [
-      { label: '코트', kind: 'zip_jacket' },
-      { label: '니트', kind: 'sweatshirt' },
+      { label: '코트', kind: 'coat' },
+      { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
+    tip: '추우면 코트 안에 패딩 조끼를 껴입어요',
   },
   {
     minFeel: 0,
     items: [
       { label: '패딩', kind: 'puffer' },
-      { label: '니트', kind: 'sweatshirt' },
+      { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
     tip: THERMAL_TIP,
@@ -100,7 +126,7 @@ export const LEVELS: OutfitLevel[] = [
     minFeel: -Infinity,
     items: [
       { label: '패딩', kind: 'puffer' },
-      { label: '니트', kind: 'sweatshirt' },
+      { label: '니트', kind: 'knit' },
       { label: '기모 바지', kind: 'wide_pants' },
     ],
     tip: THERMAL_TIP,
