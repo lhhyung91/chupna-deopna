@@ -1,6 +1,7 @@
 'use client';
 
 import { LOCATION } from '@/lib/config';
+import { haptic } from '@/lib/haptic';
 
 export type Tab = 'today' | 'tomorrow';
 
@@ -53,8 +54,11 @@ export function Header({
               type="button"
               aria-pressed={selected}
               disabled={!onTabChange}
-              onClick={() => onTabChange?.(id)}
-              className={`h-11 text-base transition-colors duration-200 ${selected ? 'rounded-[10px] border-2 border-ink bg-ink font-bold text-bg' : 'rounded-xl font-medium text-muted enabled:hover:text-ink'}`}
+              onClick={() => {
+                haptic();
+                onTabChange?.(id);
+              }}
+              className={`h-11 tactile text-base ${selected ? 'rounded-[10px] border-2 border-ink bg-ink font-bold text-bg' : 'rounded-xl font-medium text-muted enabled:hover:text-ink'}`}
             >
               {label}
             </button>

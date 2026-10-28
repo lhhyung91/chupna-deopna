@@ -7,7 +7,7 @@ export function OutfitCard({ title, basis, items }: Props) {
   return (
     <section aria-label="옷차림 추천" className="flex flex-col gap-4 card p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="-rotate-2 rounded-lg bg-ink px-2.5 py-0.5 font-display text-base leading-[22px] text-bg">
+        <h2 className="rounded-lg bg-ink px-2.5 py-0.5 font-display text-base leading-[22px] text-bg">
           {title}
         </h2>
         <span className="shrink-0 rounded-full border-2 border-ink bg-chip px-3 py-0.5 text-xs">
@@ -19,7 +19,7 @@ export function OutfitCard({ title, basis, items }: Props) {
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex h-[92px] items-center justify-center rounded-2xl border-2 border-ink bg-well shadow-well"
+            className="flex h-[92px] items-center justify-center rounded-2xl border-2 border-ink shadow-well tile-ground"
           >
             <ClothingIcon kind={item.kind} size={76} />
           </div>

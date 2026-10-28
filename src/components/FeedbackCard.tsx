@@ -1,5 +1,6 @@
 import { WeatherIcon } from '@/components/WeatherIcon';
 import type { Feeling } from '@/hooks/useFeedback';
+import { haptic } from '@/lib/haptic';
 
 const OPTIONS: { id: Feeling; label: string }[] = [
   { id: 'hot', label: '더웠어요' },
@@ -28,12 +29,21 @@ export function FeedbackCard({ feeling, offset, onSelect }: Props) {
               key={id}
               type="button"
               aria-pressed={pressed}
-              onClick={() => onSelect(id)}
+              onClick={() => {
+                haptic();
+                onSelect(id);
+              }}
               // 선택은 색과 위치를 함께 바꾼다: 살구색 + 3px 눌림(각진 그림자가 사라짐)
-              className={`flex h-[88px] flex-col items-center justify-center gap-1 rounded-2xl border-2 border-ink text-[13px] font-bold transition-[background-color,box-shadow,translate] duration-150 motion-reduce:translate-none min-[360px]:text-sm ${pressed ? 'translate-x-[3px] translate-y-[3px] bg-point text-on-bright shadow-pressed' : 'bg-card text-ink shadow-btn'}`}
+              className={`flex h-[88px] tactile flex-col items-center justify-center gap-1 rounded-2xl border-2 border-ink text-[13px] font-bold min-[360px]:text-sm ${pressed ? 'translate-x-[3px] translate-y-[3px] bg-point text-on-bright shadow-picked motion-safe:animate-pop motion-reduce:translate-none' : 'bg-card text-ink shadow-btn'}`}
             >
-              {/* 몽실이는 가로로 넓은 구름이라 44px에선 표정이 작아서 키운다 */}
-              <WeatherIcon kind={id} size={56} />
+              {/* key를 바꿔야 다시 선택할 때도 바운스가 처음부터 재생된다 */}
+              <span
+                key={pressed ? 'on' : 'off'}
+                className={`block ${pressed ? 'motion-safe:animate-bounce3d' : ''}`}
+              >
+                {/* 몽실이는 가로로 넓은 구름이라 44px에선 표정이 작아서 키운다 */}
+                <WeatherIcon kind={id} size={56} />
+              </span>
               {label}
             </button>
           );

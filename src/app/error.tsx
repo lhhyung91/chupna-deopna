@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { WeatherIcon } from '@/components/WeatherIcon';
+import { haptic } from '@/lib/haptic';
 import { formatDateLabel } from '@/lib/weather';
 import { useEffect } from 'react';
 
@@ -27,8 +28,11 @@ export default function ErrorPage({ error, retry }: Props) {
         </div>
         <button
           type="button"
-          onClick={retry}
-          className="h-12 rounded-xl border-[2.5px] border-ink bg-point px-8 font-bold text-on-bright shadow-hard-sm transition-[translate,box-shadow] duration-150 active:translate-x-1 active:translate-y-1 active:shadow-none motion-reduce:active:translate-none"
+          onClick={() => {
+            haptic();
+            retry();
+          }}
+          className="h-12 tactile rounded-xl border-[2.5px] border-ink bg-point px-8 font-bold text-on-bright shadow-hard-sm"
         >
           다시 시도
         </button>
