@@ -4,7 +4,7 @@ import { Header } from '@/components/Header';
 export default function Loading() {
   return (
     <>
-      <Header status="업데이트 중…" />
+      <Header />
       <div aria-busy="true" className="flex flex-col gap-4">
         <p className="flex items-center gap-2 text-sm text-muted">
           <svg
@@ -13,7 +13,7 @@ export default function Loading() {
             viewBox="0 0 24 24"
             fill="none"
             aria-hidden="true"
-            className="animate-spin"
+            className="motion-safe:animate-spin"
           >
             <circle
               cx="12"

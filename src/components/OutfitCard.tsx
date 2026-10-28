@@ -15,16 +15,17 @@ export function OutfitCard({ title, basis, items }: Props) {
           {basis}
         </span>
       </div>
-      <ul className="grid grid-cols-3 gap-3">
+      {/* 아래 조합 문구가 같은 순서로 이름을 알려주므로 그림 밑 이름은 반복하지 않는다 */}
+      <div aria-hidden="true" className="grid grid-cols-3 gap-3">
         {items.map((item) => (
-          <li key={item.label} className="flex flex-col items-center gap-2">
-            <div className="flex h-[92px] w-full items-center justify-center rounded-3xl inset-shadow-neu">
-              <ClothingIcon kind={item.kind} size={76} />
-            </div>
-            <span className="text-sm font-medium">{item.label}</span>
-          </li>
+          <div
+            key={item.label}
+            className="flex h-[92px] items-center justify-center rounded-3xl inset-shadow-neu"
+          >
+            <ClothingIcon kind={item.kind} size={76} />
+          </div>
         ))}
-      </ul>
+      </div>
       <p className="text-2xl font-black tracking-tight break-keep">
         {items.map((item) => item.label).join(' + ')}
       </p>

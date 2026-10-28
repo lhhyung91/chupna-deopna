@@ -46,7 +46,7 @@ export function WeatherView({ forecast, evening }: Props) {
     <>
       <Header
         dateLabel={day.dateLabel}
-        status={`${forecast.updatedAt} 업데이트`}
+        status={`${forecast.updatedAt} 예보`}
         tab={tab}
         onTabChange={setTab}
       />
