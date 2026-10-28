@@ -3,6 +3,7 @@
 import { LOCATION } from '@/lib/config';
 import { haptic } from '@/lib/haptic';
 import { motion } from 'motion/react';
+import type { ReactNode } from 'react';
 
 export type Tab = 'today' | 'tomorrow';
 
@@ -15,18 +16,27 @@ type Props = {
   dateLabel?: string;
   tab?: Tab;
   onTabChange?: (tab: Tab) => void;
+  action?: ReactNode;
 };
 
-export function Header({ dateLabel, tab = 'today', onTabChange }: Props) {
+export function Header({
+  dateLabel,
+  tab = 'today',
+  onTabChange,
+  action,
+}: Props) {
   return (
     <header className="flex flex-col gap-4">
-      <div>
-        <h1 className="font-display text-3xl">{LOCATION.name}</h1>
-        {dateLabel ? (
-          <p className="text-sm text-muted">{dateLabel}</p>
-        ) : (
-          <div className="mt-1 h-4 w-32 rounded-full bg-skeleton" />
-        )}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl">{LOCATION.name}</h1>
+          {dateLabel ? (
+            <p className="text-sm text-muted">{dateLabel}</p>
+          ) : (
+            <div className="mt-1 h-4 w-32 rounded-full bg-skeleton" />
+          )}
+        </div>
+        {action}
       </div>
       {/* 두 개 중 하나를 고르는 토글이라 탭 패턴 대신 aria-pressed 버튼 묶음으로 둔다 */}
       <div
@@ -52,7 +62,11 @@ export function Header({ dateLabel, tab = 'today', onTabChange }: Props) {
               {selected && (
                 <motion.span
                   layoutId="day-tab-pill"
-                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                  transition={{
+                    type: 'spring',
+                    visualDuration: 0.4,
+                    bounce: 0.15,
+                  }}
                   className="absolute inset-0 rounded-[10px] border-2 border-ink bg-ink"
                 />
               )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCard } from '@/components/AlertCard';
+import { AlertButton } from '@/components/AlertButton';
 import { BannerList } from '@/components/BannerList';
 import { CommuteCards } from '@/components/CommuteCards';
 import { FeedbackCard } from '@/components/FeedbackCard';
@@ -54,16 +54,21 @@ export function WeatherView({ forecast, evening, initialTab }: Props) {
   return (
     // 시스템의 "동작 줄이기"가 켜져 있으면 아래 모든 모션을 끈다
     <MotionConfig reducedMotion="user">
-      <Header dateLabel={day.dateLabel} tab={tab} onTabChange={setTab} />
+      <Header
+        dateLabel={day.dateLabel}
+        tab={tab}
+        onTabChange={setTab}
+        action={<AlertButton offset={offset} />}
+      />
       <div className="flex flex-col gap-4">
         {evening && feedback}
         {/* 탭마다 새로 그려야 같은 시각 칸(06시)을 스냅이 다시 따라가지 않는다. 기다림 없이 들어오기만 한다 */}
         <AnimatePresence initial={false}>
           <motion.div
             key={tab}
-            initial={{ opacity: 0, x: isToday ? -12 : 12 }}
+            initial={{ opacity: 0, x: isToday ? -16 : 16 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
             className="flex flex-col gap-4"
           >
             <OutfitCard
@@ -84,7 +89,6 @@ export function WeatherView({ forecast, evening, initialTab }: Props) {
         </AnimatePresence>
         {!evening && feedback}
         <OutfitGuide currentIndex={levelIndex} offset={offset} />
-        <AlertCard offset={offset} />
       </div>
     </MotionConfig>
   );
