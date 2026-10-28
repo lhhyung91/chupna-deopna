@@ -1,26 +1,83 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #e3e8ef;
+  --ink: #283041;
+  --muted: #535d6f;
+  --link: #3552c9;
+  --pop: #2f4fc4;
+  --point: #ffc4a3;
+  --on-point: #3a1e0e;
+  --sd: #c3cad5;
+  --sl: #ffffff;
+  --skeleton: #d3d9e2;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --gap-bg: #fff1d6;
+  --gap-ink: #5a3a00;
+  --umbrella-bg: #e1ebff;
+  --umbrella-ink: #173e94;
+  --wind-bg: #daf3ec;
+  --wind-ink: #0f5446;
+  --snow-bg: #ece8ff;
+  --snow-ink: #36288a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #262a33;
+    --ink: #e7eaf0;
+    --muted: #a2aaba;
+    --link: #a6b6ff;
+    --pop: #9db8ff;
+    --sd: #1a1d23;
+    --sl: #323743;
+    --skeleton: #2f343e;
+
+    --gap-bg: #3a2f1c;
+    --gap-ink: #ffe1a8;
+    --umbrella-bg: #1b2a4a;
+    --umbrella-ink: #c2d5ff;
+    --wind-bg: #163731;
+    --wind-ink: #aeebdc;
+    --snow-bg: #29234a;
+    --snow-ink: #d6ccff;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-link: var(--link);
+  --color-pop: var(--pop);
+  --color-point: var(--point);
+  --color-on-point: var(--on-point);
+  --color-skeleton: var(--skeleton);
+  --color-gap-bg: var(--gap-bg);
+  --color-gap-ink: var(--gap-ink);
+  --color-umbrella-bg: var(--umbrella-bg);
+  --color-umbrella-ink: var(--umbrella-ink);
+  --color-wind-bg: var(--wind-bg);
+  --color-wind-ink: var(--wind-ink);
+  --color-snow-bg: var(--snow-bg);
+  --color-snow-ink: var(--snow-ink);
+
+  /* 광원은 왼쪽 위 */
+  --shadow-neu: 10px 10px 20px var(--sd), -10px -10px 20px var(--sl);
+  --shadow-neu-sm: 5px 5px 10px var(--sd), -5px -5px 10px var(--sl);
+  --inset-shadow-neu:
+    inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
+  --inset-shadow-neu-chip:
+    inset 2px 2px 4px var(--sd), inset -2px -2px 4px var(--sl);
+  --inset-shadow-point:
+    inset 4px 4px 8px rgb(190 110 70 / 0.35),
+    inset -4px -4px 8px rgb(255 255 255 / 0.55);
+
+  --font-sans: var(--font-noto-sans-kr), system-ui, sans-serif;
+  --font-num: var(--font-outfit), sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
 }
