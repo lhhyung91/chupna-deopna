@@ -15,7 +15,7 @@ export function SummaryCard({ day, dayName }: Props) {
         <span className="text-xs text-muted">최저 / 최고</span>
         {/* 좁은 화면에서 기온이 길어지면 하늘 상태가 아래로 내려간다 */}
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-          <span className="font-num text-2xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums min-[360px]:text-[30px] min-[360px]:leading-[34px]">
+          <span className="font-num text-2xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums min-[360px]:text-3xl/8.5">
             {formatTemp(day.min)} / {formatTemp(day.max)}
           </span>
           <span className="flex flex-col items-center">
@@ -29,7 +29,7 @@ export function SummaryCard({ day, dayName }: Props) {
         className="col-span-2 flex flex-col gap-1 card px-3 py-3.5"
       >
         <span className="text-xs text-muted">강수</span>
-        <span className="font-num text-2xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums min-[360px]:text-[30px] min-[360px]:leading-[34px]">
+        <span className="font-num text-2xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums min-[360px]:text-3xl/8.5">
           {day.pop}%
         </span>
       </section>
