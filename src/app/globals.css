@@ -81,3 +81,11 @@ body {
   background: var(--bg);
   color: var(--ink);
 }
+
+/* 가로 스크롤은 유지하고 스크롤 바만 숨긴다 (Tailwind v4에 기본 클래스가 없음) */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

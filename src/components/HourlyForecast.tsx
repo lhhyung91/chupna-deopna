@@ -11,7 +11,7 @@ export function HourlyForecast({ hourly, highlightFirst }: Props) {
       className="flex flex-col gap-3 rounded-3xl pt-5 pb-3 shadow-neu"
     >
       <h2 className="px-5 font-bold">시간대별</h2>
-      <ol className="flex gap-2 overflow-x-auto px-5 pt-1 pb-2">
+      <ol className="scrollbar-none flex gap-2 overflow-x-auto px-5 pt-1 pb-2">
         {hourly.map((h, i) => (
           <li
             key={h.label}

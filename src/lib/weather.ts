@@ -260,7 +260,7 @@ export async function fetchForecast(now: Date): Promise<Forecast> {
     today: buildDay(
       grid,
       kst,
-      Array.from({ length: 12 }, (_, i) => {
+      Array.from({ length: 24 }, (_, i) => {
         const slot = new Date(currentHour.getTime() + i * HOUR_MS);
         return {
           kst: slot,
@@ -271,10 +271,13 @@ export async function fetchForecast(now: Date): Promise<Forecast> {
     tomorrow: buildDay(
       grid,
       tomorrow,
-      [6, 9, 12, 15, 18, 21].map((hour) => ({
-        kst: new Date(tomorrowMidnight.getTime() + hour * HOUR_MS),
-        label: `${pad(hour)}시`,
-      }))
+      Array.from({ length: 18 }, (_, i) => {
+        const hour = 6 + i;
+        return {
+          kst: new Date(tomorrowMidnight.getTime() + hour * HOUR_MS),
+          label: `${pad(hour)}시`,
+        };
+      })
     ),
   };
 }
