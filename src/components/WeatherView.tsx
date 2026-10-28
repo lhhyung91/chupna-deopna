@@ -68,7 +68,7 @@ export function WeatherView({ forecast, evening, initialTab }: Props) {
             key={tab}
             initial={{ opacity: 0, x: isToday ? -16 : 16 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            transition={{ duration: 1, ease: 'easeOut' }}
             className="flex flex-col gap-4"
           >
             <OutfitCard
