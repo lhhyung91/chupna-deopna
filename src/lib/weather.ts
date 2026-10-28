@@ -103,11 +103,12 @@ function isKmaItem(value: unknown): value is KmaItem {
 }
 
 async function fetchItems(base: Base): Promise<KmaItem[]> {
-  const serviceKey = process.env.KMA_SERVICE_KEY;
-  if (!serviceKey) throw new Error('KMA_SERVICE_KEY가 설정되지 않았어요');
+  const rawKey = process.env.KMA_SERVICE_KEY;
+  if (!rawKey) throw new Error('KMA_SERVICE_KEY가 설정되지 않았어요');
 
   const params = new URLSearchParams({
-    serviceKey,
+    // URLSearchParams가 다시 인코딩하므로 Encoding 키를 넣어도 이중 인코딩(403)되지 않게 먼저 푼다.
+    serviceKey: decodeURIComponent(rawKey),
     pageNo: '1',
     numOfRows: '1500',
     dataType: 'JSON',
