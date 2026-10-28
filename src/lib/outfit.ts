@@ -107,17 +107,10 @@ const isWet = (sky: Sky) =>
   sky === 'rain' || sky === 'sleet' || sky === 'shower' || sky === 'snow';
 const isSnowy = (sky: Sky) => sky === 'snow' || sky === 'sleet';
 
+// 놓치면 곤란한 순서(우산 > 눈 > 강풍 > 일교차)로 쌓는다.
 export function getBanners(day: DayWeather): Banner[] {
   const banners: Banner[] = [];
   const [morning] = day.commutes;
-
-  if (day.max - morning.temp >= TEMP_GAP) {
-    banners.push({
-      kind: 'tempGap',
-      title: `아침 ${Math.round(morning.temp)}° → 낮 ${Math.round(day.max)}°`,
-      text: '겉옷 챙기고 낮엔 벗어도 돼요',
-    });
-  }
 
   const rainy = day.commutes.filter((c) => c.pop >= RAIN_POP || isWet(c.sky));
   if (rainy.length > 0) {
@@ -140,6 +133,14 @@ export function getBanners(day: DayWeather): Banner[] {
       kind: 'wind',
       title: '바람이 강해요',
       text: '실제보다 춥게 느껴져요',
+    });
+  }
+
+  if (day.max - morning.temp >= TEMP_GAP) {
+    banners.push({
+      kind: 'tempGap',
+      title: `아침 ${Math.round(morning.temp)}° → 낮 ${Math.round(day.max)}°`,
+      text: '겉옷 챙기고 낮엔 벗어도 돼요',
     });
   }
 
