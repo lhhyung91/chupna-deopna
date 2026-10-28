@@ -6,8 +6,8 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: '춥나덥나',
     start_url: '/',
     display: 'standalone',
-    background_color: '#E3E8EF',
-    theme_color: '#E3E8EF',
+    background_color: '#F1EFE8',
+    theme_color: '#F1EFE8',
     icons: [
       {
         src: '/icons/logo_app_192.png',

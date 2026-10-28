@@ -1,81 +1,76 @@
 @import 'tailwindcss';
 
+/* 겉은 네오 브루탈리즘(굵은 테두리·각진 그림자), 속은 뉴모피즘(볼록 하이라이트·오목한 칸) */
 :root {
   color-scheme: light dark;
-  --bg: #e3e8ef;
-  --ink: #283041;
-  --muted: #535d6f;
-  --link: #3552c9;
-  --pop: #2f4fc4;
-  --point: #ffc4a3;
-  --on-point: #3a1e0e;
-  --sd: #c3cad5;
-  --sl: #ffffff;
-  --skeleton: #d3d9e2;
-
-  --gap-bg: #fff1d6;
-  --gap-ink: #5a3a00;
-  --umbrella-bg: #e1ebff;
-  --umbrella-ink: #173e94;
-  --wind-bg: #daf3ec;
-  --wind-ink: #0f5446;
-  --snow-bg: #ece8ff;
-  --snow-ink: #36288a;
+  --bg: #f1efe8;
+  --card: #f1efe8;
+  --well: #e5e2d8;
+  --ink: #111111;
+  --muted: #4a4944;
+  --pop: #1f4fe0;
+  --chip: #ffffff;
+  --hi: #ffffff;
+  --lo: rgb(0 0 0 / 0.07);
+  --well-dark: #c9c5b8;
+  --well-light: #ffffff;
+  --skeleton: #dad7cc;
 }
 
+/* 다크에선 --ink가 크림색이 되어 테두리·각진 그림자도 함께 반전된다 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #262a33;
-    --ink: #e7eaf0;
-    --muted: #a2aaba;
-    --link: #a6b6ff;
-    --pop: #9db8ff;
-    --sd: #1a1d23;
-    --sl: #323743;
-    --skeleton: #2f343e;
-
-    --gap-bg: #3a2f1c;
-    --gap-ink: #ffe1a8;
-    --umbrella-bg: #1b2a4a;
-    --umbrella-ink: #c2d5ff;
-    --wind-bg: #163731;
-    --wind-ink: #aeebdc;
-    --snow-bg: #29234a;
-    --snow-ink: #d6ccff;
+    --bg: #141413;
+    --card: #1e1e1c;
+    --well: #0f0f0e;
+    --ink: #f1efe8;
+    --muted: #b8b5ab;
+    --pop: #8db8ff;
+    --chip: #141413;
+    --hi: rgb(255 255 255 / 0.06);
+    --lo: rgb(0 0 0 / 0.45);
+    --well-dark: #000000;
+    --well-light: #2b2b28;
+    --skeleton: #2a2a27;
   }
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-well: var(--well);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-link: var(--link);
   --color-pop: var(--pop);
-  --color-point: var(--point);
-  --color-on-point: var(--on-point);
+  --color-chip: var(--chip);
   --color-skeleton: var(--skeleton);
-  --color-gap-bg: var(--gap-bg);
-  --color-gap-ink: var(--gap-ink);
-  --color-umbrella-bg: var(--umbrella-bg);
-  --color-umbrella-ink: var(--umbrella-ink);
-  --color-wind-bg: var(--wind-bg);
-  --color-wind-ink: var(--wind-ink);
-  --color-snow-bg: var(--snow-bg);
-  --color-snow-ink: var(--snow-ink);
 
-  /* 광원은 왼쪽 위 */
-  --shadow-neu: 10px 10px 20px var(--sd), -10px -10px 20px var(--sl);
-  --shadow-neu-sm: 5px 5px 10px var(--sd), -5px -5px 10px var(--sl);
-  --inset-shadow-neu:
-    inset 5px 5px 10px var(--sd), inset -5px -5px 10px var(--sl);
-  --inset-shadow-neu-chip:
-    inset 2px 2px 4px var(--sd), inset -2px -2px 4px var(--sl);
-  --inset-shadow-point:
-    inset 4px 4px 8px rgb(190 110 70 / 0.35),
-    inset -4px -4px 8px rgb(255 255 255 / 0.55);
+  /* 라이트·다크 공통으로 밝은 바탕이라 글자는 항상 검정 */
+  --color-point: #ffa77a;
+  --color-on-bright: #111111;
+  --color-banner-gap: #ffd43b;
+  --color-banner-umbrella: #8cbcff;
+  --color-banner-wind: #7be0b8;
+  --color-banner-snow: #c9b8ff;
 
-  --font-sans: var(--font-noto-sans-kr), system-ui, sans-serif;
-  --font-num: var(--font-outfit), sans-serif;
+  --shadow-card:
+    5px 5px 0 var(--ink), inset 5px 5px 10px var(--hi),
+    inset -5px -5px 12px var(--lo);
+  --shadow-btn:
+    3px 3px 0 var(--ink), inset 3px 3px 6px var(--hi),
+    inset -3px -3px 6px var(--lo);
+  --shadow-hard: 5px 5px 0 var(--ink);
+  --shadow-hard-sm: 4px 4px 0 var(--ink);
+  --shadow-well:
+    inset 5px 5px 10px var(--well-dark), inset -5px -5px 10px var(--well-light);
+  --shadow-pressed:
+    inset 3px 3px 6px rgb(255 255 255 / 0.45),
+    inset -3px -3px 6px rgb(120 50 10 / 0.18);
+
+  --font-sans: var(--font-noto), system-ui, sans-serif;
+  --font-display: var(--font-blackhan), sans-serif;
+  --font-num: var(--font-grotesk), sans-serif;
+  --font-mono: var(--font-spacemono), monospace;
 }
 
 html {
@@ -88,10 +83,14 @@ body {
   color: var(--ink);
 }
 
-/* 뉴모피즘은 그림자로만 경계를 그려서 기본 포커스 링이 묻히므로 링크 색으로 또렷하게 */
+/* 테두리가 ink 색이라 포커스 링은 강수 파란색으로 구분한다 */
 :focus-visible {
-  outline: 2px solid var(--link);
+  outline: 2px solid var(--pop);
   outline-offset: 2px;
+}
+
+@utility card {
+  @apply rounded-[18px] border-[2.5px] border-ink bg-card shadow-card;
 }
 
 /* 가로 스크롤은 유지하고 스크롤 바만 숨긴다 (Tailwind v4에 기본 클래스가 없음) */
