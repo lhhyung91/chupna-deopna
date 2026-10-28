@@ -2,6 +2,7 @@
 
 import { LOCATION } from '@/lib/config';
 import { haptic } from '@/lib/haptic';
+import { motion } from 'motion/react';
 
 export type Tab = 'today' | 'tomorrow';
 
@@ -45,9 +46,17 @@ export function Header({ dateLabel, tab = 'today', onTabChange }: Props) {
                 haptic();
                 onTabChange?.(id);
               }}
-              className={`h-11 tactile text-base ${selected ? 'rounded-[10px] border-2 border-ink bg-ink font-bold text-bg' : 'rounded-xl font-medium text-muted enabled:hover:text-ink'}`}
+              className={`relative h-11 tactile rounded-xl text-base ${selected ? 'font-bold text-bg' : 'font-medium text-muted enabled:hover:text-ink'}`}
             >
-              {label}
+              {/* 선택 알약을 버튼마다 그리지 않고 하나(layoutId)를 두 버튼 사이로 미끄러지게 한다 */}
+              {selected && (
+                <motion.span
+                  layoutId="day-tab-pill"
+                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                  className="absolute inset-0 rounded-[10px] border-2 border-ink bg-ink"
+                />
+              )}
+              <span className="relative">{label}</span>
             </button>
           );
         })}
