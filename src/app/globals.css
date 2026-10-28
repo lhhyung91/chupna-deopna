@@ -125,6 +125,13 @@ body {
   outline-offset: 2px;
 }
 
+/* Tailwind v4는 버튼 커서를 브라우저 기본(화살표)으로 되돌렸다. 눌리는 곳임을 알리려 손가락으로 다시 켠다 */
+@layer base {
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @utility card {
   @apply rounded-[18px] border-[2.5px] border-ink bg-card shadow-card;
 }
