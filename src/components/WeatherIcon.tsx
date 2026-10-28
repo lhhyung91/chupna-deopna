@@ -21,7 +21,7 @@ const FILES: Record<WeatherIconKind, string> = {
   cold: 'icon_cloud_snowflake_thermometer',
 };
 
-type Props = { kind: WeatherIconKind; size: 24 | 32 | 40 | 56 | 96 };
+type Props = { kind: WeatherIconKind; size: 24 | 32 | 36 | 40 | 44 | 56 | 96 };
 
 // 장식용 아이콘이라 alt를 비우고, 의미는 옆의 텍스트 라벨이 전달한다.
 export function WeatherIcon({ kind, size }: Props) {

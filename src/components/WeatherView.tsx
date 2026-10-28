@@ -57,9 +57,12 @@ export function WeatherView({ forecast, evening }: Props) {
           basis={`출퇴근 평균 체감 ${formatTemp(outsideFeel)}`}
           items={recommendOutfit(outsideFeel - offset)}
         />
-        <BannerList banners={getBanners(day)} />
-        <CommuteCards commutes={day.commutes} />
-        <SummaryCard day={day} />
+        {/* 옷차림·시간대 띠 사이의 짧은 정보만 6칸 벤토로 묶는다 */}
+        <div className="grid grid-cols-6 gap-3">
+          <BannerList banners={getBanners(day)} />
+          <CommuteCards commutes={day.commutes} />
+          <SummaryCard day={day} dayName={isToday ? '오늘' : '내일'} />
+        </div>
         {/* 같은 시각 칸(예: 06시)이 두 탭에 다 있으면 스냅이 그 칸으로 다시 스크롤하므로 탭마다 새로 그린다 */}
         <HourlyForecast
           key={tab}
