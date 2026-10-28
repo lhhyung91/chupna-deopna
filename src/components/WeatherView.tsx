@@ -60,7 +60,12 @@ export function WeatherView({ forecast, evening }: Props) {
         <BannerList banners={getBanners(day)} />
         <CommuteCards commutes={day.commutes} />
         <SummaryCard day={day} />
-        <HourlyForecast hourly={day.hourly} highlightFirst={isToday} />
+        {/* 같은 시각 칸(예: 06시)이 두 탭에 다 있으면 스냅이 그 칸으로 다시 스크롤하므로 탭마다 새로 그린다 */}
+        <HourlyForecast
+          key={tab}
+          hourly={day.hourly}
+          highlightFirst={isToday}
+        />
         {!evening && feedback}
       </div>
     </>
