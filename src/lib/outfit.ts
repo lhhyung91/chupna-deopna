@@ -47,27 +47,20 @@ const OUTERS = new Set<ClothingKind>([
   'puffer',
 ]);
 
-// 체감온도가 minFeel 이상인 첫 단계를 쓴다.
+// 출근길 체감온도가 minFeel 이상인 첫 단계를 쓴다.
+// 출근길은 하루 중 가장 추운 축이라, 하루 평균 기준인 흔한 기온별 옷차림 표보다 경계를 3°씩 낮췄다.
 // 하의는 따뜻함이 실제로 달라지는 반바지·긴바지·기모 바지 세 가지만 구분한다(면바지·청바지 차이는 1~2° 수준).
 export const LEVELS: OutfitLevel[] = [
   {
-    minFeel: 25,
+    minFeel: 22,
     items: [
       { label: '반팔', kind: 'tee' },
       { label: '반바지', kind: 'shorts' },
     ],
   },
   {
-    minFeel: 23,
-    items: [
-      { label: '반팔', kind: 'tee' },
-      { label: '긴바지', kind: 'pants' },
-    ],
-  },
-  {
     minFeel: 20,
     items: [
-      { label: '가디건', kind: 'cardigan' },
       { label: '반팔', kind: 'tee' },
       { label: '긴바지', kind: 'pants' },
     ],
@@ -75,12 +68,20 @@ export const LEVELS: OutfitLevel[] = [
   {
     minFeel: 17,
     items: [
-      { label: '맨투맨', kind: 'sweatshirt' },
+      { label: '가디건', kind: 'cardigan' },
+      { label: '반팔', kind: 'tee' },
       { label: '긴바지', kind: 'pants' },
     ],
   },
   {
     minFeel: 14,
+    items: [
+      { label: '맨투맨', kind: 'sweatshirt' },
+      { label: '긴바지', kind: 'pants' },
+    ],
+  },
+  {
+    minFeel: 11,
     items: [
       { label: '바람막이', kind: 'windbreaker' },
       { label: '맨투맨', kind: 'sweatshirt' },
@@ -88,7 +89,7 @@ export const LEVELS: OutfitLevel[] = [
     ],
   },
   {
-    minFeel: 12,
+    minFeel: 9,
     items: [
       { label: '자켓', kind: 'zip_jacket' },
       { label: '니트', kind: 'knit' },
@@ -97,7 +98,7 @@ export const LEVELS: OutfitLevel[] = [
     tip: '플리스도 좋아요',
   },
   {
-    minFeel: 9,
+    minFeel: 6,
     items: [
       { label: '경량 패딩', kind: 'light_puffer' },
       { label: '니트', kind: 'knit' },
@@ -105,7 +106,7 @@ export const LEVELS: OutfitLevel[] = [
     ],
   },
   {
-    minFeel: 5,
+    minFeel: 2,
     items: [
       { label: '코트', kind: 'coat' },
       { label: '니트', kind: 'knit' },
@@ -114,7 +115,7 @@ export const LEVELS: OutfitLevel[] = [
     tip: '추우면 코트 안에 패딩 조끼를 껴입어요',
   },
   {
-    minFeel: 0,
+    minFeel: -3,
     items: [
       { label: '패딩', kind: 'puffer' },
       { label: '니트', kind: 'knit' },
@@ -142,46 +143,44 @@ export function getLevelIndex(feel: number) {
 // 기온별 표에 쓰는 범위 문구. 위 단계의 minFeel 바로 아래까지가 이 단계다.
 export function levelRange(index: number) {
   const { minFeel } = LEVELS[index];
-  if (minFeel === -Infinity) return '영하';
-  if (index === 0) return `${minFeel}° 이상`;
-  return `${minFeel}–${LEVELS[index - 1].minFeel - 1}°`;
+  if (minFeel === -Infinity) {
+    return `${formatTemp(LEVELS[index - 1].minFeel - 1)} 이하`;
+  }
+  if (index === 0) return `${formatTemp(minFeel)} 이상`;
+  const max = formatTemp(LEVELS[index - 1].minFeel - 1);
+  return `${formatTemp(minFeel).slice(0, -1)}~${max}`;
 }
 
 const outerOf = (level: OutfitLevel) =>
   level.items.find((item) => OUTERS.has(item.kind));
 
-// 하루 한 벌(chosenIndex)을 입되, 출근·퇴근 단계가 다르면 겉옷으로 어떻게 조절할지 알려준다.
-export function getLayerHint(
-  commutes: CommuteWeather[],
-  offset: number,
-  chosenIndex: number
-): string | null {
-  const [morning, evening] = commutes;
-  const colder = morning.feel <= evening.feel ? morning : evening;
-  const warmer = colder === morning ? evening : morning;
-  const colderLevel = LEVELS[getLevelIndex(colder.feel - offset)];
-  const warmerLevel = LEVELS[getLevelIndex(warmer.feel - offset)];
-  if (colderLevel === warmerLevel) return null;
+export type EveningNote = { label: string; text: string };
 
-  const chosenOuter = outerOf(LEVELS[chosenIndex]);
-  const colderOuter = outerOf(colderLevel);
-  const at = (c: CommuteWeather) => `${c.label}길 ${formatTemp(c.feel)}`;
-  const feel = (c: CommuteWeather) => (c === colder ? '쌀쌀' : '포근');
+// 옷은 출근길 기준으로 고르고, 퇴근길엔 그 옷으로 어떤지 한 줄로 알려준다.
+export function getEveningNote(
+  morning: CommuteWeather,
+  evening: CommuteWeather,
+  offset: number
+): EveningNote | null {
+  const morningIndex = getLevelIndex(morning.feel - offset);
+  const eveningIndex = getLevelIndex(evening.feel - offset);
+  if (morningIndex === eveningIndex) return null;
 
-  if (!chosenOuter && colderOuter) {
-    return `${at(colder)}는 쌀쌀해요 · ${colderOuter.label} 챙기세요`;
+  const morningOuter = outerOf(LEVELS[morningIndex]);
+  const eveningOuter = outerOf(LEVELS[eveningIndex]);
+  const label = `${evening.label}길 체감 ${formatTemp(evening.feel)}`;
+
+  // 겉옷 이름 뒤 조사는 받침마다 달라져서 붙이지 않는다. 단계 번호가 작을수록 따뜻한 단계다
+  if (eveningIndex < morningIndex) {
+    if (morningOuter && !eveningOuter) {
+      return { label, text: `${morningOuter.label} 벗어도 돼요` };
+    }
+    return { label, text: '아침보다 덜 추워요' };
   }
-  if (chosenOuter && !outerOf(warmerLevel)) {
-    // 퇴근이 더 추우면 아침엔 덥더라도 들고 나가야 한다
-    return warmer === morning
-      ? `${at(evening)}는 쌀쌀해요 · ${chosenOuter.label} 챙겨 나가세요`
-      : `${at(evening)}엔 ${chosenOuter.label} 벗어도 돼요`;
+  if (!morningOuter && eveningOuter) {
+    return { label, text: `${eveningOuter.label} 챙기세요` };
   }
-  if (chosenOuter) {
-    return `${at(morning)}는 ${feel(morning)}하고 ${at(evening)}는 ${feel(evening)}해요 · 겉옷으로 조절하세요`;
-  }
-  // 겉옷이 없는 단계끼리(맨투맨 ↔ 긴팔)는 조절할 게 없다
-  return null;
+  return { label, text: '아침보다 추워요, 한 겹 더 챙기세요' };
 }
 
 const isWet = (sky: Sky) =>
@@ -220,7 +219,7 @@ export function getBanners(day: DayWeather): Banner[] {
   if (day.max - morning.temp >= TEMP_GAP) {
     banners.push({
       kind: 'tempGap',
-      title: `아침 ${Math.round(morning.temp)}° → 낮 ${Math.round(day.max)}°`,
+      title: `아침 ${formatTemp(morning.temp)} → 낮 ${formatTemp(day.max)}`,
       text: '겉옷 챙기고 낮엔 벗어도 돼요',
     });
   }

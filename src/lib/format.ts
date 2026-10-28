@@ -1,6 +1,10 @@
 import type { Sky } from '@/lib/weather';
 
-export const formatTemp = (temp: number) => `${Math.round(temp)}°`;
+// 음수는 하이픈 대신 유니코드 마이너스로 써서 범위 기호(~)·문장 부호와 헷갈리지 않게 한다.
+export const formatTemp = (temp: number) => {
+  const rounded = Math.round(temp);
+  return `${rounded < 0 ? '−' : ''}${Math.abs(rounded)}°`;
+};
 
 export const SKY_LABEL: Record<Sky, string> = {
   sunny: '맑음',
