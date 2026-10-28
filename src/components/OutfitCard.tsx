@@ -9,7 +9,7 @@ export function OutfitCard({ title, basis, items }: Props) {
       aria-label="옷차림 추천"
       className="flex flex-col gap-4 rounded-3xl p-5 shadow-neu"
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-bold text-link">{title}</h2>
         <span className="shrink-0 rounded-full px-3 py-1 text-xs font-medium text-muted inset-shadow-neu-chip">
           {basis}
