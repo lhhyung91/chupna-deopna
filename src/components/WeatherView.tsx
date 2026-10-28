@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertCard } from '@/components/AlertCard';
 import { BannerList } from '@/components/BannerList';
 import { CommuteCards } from '@/components/CommuteCards';
 import { FeedbackCard } from '@/components/FeedbackCard';
@@ -21,11 +22,11 @@ import { AnimatePresence, motion, MotionConfig } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-type Props = { forecast: Forecast; evening: boolean };
+type Props = { forecast: Forecast; evening: boolean; initialTab: Tab };
 
-export function WeatherView({ forecast, evening }: Props) {
+export function WeatherView({ forecast, evening, initialTab }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>('today');
+  const [tab, setTab] = useState(initialTab);
   const { feeling, offset, save } = useFeedback(forecast.today.dateKey);
 
   // 홈 화면 앱을 켜둔 채 오래 두면 예보가 낡으므로, 다시 볼 때 서버 데이터를 다시 받는다.
@@ -83,6 +84,7 @@ export function WeatherView({ forecast, evening }: Props) {
         </AnimatePresence>
         {!evening && feedback}
         <OutfitGuide currentIndex={levelIndex} offset={offset} />
+        <AlertCard offset={offset} />
       </div>
     </MotionConfig>
   );
