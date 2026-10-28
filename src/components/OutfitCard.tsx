@@ -26,7 +26,7 @@ export function OutfitCard({ title, basis, items, notes }: Props) {
             key={item.label}
             className="flex h-23 items-center justify-center rounded-2xl border-2 border-ink shadow-well tile-ground"
           >
-            <ClothingIcon kind={item.kind} size={76} />
+            <ClothingIcon kind={item.kind} size={76} priority />
           </div>
         ))}
       </div>

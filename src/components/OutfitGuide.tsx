@@ -1,3 +1,4 @@
+import { ClothingIcon } from '@/components/ClothingIcon';
 import { LEVELS, levelRange } from '@/lib/outfit';
 
 type Props = { currentIndex: number; offset: number };
@@ -31,12 +32,22 @@ export function OutfitGuide({ currentIndex, offset }: Props) {
               <li
                 key={levelRange(i)}
                 aria-current={current ? 'true' : undefined}
-                className={`grid grid-cols-[4.5rem_1fr] gap-x-3 rounded-xl px-3 py-2 text-sm ${current ? 'border-2 border-ink bg-ink font-bold text-bg' : 'border-2 border-transparent'}`}
+                className={`grid grid-cols-[4.5rem_1fr] items-center gap-x-3 rounded-xl px-3 py-2 text-sm ${current ? 'border-2 border-ink bg-ink font-bold text-bg' : 'border-2 border-transparent'}`}
               >
                 <span className="font-num font-bold tabular-nums">
                   {levelRange(i)}
                 </span>
-                <span className="break-keep">
+                <span className="flex flex-col gap-1 break-keep">
+                  {/* 바로 아래 조합 문구가 같은 순서로 이름을 알려준다 */}
+                  <span aria-hidden="true" className="flex gap-1">
+                    {level.items.map((item) => (
+                      <ClothingIcon
+                        key={item.label}
+                        kind={item.kind}
+                        size={32}
+                      />
+                    ))}
+                  </span>
                   {level.items.map((item) => item.label).join(' + ')}
                   {level.tip && (
                     <span
