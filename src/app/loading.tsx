@@ -4,9 +4,10 @@ import { Header } from '@/components/Header';
 export default function Loading() {
   return (
     <>
-      <Header />
-      <div aria-busy="true" className="flex flex-col gap-4">
-        <p className="flex items-center gap-2 text-sm text-muted">
+      <Header action={<div className="size-11 rounded-2xl bg-skeleton" />} />
+      {/* 칸 높이는 375px 실제 화면에 맞춰, 다 그려질 때 내용이 밀리지 않게 한다 */}
+      <div aria-busy="true" className="flex flex-col gap-3">
+        <div className="flex h-25 items-center justify-center gap-2 rounded-[18px] bg-skeleton text-sm text-muted">
           <svg
             width="20"
             height="20"
@@ -20,7 +21,7 @@ export default function Loading() {
               cy="12"
               r="9"
               strokeWidth="3"
-              className="stroke-skeleton"
+              className="stroke-bg"
             />
             <path
               d="M12 3a9 9 0 0 1 9 9"
@@ -30,14 +31,13 @@ export default function Loading() {
             />
           </svg>
           날씨 불러오는 중…
-        </p>
-        <div className="h-62 rounded-3xl bg-skeleton" />
-        <div className="grid grid-cols-2 gap-3">
-          <div className="h-40 rounded-3xl bg-skeleton" />
-          <div className="h-40 rounded-3xl bg-skeleton" />
         </div>
-        <div className="h-21 rounded-3xl bg-skeleton" />
-        <div className="h-48 rounded-3xl bg-skeleton" />
+        <div className="h-79 rounded-[18px] bg-skeleton" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="h-35 rounded-[18px] bg-skeleton" />
+          <div className="h-35 rounded-[18px] bg-skeleton" />
+        </div>
+        <div className="h-49 rounded-[18px] bg-skeleton" />
       </div>
     </>
   );
