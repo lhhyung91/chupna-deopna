@@ -46,7 +46,7 @@ export function OutfitGuide({ currentIndex, offset }: Props) {
           onClick={toggle}
           className="flex w-full items-center justify-between gap-2 p-5 font-bold"
         >
-          기온별 옷차림
+          온도별로 이렇게 입어요
           <motion.svg
             width="20"
             height="20"
@@ -114,11 +114,10 @@ export function OutfitGuide({ currentIndex, offset }: Props) {
                 })}
               </ol>
               <p className="text-xs text-muted">
-                출근길 체감온도 기준
+                출근길에 느끼는 온도로 골라요
                 {offset > 0 &&
-                  ` · 추위를 타는 편이라 ${offset}° 더 따뜻하게 추천 중`}
-                {offset < 0 &&
-                  ` · 더위를 타는 편이라 ${-offset}° 더 가볍게 추천 중`}
+                  `. 추위를 타는 편이라 ${offset}° 따뜻하게 골라요`}
+                {offset < 0 && `. 더위를 타는 편이라 ${-offset}° 가볍게 골라요`}
               </p>
             </div>
           </motion.div>

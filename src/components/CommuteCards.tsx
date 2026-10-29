@@ -1,10 +1,10 @@
 import { WeatherIcon } from '@/components/WeatherIcon';
-import { formatTemp } from '@/lib/format';
+import { formatTemp, precipName } from '@/lib/format';
 import type { CommuteWeather } from '@/lib/weather';
 
 type Props = { commutes: CommuteWeather[]; focus: number | null };
 
-// 다가오는 쪽(focus)을 5:4로 넓히고 자리는 고정한다. 6칸 그리드로는 4:2밖에 안 돼서 이 줄만 따로 나눈다.
+// 다가오는 쪽(focus)을 6:4로 넓히고 자리는 고정한다. 6칸 그리드로는 4:2밖에 안 돼서 이 줄만 따로 나눈다.
 const COLUMNS = {
   0: 'grid-cols-[6fr_4fr]',
   1: 'grid-cols-[4fr_6fr]',
@@ -29,15 +29,15 @@ export function CommuteCards({ commutes, focus }: Props) {
               {c.time}
             </span>
           </div>
-          {/* 좁은 칸에서 기온이 길면 아이콘 아래로 내려간다 */}
+          {/* 6:4의 좁은 칸에도 두 자리 기온이 아이콘 옆에 들어가는 크기. 세 자리(−12°)면 아래로 내려간다 */}
           <div className="flex flex-wrap items-center gap-x-1.5">
-            <WeatherIcon kind={c.sky} size={44} />
-            <span className="font-num text-4xl leading-none font-bold tracking-[-2px] tabular-nums">
+            <WeatherIcon kind={c.sky} size={36} />
+            <span className="font-num text-3xl leading-none font-bold tracking-[-1px] tabular-nums">
               {formatTemp(c.temp)}
             </span>
           </div>
           <span className={`text-sm ${c.pop > 0 ? 'text-pop' : 'text-muted'}`}>
-            강수 {c.pop}%
+            {precipName(c.sky)} {c.pop}%
           </span>
         </section>
       ))}

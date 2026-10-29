@@ -6,9 +6,13 @@ export const formatTemp = (temp: number) => {
   return `${rounded < 0 ? '−' : ''}${Math.abs(rounded)}°`;
 };
 
+// "강수확률"은 기상청 말이라, 눈 오는 날만 "눈"으로 부르고 나머지는 "비"로 부른다.
+export const precipName = (sky: Sky) =>
+  sky === 'snow' || sky === 'sleet' ? '눈' : '비';
+
 export const SKY_LABEL: Record<Sky, string> = {
   sunny: '맑음',
-  mostlyCloudy: '구름많음',
+  mostlyCloudy: '구름 많음',
   cloudy: '흐림',
   rain: '비',
   sleet: '비/눈',

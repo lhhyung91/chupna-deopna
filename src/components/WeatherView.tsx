@@ -6,13 +6,14 @@ import { CommuteCards } from '@/components/CommuteCards';
 import { FeedbackCard } from '@/components/FeedbackCard';
 import { Header, type Tab } from '@/components/Header';
 import { HourlyForecast } from '@/components/HourlyForecast';
-import { OutfitCard } from '@/components/OutfitCard';
+import { OutfitCard, type OutfitLine } from '@/components/OutfitCard';
 import { OutfitGuide } from '@/components/OutfitGuide';
 import { WeatherHero } from '@/components/WeatherHero';
 import { useFeedback } from '@/hooks/useFeedback';
 import { formatTemp } from '@/lib/format';
 import type { Place } from '@/lib/location';
 import {
+  compareMornings,
   getBanners,
   getEveningNote,
   getFocusCommute,
@@ -62,9 +63,21 @@ export function WeatherView({
   const level = LEVELS[levelIndex];
   const banners = getBanners(day);
   const wet = getWetBanner(banners);
+  const eveningNote = getEveningNote(morning, eveningCommute, offset);
+  // 한 줄에 한 가지씩 모은다. 팁(히트텍 등)은 출근 단계 선택 사항이라 퇴근 얘기처럼 읽혀 온도별 표에만 둔다
+  const lines: OutfitLine[] = [
+    ...(isToday
+      ? []
+      : [{ text: compareMornings(forecast.today.commutes[0], morning) }]),
+    ...(eveningNote
+      ? [{ lead: eveningNote.lead, text: ` ${eveningNote.text}` }]
+      : []),
+    ...(wet ? [{ text: wet.text }] : []),
+  ];
 
   // 저녁엔 피드백을 맨 위로 올린다. CSS order 대신 DOM 순서를 바꿔야 탭 이동 순서도 맞는다.
-  const feedback = isToday && (
+  // 밤엔 내일 탭으로 열리지만, 오늘 입은 옷 피드백은 그때 묻는 게 맞아서 저녁엔 탭과 상관없이 보여준다.
+  const feedback = (isToday || evening) && (
     <FeedbackCard feeling={feeling} offset={offset} onSelect={save} />
   );
 
@@ -100,8 +113,7 @@ export function WeatherView({
               title={isToday ? '오늘 뭐 입지?' : '내일 뭐 입지?'}
               basis={`출근길 ${formatTemp(morning.feel)}처럼 느껴져요`}
               items={level.items}
-              eveningNote={getEveningNote(morning, eveningCommute, offset)}
-              tip={level.tip}
+              lines={lines}
             />
             {/* 비·눈은 위 날씨 옆 칸에 있으니 나머지(강풍·일교차)만 */}
             <BannerList banners={banners.filter((banner) => banner !== wet)} />

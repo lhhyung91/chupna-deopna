@@ -34,7 +34,7 @@ export function FeedbackCard({ feeling, offset, onSelect }: Props) {
                 onSelect(id);
               }}
               // 선택은 색과 위치를 함께 바꾼다: 살구색 + 3px 눌림(각진 그림자가 사라짐)
-              className={`flex h-22 tactile flex-col items-center justify-center gap-1 rounded-2xl border-2 border-ink text-[13px] font-bold min-[360px]:text-sm ${pressed ? 'translate-x-0.75 translate-y-0.75 bg-point text-on-bright shadow-picked motion-safe:animate-pop motion-reduce:translate-none' : 'bg-card text-ink shadow-btn'}`}
+              className={`flex h-22 tactile flex-col items-center justify-center gap-1 rounded-2xl border-2 border-ink text-sm font-bold ${pressed ? 'translate-x-0.75 translate-y-0.75 bg-point text-on-bright shadow-picked motion-safe:animate-pop motion-reduce:translate-none' : 'bg-card text-ink shadow-btn'}`}
             >
               {/* key를 바꿔야 다시 선택할 때도 바운스가 처음부터 재생된다 */}
               <span
@@ -69,10 +69,12 @@ export function FeedbackCard({ feeling, offset, onSelect }: Props) {
             기록했어요. 다른 버튼을 누르면 바뀌어요
           </span>
         ) : (
-          <span>내일 추천에 반영돼요</span>
+          <span>내일 옷 고를 때 반영해요</span>
         )}
-        {offset > 0 && <span>추위를 타는 편으로 반영 중 (+{offset}°)</span>}
-        {offset < 0 && <span>더위를 타는 편으로 반영 중 (−{-offset}°)</span>}
+        {offset > 0 && (
+          <span>추위를 타는 편이라 {offset}° 따뜻하게 골라요</span>
+        )}
+        {offset < 0 && <span>더위를 타는 편이라 {-offset}° 가볍게 골라요</span>}
       </div>
     </section>
   );

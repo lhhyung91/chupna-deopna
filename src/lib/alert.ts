@@ -21,15 +21,15 @@ export function getEveningAlert(
   const wet = getWetBanner(getBanners(tomorrow));
   // 카드에 보이는 반올림 값끼리 비교해야 알림 숫자와 화면 숫자가 맞는다.
   const diff = Math.round(morning.feel) - Math.round(todayMorning.feel);
-  const feelTitle = `내일 출근길 체감 ${formatTemp(morning.feel)}`;
+  const feel = `출근길 ${formatTemp(morning.feel)}처럼 느껴져요`;
 
   if (Math.abs(diff) >= BIG_CHANGE) {
     return {
-      title: `${feelTitle}, 오늘보다 ${Math.abs(diff)}° ${diff < 0 ? '추워요' : '따뜻해요'}`,
-      body: wet ? `${combo}, ${wet.text}` : combo,
+      title: `내일 아침은 오늘보다 ${Math.abs(diff)}° ${diff < 0 ? '추워요' : '따뜻해요'}`,
+      body: `${feel}. ${combo}${wet ? `, ${wet.text}` : ''}`,
     };
   }
-  if (wet) return { title: `내일 ${wet.title}`, body: `${wet.text}, ${combo}` };
-  if (force) return { title: feelTitle, body: combo };
+  if (wet) return { title: `내일 ${wet.title}`, body: `${wet.text}. ${combo}` };
+  if (force) return { title: `내일 ${feel}`, body: combo };
   return null;
 }

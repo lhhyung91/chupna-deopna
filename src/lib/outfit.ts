@@ -37,7 +37,7 @@ export type OutfitLevel = {
   tip?: string;
 };
 
-const THERMAL_TIP = '히트텍 챙기면 좋아요';
+const THERMAL_TIP = '안에 히트텍 입으면 좋아요';
 const OUTERS = new Set<ClothingKind>([
   'cardigan',
   'windbreaker',
@@ -114,7 +114,7 @@ export const LEVELS: OutfitLevel[] = [
       { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
-    tip: '추우면 안에 히트텍을 입어요',
+    tip: '추우면 안에 히트텍 입어요',
   },
   {
     minFeel: -3,
@@ -156,9 +156,10 @@ export function levelRange(index: number) {
 const outerOf = (level: OutfitLevel) =>
   level.items.find((item) => OUTERS.has(item.kind));
 
-export type EveningNote = { label: string; text: string };
+// lead("퇴근길 11°")는 굵게, text는 그 뒤에 띄어 쓴다. 375px 한 줄에 들어가는 길이로만 쓴다.
+export type EveningNote = { lead: string; text: string };
 
-// 옷은 출근길 기준으로 고르고, 퇴근길엔 그 옷으로 어떤지 한 줄로 알려준다.
+// 옷은 출근길 기준으로 고르고, 퇴근길엔 그 옷으로 어떤지 짧게 알려준다. 말투는 해요체 권유로 맞춘다.
 export function getEveningNote(
   morning: CommuteWeather,
   evening: CommuteWeather,
@@ -170,24 +171,38 @@ export function getEveningNote(
 
   const morningOuter = outerOf(LEVELS[morningIndex]);
   const eveningOuter = outerOf(LEVELS[eveningIndex]);
-  const label = `${evening.label}길 체감 ${formatTemp(evening.feel)}`;
+  // 숫자는 옷을 고른 값과 같은 체감이다
+  const lead = `${evening.label}길 ${formatTemp(evening.feel)}`;
 
   // 겉옷 이름 뒤 조사는 받침마다 달라져서 붙이지 않는다. 단계 번호가 작을수록 따뜻한 단계다
   if (eveningIndex < morningIndex) {
     if (morningOuter && !eveningOuter) {
-      return { label, text: `${morningOuter.label} 벗어도 돼요` };
+      return { lead, text: `${morningOuter.label} 벗어도 돼요` };
     }
-    return { label, text: '아침보다 덜 추워요' };
+    return { lead, text: '아침보다 덜 추워요' };
   }
   if (!morningOuter && eveningOuter) {
-    return { label, text: `${eveningOuter.label} 챙기세요` };
+    return { lead, text: `쌀쌀해요, ${eveningOuter.label} 챙겨요` };
   }
-  return { label, text: '아침보다 추워요, 한 겹 더 챙기세요' };
+  return { lead, text: '아침보다 추워요, 한 겹 더 챙겨요' };
 }
 
 const isWet = (sky: Sky) =>
   sky === 'rain' || sky === 'sleet' || sky === 'shower' || sky === 'snow';
 const isSnowy = (sky: Sky) => sky === 'snow' || sky === 'sleet';
+
+// 내일 탭 첫 줄. 저녁에 내일 옷을 고를 때 오늘 아침과 얼마나 다른지가 가장 궁금하다.
+export function compareMornings(
+  today: CommuteWeather,
+  tomorrow: CommuteWeather
+) {
+  // 화면에 보이는 반올림 값끼리 비교해야 문장 숫자와 칸 숫자가 맞는다
+  const diff = Math.round(tomorrow.feel) - Math.round(today.feel);
+  const word = diff < 0 ? '추워요' : '따뜻해요';
+  if (Math.abs(diff) >= 5) return `오늘 아침보다 ${Math.abs(diff)}° ${word}`;
+  if (Math.abs(diff) >= 2) return `오늘 아침보다 조금 ${word}`;
+  return '오늘 아침과 비슷해요';
+}
 
 // 지금 시각에 크게 보여줄 출퇴근 순번. 그 시간대가 끝날 때까지는 그쪽이 크고, 다 끝나면 반반(null).
 export function getFocusCommute(hour: number) {
@@ -213,12 +228,12 @@ export function getBanners(day: DayWeather): Banner[] {
     banners.push({
       kind: 'umbrella',
       title: `${when}길 비 ${wettest.pop}%`,
-      text: '우산 챙기세요',
+      text: '우산 챙겨요',
     });
   }
 
   if (isSnowy(day.sky) || day.commutes.some((c) => isSnowy(c.sky))) {
-    banners.push({ kind: 'snow', title: '눈 소식', text: '미끄럼 주의' });
+    banners.push({ kind: 'snow', title: '눈 와요', text: '길이 미끄러워요' });
   }
 
   if (day.commutes.some((c) => c.wind >= STRONG_WIND)) {

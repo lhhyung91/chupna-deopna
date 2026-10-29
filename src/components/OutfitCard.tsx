@@ -1,15 +1,17 @@
 import { ClothingIcon } from '@/components/ClothingIcon';
-import type { ClothingItem, EveningNote } from '@/lib/outfit';
+import type { ClothingItem } from '@/lib/outfit';
+
+// lead는 굵게, text는 띄어쓰기 없이 바로 이어 붙인다
+export type OutfitLine = { lead?: string; text: string };
 
 type Props = {
   title: string;
   basis: string;
   items: ClothingItem[];
-  eveningNote: EveningNote | null;
-  tip?: string;
+  lines: OutfitLine[];
 };
 
-export function OutfitCard({ title, basis, items, eveningNote, tip }: Props) {
+export function OutfitCard({ title, basis, items, lines }: Props) {
   return (
     <section
       aria-label="옷차림 추천"
@@ -38,17 +40,14 @@ export function OutfitCard({ title, basis, items, eveningNote, tip }: Props) {
       <p className="font-display text-3xl text-balance break-keep">
         {items.map((item) => item.label).join(' + ')}
       </p>
-      {(eveningNote || tip) && (
+      {lines.length > 0 && (
         <ul className="-mt-2 flex flex-col gap-0.5 text-sm break-keep text-muted">
-          {eveningNote && (
-            <li>
-              <strong className="font-bold text-ink">
-                {eveningNote.label}
-              </strong>{' '}
-              {eveningNote.text}
+          {lines.map(({ lead, text }) => (
+            <li key={text}>
+              {lead && <strong className="font-bold text-ink">{lead}</strong>}
+              {text}
             </li>
-          )}
-          {tip && <li>{tip}</li>}
+          ))}
         </ul>
       )}
     </section>
