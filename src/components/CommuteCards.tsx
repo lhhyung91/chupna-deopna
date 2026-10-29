@@ -23,7 +23,7 @@ export function CommuteCards({ commutes, focus }: Props) {
           aria-label={`${c.label} 날씨`}
           className="flex flex-col justify-between gap-2 card p-4"
         >
-          <div className="flex flex-wrap items-baseline justify-between gap-x-1">
+          <div className="flex flex-wrap items-center justify-between gap-x-1">
             <span className="font-bold">{c.label}</span>
             <span className="text-xs whitespace-nowrap text-muted">
               {c.time}
