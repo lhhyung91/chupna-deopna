@@ -1,7 +1,6 @@
 import { WeatherView } from '@/components/WeatherView';
 import { DEFAULT_PLACE, PLACE_COOKIE, parsePlace } from '@/lib/location';
-import { getFocusCommute } from '@/lib/outfit';
-import { fetchForecast, isEvening, kstHour } from '@/lib/weather';
+import { fetchForecast, isEvening } from '@/lib/weather';
 import { cookies } from 'next/headers';
 import { connection } from 'next/server';
 
@@ -17,16 +16,13 @@ export default async function Home({ searchParams }: PageProps<'/'>) {
     searchParams,
   ]);
 
-  // 저녁 알림(?day=tomorrow)이나, 오늘 출퇴근이 다 끝난 밤엔 내일 탭부터 보여준다.
-  const hour = kstHour(now);
-  const showTomorrow = day === 'tomorrow' || getFocusCommute(hour) === null;
+  // 저녁 알림을 누르면 ?day=tomorrow로 들어와 바로 내일 탭을 보여준다.
   return (
     <WeatherView
       forecast={forecast}
       place={place}
       evening={isEvening(now)}
-      hour={hour}
-      initialTab={showTomorrow ? 'tomorrow' : 'today'}
+      initialTab={day === 'tomorrow' ? 'tomorrow' : 'today'}
     />
   );
 }
