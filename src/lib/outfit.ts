@@ -98,10 +98,11 @@ export const LEVELS: OutfitLevel[] = [
     ],
     tip: '플리스도 좋아요',
   },
+  // 경량 패딩이 바람을 더 막아서 코트보다 한 단계 추운 날에 둔다(사용자 체감 기준).
   {
     minFeel: 6,
     items: [
-      { label: '경량 패딩', kind: 'light_puffer' },
+      { label: '코트', kind: 'coat' },
       { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
@@ -109,11 +110,11 @@ export const LEVELS: OutfitLevel[] = [
   {
     minFeel: 2,
     items: [
-      { label: '코트', kind: 'coat' },
+      { label: '경량 패딩', kind: 'light_puffer' },
       { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
-    tip: '추우면 코트 안에 패딩 조끼를 껴입어요',
+    tip: '추우면 안에 히트텍을 입어요',
   },
   {
     minFeel: -3,
