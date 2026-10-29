@@ -36,8 +36,8 @@ export function OutfitCard({ title, basis, items, lines }: Props) {
           </div>
         ))}
       </div>
-      {/* "+" 뒤를 줄바꿈 없는 공백으로 이어서, 줄이 바뀌어도 "+"가 줄 끝에 홀로 남지 않게 한다 */}
-      <p className="font-display text-3xl text-balance break-keep">
+      {/* 가장 긴 조합(바람막이 + 맨투맨 + 긴바지)도 375px 칸에 한 줄로 들어가는 크기. 좁은 폰은 rem 비율로 같이 줄어든다 */}
+      <p className="font-display text-[1.625rem] whitespace-nowrap">
         {items.map((item) => item.label).join(' + ')}
       </p>
       {lines.length > 0 && (
