@@ -97,8 +97,8 @@ export function WeatherView({
               wet={wet}
             />
             <OutfitCard
-              title={isToday ? '오늘의 옷차림' : '내일의 옷차림'}
-              basis={`출근길 체감 ${formatTemp(morning.feel)}`}
+              title={isToday ? '오늘 뭐 입지?' : '내일 뭐 입지?'}
+              basis={`출근길 ${formatTemp(morning.feel)}처럼 느껴져요`}
               items={level.items}
               eveningNote={getEveningNote(morning, eveningCommute, offset)}
               tip={level.tip}
