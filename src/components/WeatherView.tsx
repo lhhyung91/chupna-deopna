@@ -2,7 +2,6 @@
 
 import { AlertButton } from '@/components/AlertButton';
 import { BannerList } from '@/components/BannerList';
-import { CommuteCards } from '@/components/CommuteCards';
 import { FeedbackCard } from '@/components/FeedbackCard';
 import { Header, type Tab } from '@/components/Header';
 import { HourlyForecast } from '@/components/HourlyForecast';
@@ -16,7 +15,6 @@ import {
   compareMornings,
   getBanners,
   getEveningNote,
-  getFocusCommute,
   getLevelIndex,
   getWetBanner,
   LEVELS,
@@ -30,17 +28,10 @@ type Props = {
   forecast: Forecast;
   place: Place;
   evening: boolean;
-  hour: number;
   initialTab: Tab;
 };
 
-export function WeatherView({
-  forecast,
-  place,
-  evening,
-  hour,
-  initialTab,
-}: Props) {
+export function WeatherView({ forecast, place, evening, initialTab }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
   const { feeling, offset, save } = useFeedback(forecast.today.dateKey);
@@ -62,6 +53,7 @@ export function WeatherView({
   const levelIndex = getLevelIndex(morning.feel - offset);
   const level = LEVELS[levelIndex];
   const banners = getBanners(day);
+  // 비·눈은 날씨 옆 출퇴근 칸이 알려주고, 강풍·일교차는 옷 아래에 둔다
   const wet = getWetBanner(banners);
   const eveningNote = getEveningNote(morning, eveningCommute, offset);
   // 한 줄에 한 가지씩 모은다. 팁(히트텍 등)은 출근 단계 선택 사항이라 퇴근 얘기처럼 읽혀 온도별 표에만 둔다
@@ -72,12 +64,10 @@ export function WeatherView({
     ...(eveningNote
       ? [{ lead: eveningNote.lead, text: ` ${eveningNote.text}` }]
       : []),
-    ...(wet ? [{ text: wet.text }] : []),
   ];
 
   // 저녁엔 피드백을 맨 위로 올린다. CSS order 대신 DOM 순서를 바꿔야 탭 이동 순서도 맞는다.
-  // 밤엔 내일 탭으로 열리지만, 오늘 입은 옷 피드백은 그때 묻는 게 맞아서 저녁엔 탭과 상관없이 보여준다.
-  const feedback = (isToday || evening) && (
+  const feedback = isToday && (
     <FeedbackCard feeling={feeling} offset={offset} onSelect={save} />
   );
 
@@ -102,7 +92,7 @@ export function WeatherView({
             transition={{ duration: 1, ease: 'easeOut' }}
             className="grid grid-cols-6 gap-3"
           >
-            {/* 날씨를 먼저 보고 "그래서 이 옷"으로 이어지게 날씨·비 칸을 옷차림 위에 둔다 */}
+            {/* 날씨를 먼저 보고 옷으로 이어지게 위에 둔다 */}
             <WeatherHero
               now={forecast.now}
               day={day}
@@ -115,13 +105,7 @@ export function WeatherView({
               items={level.items}
               lines={lines}
             />
-            {/* 비·눈은 위 날씨 옆 칸에 있으니 나머지(강풍·일교차)만 */}
             <BannerList banners={banners.filter((banner) => banner !== wet)} />
-            {/* 내일 탭은 아침 옷이 기준이라 늘 출근을 크게 */}
-            <CommuteCards
-              commutes={day.commutes}
-              focus={getFocusCommute(isToday ? hour : 0)}
-            />
             <HourlyForecast hourly={day.hourly} highlightFirst={isToday} />
           </motion.div>
         </AnimatePresence>

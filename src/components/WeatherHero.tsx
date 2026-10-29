@@ -8,6 +8,7 @@ type Props = {
   now: NowWeather;
   day: DayWeather;
   isToday: boolean;
+  // 출퇴근길 비·눈 소식. 있으면 옆 칸을 그 색으로 칠하고 할 일을 붙인다
   wet?: Banner;
 };
 
@@ -20,46 +21,41 @@ const STAT_COLUMNS = [
   'grid-cols-4',
 ];
 
-// 벤토 그리드 안의 날씨 줄. 비·눈 소식이 있으면 날씨:비 6:4, 없으면 날씨가 한 줄을 다 쓴다.
+// 벤토 그리드 안의 날씨 줄. 날씨 6 : 출근 → 퇴근 4로 나란히 둔다.
 export function WeatherHero({ now, day, isToday, wet }: Props) {
   const sky = isToday ? now.sky : day.sky;
+  const [morning, evening] = day.commutes;
+  // 내일은 지금 기온이 없어 큰 숫자 대신 최저·최고를 값 칸에 둔다(6칸 폭에 "구름 많음"과 "9° / 18°"가 같이 안 들어감)
   const stats = [
-    ...(isToday
-      ? [
-          ['체감', formatTemp(now.feel)],
-          ['최저', formatTemp(day.min)],
-          ['최고', formatTemp(day.max)],
-        ]
-      : []),
-    // 비 칸이 있으면 그쪽이 비 소식을 알려준다
+    ...(isToday ? [['체감', formatTemp(now.feel)]] : []),
+    ['최저', formatTemp(day.min)],
+    ['최고', formatTemp(day.max)],
+    // 옆 칸이 비·눈 소식을 알려주면 여기선 뺀다
     ...(wet ? [] : [[precipName(day.sky), `${day.pop}%`]]),
   ];
 
   return (
-    // 6칸 그리드로는 4:2밖에 안 돼서 날씨:비 6:4는 이 줄만 따로 나눈다
-    <div
-      className={`col-span-6 grid gap-3 ${wet ? 'grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : 'grid-cols-1'}`}
-    >
+    // 6칸 그리드로는 4:2밖에 안 돼서 6:4는 이 줄만 따로 나눈다
+    <div className="col-span-6 grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-3">
       <section
         aria-label={isToday ? '지금 날씨' : '내일 날씨'}
         className="flex flex-col justify-center gap-2 card px-4 py-3"
       >
-        {/* 좁은 칸에서 온도가 길면 아래 줄로 내려간다 */}
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <WeatherIcon kind={sky} size={wet ? 36 : 44} />
+        <div className="flex items-center gap-2.5">
+          <WeatherIcon kind={sky} size={36} />
           <p className="flex flex-col">
             <span className="text-xs font-bold text-muted">
               {isToday ? '지금' : '내일'}
             </span>
-            <span className="font-bold break-keep">{SKY_LABEL[sky]}</span>
+            <span className="font-bold whitespace-nowrap">
+              {SKY_LABEL[sky]}
+            </span>
           </p>
-          <span
-            className={`ml-auto font-num font-bold tracking-[-1px] whitespace-nowrap tabular-nums ${isToday ? 'text-4xl' : 'text-2xl'}`}
-          >
-            {isToday
-              ? formatTemp(now.temp)
-              : `${formatTemp(day.min)} / ${formatTemp(day.max)}`}
-          </span>
+          {isToday && (
+            <span className="ml-auto font-num text-4xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums">
+              {formatTemp(now.temp)}
+            </span>
+          )}
         </div>
         {stats.length > 0 && (
           <dl className={`grid gap-x-2 ${STAT_COLUMNS[stats.length]}`}>
@@ -72,24 +68,34 @@ export function WeatherHero({ now, day, isToday, wet }: Props) {
           </dl>
         )}
       </section>
-      {wet && (
-        <div
-          role="note"
-          className={`flex items-center gap-2 rounded-[14px] border-[2.5px] border-ink p-2.5 text-on-bright shadow-hard ${BANNER_STYLES[wet.kind].bg}`}
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border-2 border-on-bright bg-white">
-            <WeatherIcon kind={BANNER_STYLES[wet.kind].icon} size={32} />
-          </span>
-          {/* 사실만 두고("우산 챙겨요"는 옷 카드로), 우산은 "퇴근길 / 비 60%" 두 줄로 고정한다 */}
-          <p className="flex min-w-0 flex-col text-sm font-bold whitespace-nowrap">
-            {wet.kind === 'umbrella'
-              ? wet.title
-                  .split(/ (?=비)/)
-                  .map((part) => <span key={part}>{part}</span>)
-              : wet.title}
+      {/* 일교차 배너("아침 6° → 낮 17°")와 같은 꼴. 375px 안쪽 약 100px라 출근·퇴근을 두 줄로 나눈다 */}
+      <section
+        aria-label="출퇴근 기온"
+        className={`flex flex-col justify-center gap-2 rounded-[14px] border-[2.5px] border-ink p-3 shadow-hard ${wet ? `text-on-bright ${BANNER_STYLES[wet.kind].bg}` : 'bg-card'}`}
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-on-bright bg-white">
+          <WeatherIcon
+            kind={wet ? BANNER_STYLES[wet.kind].icon : evening.sky}
+            size={32}
+          />
+        </span>
+        <div className="break-keep">
+          <p className="flex flex-col font-bold whitespace-nowrap tabular-nums">
+            <span>
+              {morning.label} {formatTemp(morning.temp)}
+            </span>
+            <span>
+              → {evening.label} {formatTemp(evening.temp)}
+            </span>
           </p>
+          {/* 우산 아이콘이 할 일을 말해서, 글은 언제·얼마나("퇴근길 비 60%")만. "비 60%"는 붙여서 줄을 바꾼다 */}
+          {wet && (
+            <p className="text-sm">
+              {wet.title.replace(/ (?=\S+$)/, '\u00a0')}
+            </p>
+          )}
         </div>
-      )}
+      </section>
     </div>
   );
 }

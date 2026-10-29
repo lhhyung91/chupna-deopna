@@ -1,4 +1,3 @@
-import { COMMUTES } from '@/lib/config';
 import { formatTemp } from '@/lib/format';
 import type { CommuteWeather, DayWeather, Sky } from '@/lib/weather';
 
@@ -204,12 +203,6 @@ export function compareMornings(
   return '오늘 아침과 비슷해요';
 }
 
-// 지금 시각에 크게 보여줄 출퇴근 순번. 그 시간대가 끝날 때까지는 그쪽이 크고, 다 끝나면 반반(null).
-export function getFocusCommute(hour: number) {
-  const index = COMMUTES.findIndex(({ endHour }) => hour <= endHour);
-  return index === -1 ? null : index;
-}
-
 // 비·눈 배너 하나. 우산 배너는 눈도 "비 N%"로 적어서, 눈이 오면 눈 배너를 먼저 고른다.
 export const getWetBanner = (banners: Banner[]) =>
   banners.find((banner) => banner.kind === 'snow') ??
@@ -239,8 +232,8 @@ export function getBanners(day: DayWeather): Banner[] {
   if (day.commutes.some((c) => c.wind >= STRONG_WIND)) {
     banners.push({
       kind: 'wind',
-      title: '바람이 강해요',
-      text: '실제보다 춥게 느껴져요',
+      title: '바람 강해요',
+      text: '더 춥게 느껴져요',
     });
   }
 
@@ -248,7 +241,7 @@ export function getBanners(day: DayWeather): Banner[] {
     banners.push({
       kind: 'tempGap',
       title: `아침 ${formatTemp(morning.temp)} → 낮 ${formatTemp(day.max)}`,
-      text: '겉옷 챙기고 낮엔 벗어도 돼요',
+      text: '낮엔 겉옷 벗어요',
     });
   }
 

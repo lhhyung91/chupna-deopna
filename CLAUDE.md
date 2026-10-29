@@ -39,7 +39,7 @@
   - `src/lib/kakao.ts`: 좌표 → "서울 중구" (카카오 로컬 `coord2regioncode`)
   - `src/app/actions.ts`의 `updatePlace`가 쿠키를 바꾸면 화면이 새 동네로 다시 그려진다.
   - `src/components/PlaceHeading.tsx`: 이름 버튼. 권한이 이미 허용돼 있으면 열 때마다 조용히 따라간다.
-- 화면 순서: 헤더 → 지금 날씨(`WeatherHero`) → 주의 배너 → 옷차림 → 출퇴근 → 시간대별 → 피드백 → 기온별 옷차림
+- 화면 순서: 헤더 → 지금 날씨 6 : 출근 → 퇴근 4(`WeatherHero`, 비·눈이면 오른쪽 칸 색이 바뀜) → 옷차림 → 강풍·일교차 배너 → 시간대별 → 피드백 → 온도별 옷차림 표
 - `src/lib/outfit.ts`
   - `LEVELS`: 출근길 체감 기준 10단계. 흔한 기온별 표보다 경계를 3° 낮춰 둠.
   - `getEveningNote`: 퇴근길 안내 한 줄
