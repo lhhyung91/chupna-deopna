@@ -11,7 +11,7 @@ type Props = {
   wet?: Banner;
 };
 
-// 벤토 그리드(6칸) 안의 날씨 칸. 비·눈 소식이 있으면 날씨 4칸 + 비 2칸, 없으면 날씨가 한 줄을 다 쓴다.
+// 벤토 그리드 안의 날씨 줄. 비·눈 소식이 있으면 날씨:비 6:4, 없으면 날씨가 한 줄을 다 쓴다.
 export function WeatherHero({ now, day, isToday, wet }: Props) {
   const sky = isToday ? now.sky : day.sky;
   const stats = [
@@ -27,10 +27,13 @@ export function WeatherHero({ now, day, isToday, wet }: Props) {
   ];
 
   return (
-    <>
+    // 6칸 그리드로는 4:2밖에 안 돼서 날씨:비 6:4는 이 줄만 따로 나눈다
+    <div
+      className={`col-span-6 grid gap-3 ${wet ? 'grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : 'grid-cols-1'}`}
+    >
       <section
         aria-label={isToday ? '지금 날씨' : '내일 날씨'}
-        className={`flex flex-col justify-center gap-2 card px-4 py-3 ${wet ? 'col-span-4' : 'col-span-6'}`}
+        className="flex flex-col justify-center gap-2 card px-4 py-3"
       >
         {/* 좁은 칸에서 온도가 길면 아래 줄로 내려간다 */}
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
@@ -61,14 +64,15 @@ export function WeatherHero({ now, day, isToday, wet }: Props) {
         )}
       </section>
       {wet && (
+        // 360px 미만에선 4할 칸이 좁아 아이콘을 글 위로 올린다
         <div
           role="note"
-          className={`col-span-2 flex flex-col gap-2 rounded-[14px] border-[2.5px] border-ink p-3 text-on-bright shadow-hard ${BANNER_STYLES[wet.kind].bg}`}
+          className={`flex flex-col items-start gap-2 rounded-[14px] border-[2.5px] border-ink p-3 text-on-bright shadow-hard min-[360px]:flex-row min-[360px]:items-center ${BANNER_STYLES[wet.kind].bg}`}
         >
-          <span className="flex size-10 items-center justify-center rounded-xl border-2 border-on-bright bg-white">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-on-bright bg-white">
             <WeatherIcon kind={BANNER_STYLES[wet.kind].icon} size={32} />
           </span>
-          <div className="break-keep">
+          <div className="min-w-0 break-keep">
             {/* 좁은 칸에서 "비 60%"가 갈라지지 않게 마지막 띄어쓰기를 줄바꿈 없는 공백으로 */}
             <p className="text-sm font-bold">
               {wet.title.replace(/ (?=\S+$)/, ' ')}
@@ -77,6 +81,6 @@ export function WeatherHero({ now, day, isToday, wet }: Props) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
