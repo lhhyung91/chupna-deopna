@@ -270,6 +270,16 @@ function buildDay(
   };
 }
 
+// 시간대별 "지금" 칸이 예보값이면 위 지금 날씨(관측값)와 숫자가 어긋나서, 같은 값으로 맞춘다.
+function withNow(day: DayWeather, now: NowWeather): DayWeather {
+  const [first, ...rest] = day.hourly;
+  if (!first) return day;
+  return {
+    ...day,
+    hourly: [{ ...first, temp: now.temp, sky: now.sky }, ...rest],
+  };
+}
+
 export async function fetchForecast(
   now: Date,
   point: GridPoint
@@ -308,16 +318,19 @@ export async function fetchForecast(
 
   return {
     now: nowWeather,
-    today: buildDay(
-      grid,
-      kst,
-      Array.from({ length: 24 }, (_, i) => {
-        const slot = new Date(currentHour.getTime() + i * HOUR_MS);
-        return {
-          kst: slot,
-          label: i === 0 ? '지금' : `${pad(slot.getUTCHours())}시`,
-        };
-      })
+    today: withNow(
+      buildDay(
+        grid,
+        kst,
+        Array.from({ length: 24 }, (_, i) => {
+          const slot = new Date(currentHour.getTime() + i * HOUR_MS);
+          return {
+            kst: slot,
+            label: i === 0 ? '지금' : `${pad(slot.getUTCHours())}시`,
+          };
+        })
+      ),
+      nowWeather
     ),
     tomorrow: buildDay(
       grid,
