@@ -69,7 +69,7 @@ export function SummaryCard({ now, day, note, take, past }: Props) {
             {formatTemp(now.temp)}
           </span>
         )}
-        <p className="flex min-w-0 flex-col">
+        <p className="flex shrink-0 flex-col">
           <span className="whitespace-nowrap">
             <span className="text-xs font-bold text-muted">
               {now ? '지금' : '내일'}
@@ -78,19 +78,15 @@ export function SummaryCard({ now, day, note, take, past }: Props) {
           </span>
           {note && <span className="text-xs text-muted">{note}</span>}
         </p>
-        <dl className="ml-auto flex shrink-0 flex-col items-end text-xs text-muted tabular-nums">
-          {(
-            [
-              ['최고', day.max],
-              ['최저', day.min],
-            ] as const
-          ).map(([label, temp]) => (
-            <div key={label} className="flex gap-1">
-              <dt>{label}</dt>
-              <dd className="font-bold text-ink">{formatTemp(temp)}</dd>
-            </div>
-          ))}
-        </dl>
+        {/* 한 줄이 기본이고, 기온·하늘 글자가 길어 칸이 모자라면 "/" 뒤에서 두 줄로 내려간다 */}
+        <p className="ml-auto text-right text-xs text-muted tabular-nums">
+          <span className="whitespace-nowrap">
+            최고 <b className="text-ink">{formatTemp(day.max)}</b> /
+          </span>{' '}
+          <span className="whitespace-nowrap">
+            최저 <b className="text-ink">{formatTemp(day.min)}</b>
+          </span>
+        </p>
       </div>
 
       <p className="sr-only">
