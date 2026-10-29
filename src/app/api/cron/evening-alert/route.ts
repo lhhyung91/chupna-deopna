@@ -1,10 +1,11 @@
 import { getEveningAlert } from '@/lib/alert';
 import { SITE_URL } from '@/lib/config';
+import { DEFAULT_PLACE } from '@/lib/location';
 import {
   listStoredSubscriptions,
   removeStoredSubscription,
 } from '@/lib/pushStore';
-import { fetchForecast } from '@/lib/weather';
+import { fetchForecast, type Forecast } from '@/lib/weather';
 import webpush, { WebPushError } from 'web-push';
 
 // Vercel 크론이 매일 저녁 8시대(vercel.json)에 부른다. ?force=1은 배포 후 수신 테스트용이다.
@@ -20,22 +21,32 @@ export async function GET(request: Request) {
     process.env.VAPID_PRIVATE_KEY ?? ''
   );
   const force = new URL(request.url).searchParams.get('force') === '1';
-  const [forecast, stored] = await Promise.all([
-    fetchForecast(new Date()),
-    listStoredSubscriptions(),
-  ]);
+  const now = new Date();
+  const stored = await listStoredSubscriptions();
+
+  // 구독마다 동네가 다를 수 있다. 같은 격자는 예보를 한 번만 받는다.
+  const forecasts = new Map<string, Promise<Forecast>>();
+  const forecastFor = (nx = DEFAULT_PLACE.nx, ny = DEFAULT_PLACE.ny) => {
+    const key = `${nx},${ny}`;
+    let pending = forecasts.get(key);
+    if (!pending) {
+      pending = fetchForecast(now, { nx, ny });
+      forecasts.set(key, pending);
+    }
+    return pending;
+  };
 
   let sent = 0;
   let skipped = 0;
   let failed = 0;
   await Promise.all(
-    stored.map(async ({ subscription, offset }) => {
-      const alert = getEveningAlert(forecast, offset, force);
-      if (!alert) {
-        skipped += 1;
-        return;
-      }
+    stored.map(async ({ subscription, offset, nx, ny }) => {
       try {
+        const alert = getEveningAlert(await forecastFor(nx, ny), offset, force);
+        if (!alert) {
+          skipped += 1;
+          return;
+        }
         await webpush.sendNotification(subscription, JSON.stringify(alert));
         sent += 1;
       } catch (error) {

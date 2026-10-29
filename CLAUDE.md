@@ -2,7 +2,7 @@
 
 # 춥나덥나 (chupna-deopna)
 
-출근길 체감온도로 오늘·내일 입을 옷을 3초 안에 알려주는 개인용 날씨 PWA. 위치는 서울 중구로 고정(`src/lib/config.ts`).
+출근길 체감온도로 오늘·내일 입을 옷을 3초 안에 알려주는 개인용 날씨 PWA. 동네 이름을 누르면 폰 위치(GPS)로 바뀌고, 위치를 모르면 서울 중구(`DEFAULT_PLACE`)를 쓴다.
 
 - 배포: Vercel, `main` 브랜치 → https://chupna-deopna.vercel.app
 - 스택: Next.js 16(App Router, cacheComponents), React 19, TypeScript strict, Tailwind v4(설정 파일 없이 `globals.css`의 `@theme`), motion
@@ -33,6 +33,13 @@
 ## 구조 메모
 
 - `src/lib/weather.ts`: 기상청 단기예보. 02시 발표분과 최신 발표분을 합쳐 오늘·내일을 만든다. KST는 Date를 +9h 밀어 `getUTC*`로 읽는다.
+- `src/lib/weather.ts`의 `now`는 초단기실황(관측값). 실패하면 이번 시각 예보로 대신한다.
+- 위치
+  - `src/lib/location.ts`: 위경도 → 기상청 격자(`latLonToGrid`), 쿠키 `place`(이름·nx·ny)
+  - `src/lib/kakao.ts`: 좌표 → "서울 중구" (카카오 로컬 `coord2regioncode`)
+  - `src/app/actions.ts`의 `updatePlace`가 쿠키를 바꾸면 화면이 새 동네로 다시 그려진다.
+  - `src/components/PlaceHeading.tsx`: 이름 버튼. 권한이 이미 허용돼 있으면 열 때마다 조용히 따라간다.
+- 화면 순서: 헤더 → 지금 날씨(`WeatherHero`) → 주의 배너 → 옷차림 → 출퇴근 → 시간대별 → 피드백 → 기온별 옷차림
 - `src/lib/outfit.ts`
   - `LEVELS`: 출근길 체감 기준 10단계. 흔한 기온별 표보다 경계를 3° 낮춰 둠.
   - `getEveningNote`: 퇴근길 안내 한 줄
@@ -55,6 +62,7 @@
     - Vercel에서 공개키는 Config, 개인키는 Sensitive로 등록돼 있다.
     - **새로 만들면 기존 알림 구독이 모두 끊기니** 원래 컴퓨터의 `.env.local`에서 옮겨온다.
   - `CRON_SECRET`: Sensitive라 Vercel에서 다시 볼 수 없다. 원래 `.env.local`에서 옮기거나, 새로 만들어 Vercel 값도 같이 바꾼다.
+  - `KAKAO_REST_API_KEY`: developers.kakao.com 앱의 REST API 키. 앱에서 카카오맵 사용 설정을 켜야 한다. 없으면 이름만 "현재 위치"로 나온다.
   - `KV_REST_API_URL`·`KV_REST_API_TOKEN`
     - Vercel Storage의 Upstash Redis에서 복사한다. READ_ONLY 토큰은 안 된다.
     - 이 Redis는 다른 프로젝트와 같이 쓰므로 키에 `chupna-deopna:` 접두사를 붙인다.
@@ -68,14 +76,15 @@
 - 공유 미리보기는 `src/app/opengraph-image.jpg`다. 카톡은 미리보기를 캐시하니 바꾼 뒤 카카오 공유 디버거에서 캐시를 지운다.
 - 아이콘은 `public/icons/icon_<형태>_{light,dark}.png`다. 이름은 의미가 아니라 형태 기준이다.
 
-## 진행 상황 (2026-10-28 기준)
+## 진행 상황 (2026-10-29 기준)
 
 - 끝남
   - 출근길 기준 옷차림, 퇴근 안내, motion 전환
   - OG 이미지
   - 저녁 알림. 설정은 헤더 종 아이콘 팝업에 있다.
+  - 지금 날씨 카드, 현재 위치 기반 예보
 - 남은 것
-  - 아이폰에서 실제 알림 수신 확인. 홈 화면 앱에서 켠 뒤 위의 테스트 명령으로 확인한다.
+  - 아이폰에서 위치 잡기 확인. 이름 누르기 → 허용 → 동네·예보 변경
   - 아이폰 위젯(Scriptable): 아직 시작 전
     - `src/app/api/widget/route.ts`(GET, `?offset=n`): 퇴근 시간 전엔 오늘, 후엔 내일 옷차림을 JSON으로 준다.
     - `scripts/scriptable_widget.js`: 붙여넣을 위젯 스크립트. 소형·중형, Parameter 칸에 보정값을 넣는다.

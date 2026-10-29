@@ -1,7 +1,8 @@
 'use client';
 
-import { LOCATION } from '@/lib/config';
+import { PlaceHeading } from '@/components/PlaceHeading';
 import { haptic } from '@/lib/haptic';
+import type { Place } from '@/lib/location';
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 
@@ -13,6 +14,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 type Props = {
+  place?: Place;
   dateLabel?: string;
   tab?: Tab;
   onTabChange?: (tab: Tab) => void;
@@ -20,6 +22,7 @@ type Props = {
 };
 
 export function Header({
+  place,
   dateLabel,
   tab = 'today',
   onTabChange,
@@ -28,14 +31,15 @@ export function Header({
   return (
     <header className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl">{LOCATION.name}</h1>
-          {dateLabel ? (
-            <p className="text-sm text-muted">{dateLabel}</p>
-          ) : (
-            <div className="mt-1 h-4 w-32 rounded-full bg-skeleton" />
-          )}
-        </div>
+        {/* 로딩 화면은 빌드 때 만들어져 동네·날짜를 몰라서 회색 막대로 둔다 */}
+        {place && dateLabel ? (
+          <PlaceHeading place={place} dateLabel={dateLabel} />
+        ) : (
+          <div className="flex flex-col gap-2 pt-1">
+            <div className="h-7 w-36 rounded-full bg-skeleton" />
+            <div className="h-4 w-32 rounded-full bg-skeleton" />
+          </div>
+        )}
         {action}
       </div>
       {/* 두 개 중 하나를 고르는 토글이라 탭 패턴 대신 aria-pressed 버튼 묶음으로 둔다 */}

@@ -8,7 +8,7 @@ export function HourlyForecast({ hourly, highlightFirst }: Props) {
   return (
     <section
       aria-label="시간대별 예보"
-      className="flex flex-col gap-3 card pt-5 pb-3"
+      className="col-span-6 flex flex-col gap-3 card pt-5 pb-3"
     >
       <h2 className="px-5 font-bold">시간대별</h2>
       {/* 스냅이 칸을 스크롤 영역 끝(여백 밖)에 붙이지 않도록 scroll-padding을 여백과 맞춘다 */}

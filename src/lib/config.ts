@@ -1,8 +1,5 @@
 export const SITE_URL = 'https://chupna-deopna.vercel.app';
 
-// 개인용이라 위치를 기상청 격자 좌표로 고정한다 (서울 중구).
-export const LOCATION = { name: '서울 중구', nx: 60, ny: 127 };
-
 export const COMMUTES = [
   { label: '출근', startHour: 8, endHour: 9 },
   { label: '퇴근', startHour: 18, endHour: 19 },

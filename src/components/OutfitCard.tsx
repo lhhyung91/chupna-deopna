@@ -11,7 +11,10 @@ type Props = {
 
 export function OutfitCard({ title, basis, items, eveningNote, tip }: Props) {
   return (
-    <section aria-label="옷차림 추천" className="flex flex-col gap-4 card p-5">
+    <section
+      aria-label="옷차림 추천"
+      className="col-span-6 flex flex-col gap-4 card p-5"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="rounded-lg bg-ink px-2.5 py-0.5 font-display text-base/5.5 text-bg">
           {title}

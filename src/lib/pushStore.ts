@@ -4,6 +4,9 @@ import type { PushSubscription } from 'web-push';
 export type StoredSubscription = {
   subscription: PushSubscription;
   offset: number;
+  // 위치 기능 전에 저장된 구독엔 없어서 선택값이다(없으면 기본 동네).
+  nx?: number;
+  ny?: number;
 };
 
 // 기기(endpoint)마다 한 칸. 같은 기기가 다시 구독하면 보정값과 함께 덮어쓴다.

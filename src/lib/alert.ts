@@ -1,5 +1,5 @@
 import { formatTemp } from '@/lib/format';
-import { getBanners, getLevelIndex, LEVELS } from '@/lib/outfit';
+import { getBanners, getLevelIndex, getWetBanner, LEVELS } from '@/lib/outfit';
 import type { Forecast } from '@/lib/weather';
 
 // 출근길 체감이 이만큼 달라지면 옷이 두 단계쯤 바뀐다.
@@ -18,11 +18,7 @@ export function getEveningAlert(
   const combo = LEVELS[getLevelIndex(morning.feel - offset)].items
     .map((item) => item.label)
     .join(' + ');
-  // 우산 배너는 눈도 "비 N%"로 적어서, 눈이 오면 눈 배너를 먼저 쓴다.
-  const banners = getBanners(tomorrow);
-  const wet =
-    banners.find((banner) => banner.kind === 'snow') ??
-    banners.find((banner) => banner.kind === 'umbrella');
+  const wet = getWetBanner(getBanners(tomorrow));
   // 카드에 보이는 반올림 값끼리 비교해야 알림 숫자와 화면 숫자가 맞는다.
   const diff = Math.round(morning.feel) - Math.round(todayMorning.feel);
   const feelTitle = `내일 출근길 체감 ${formatTemp(morning.feel)}`;

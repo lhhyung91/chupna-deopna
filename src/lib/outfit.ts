@@ -1,3 +1,4 @@
+import { COMMUTES } from '@/lib/config';
 import { formatTemp } from '@/lib/format';
 import type { CommuteWeather, DayWeather, Sky } from '@/lib/weather';
 
@@ -186,6 +187,17 @@ export function getEveningNote(
 const isWet = (sky: Sky) =>
   sky === 'rain' || sky === 'sleet' || sky === 'shower' || sky === 'snow';
 const isSnowy = (sky: Sky) => sky === 'snow' || sky === 'sleet';
+
+// 지금 시각에 크게 보여줄 출퇴근 순번. 그 시간대가 끝날 때까지는 그쪽이 크고, 다 끝나면 반반(null).
+export function getFocusCommute(hour: number) {
+  const index = COMMUTES.findIndex(({ endHour }) => hour <= endHour);
+  return index === -1 ? null : index;
+}
+
+// 비·눈 배너 하나. 우산 배너는 눈도 "비 N%"로 적어서, 눈이 오면 눈 배너를 먼저 고른다.
+export const getWetBanner = (banners: Banner[]) =>
+  banners.find((banner) => banner.kind === 'snow') ??
+  banners.find((banner) => banner.kind === 'umbrella');
 
 // 놓치면 곤란한 순서(우산 > 눈 > 강풍 > 일교차)로 쌓는다.
 export function getBanners(day: DayWeather): Banner[] {

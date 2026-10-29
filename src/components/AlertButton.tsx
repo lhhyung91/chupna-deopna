@@ -2,6 +2,7 @@
 
 import { removeSubscription, saveSubscription } from '@/app/actions';
 import { haptic } from '@/lib/haptic';
+import type { Place } from '@/lib/location';
 import {
   type MouseEvent,
   useEffect,
@@ -11,7 +12,7 @@ import {
   useSyncExternalStore,
 } from 'react';
 
-type Props = { offset: number };
+type Props = { offset: number; place: Place };
 
 type Status = 'checking' | 'ready' | 'busy' | 'denied' | 'failed';
 
@@ -33,7 +34,7 @@ function toBytes(base64Url: string) {
 }
 
 // 헤더 오른쪽 종 아이콘. 눌러서 여는 설정 창은 포커스 가두기·Esc 닫기가 내장된 <dialog>를 쓴다.
-export function AlertButton({ offset }: Props) {
+export function AlertButton({ offset, place }: Props) {
   const supported = useSyncExternalStore(noop, isPushSupported, () => null);
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
@@ -55,10 +56,13 @@ export function AlertButton({ offset }: Props) {
       .catch(() => setStatus('ready'));
   }, [supported]);
 
-  // 크론이 서버에서 옷을 고르므로, 앱을 열거나 보정값이 바뀔 때마다 서버 쪽 보정값을 맞춘다.
+  // 크론이 서버에서 옷을 고르므로, 앱을 열거나 보정값·동네가 바뀔 때마다 서버 쪽 값을 맞춘다.
+  const { nx, ny } = place;
   useEffect(() => {
-    if (subscription) void saveSubscription(subscription.toJSON(), offset);
-  }, [subscription, offset]);
+    if (subscription) {
+      void saveSubscription(subscription.toJSON(), offset, { nx, ny });
+    }
+  }, [subscription, offset, nx, ny]);
 
   const toggle = async () => {
     haptic();

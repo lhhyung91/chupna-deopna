@@ -1,10 +1,12 @@
-import { COMMUTES, EVENING_HOUR, LOCATION } from '@/lib/config';
+import { COMMUTES, EVENING_HOUR } from '@/lib/config';
+import type { Place } from '@/lib/location';
 
-const API_URL =
-  'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst';
+const API_BASE = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
 const BASE_HOURS = [2, 5, 8, 11, 14, 17, 20, 23];
 // 발표 시각 이후 API에 반영되기까지 약 10분 걸린다.
 const PUBLISH_DELAY_MS = 10 * 60 * 1000;
+// 초단기실황은 매시 정각 관측분이 40분쯤 올라온다.
+const NOW_DELAY_MS = 40 * 60 * 1000;
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -36,7 +38,10 @@ export type DayWeather = {
   hourly: HourlyItem[];
 };
 
+export type NowWeather = { temp: number; feel: number; sky: Sky };
+
 export type Forecast = {
+  now: NowWeather;
   today: DayWeather;
   tomorrow: DayWeather;
 };
@@ -49,6 +54,7 @@ type KmaItem = {
   fcstValue: string;
 };
 type Grid = Map<string, Record<string, number>>;
+type GridPoint = Pick<Place, 'nx' | 'ny'>;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -63,8 +69,9 @@ export const formatDateLabel = (date: Date) => {
   return `${kst.getUTCMonth() + 1}월 ${kst.getUTCDate()}일 ${WEEKDAYS[kst.getUTCDay()]}요일`;
 };
 
-export const isEvening = (date: Date) =>
-  toKst(date).getUTCHours() >= EVENING_HOUR;
+export const kstHour = (date: Date) => toKst(date).getUTCHours();
+
+export const isEvening = (date: Date) => kstHour(date) >= EVENING_HOUR;
 
 const isPrecip = (sky: Sky) =>
   sky === 'rain' || sky === 'sleet' || sky === 'snow' || sky === 'shower';
@@ -101,7 +108,11 @@ function isKmaItem(value: unknown): value is KmaItem {
   );
 }
 
-async function fetchItems(base: Base): Promise<KmaItem[]> {
+async function requestKma(
+  operation: 'getVilageFcst' | 'getUltraSrtNcst',
+  base: Base,
+  point: GridPoint
+): Promise<unknown[]> {
   const rawKey = process.env.KMA_SERVICE_KEY;
   if (!rawKey) throw new Error('KMA_SERVICE_KEY가 설정되지 않았어요');
 
@@ -113,11 +124,11 @@ async function fetchItems(base: Base): Promise<KmaItem[]> {
     dataType: 'JSON',
     base_date: base.date,
     base_time: `${pad(base.hour)}00`,
-    nx: String(LOCATION.nx),
-    ny: String(LOCATION.ny),
+    nx: String(point.nx),
+    ny: String(point.ny),
   });
   // 발표 직후엔 NO_DATA가 올 수 있어서 영구 캐시 대신 짧게 재검증한다.
-  const res = await fetch(`${API_URL}?${params}`, {
+  const res = await fetch(`${API_BASE}/${operation}?${params}`, {
     next: { revalidate: 600 },
   });
   if (!res.ok) throw new Error(`기상청 API 응답 오류 (${res.status})`);
@@ -129,7 +140,30 @@ async function fetchItems(base: Base): Promise<KmaItem[]> {
   }
   const items = field(field(field(response, 'body'), 'items'), 'item');
   if (!Array.isArray(items)) throw new Error('기상청 API 응답 형식이 달라요');
+  return items;
+}
+
+async function fetchItems(base: Base, point: GridPoint): Promise<KmaItem[]> {
+  const items = await requestKma('getVilageFcst', base, point);
   return items.filter(isKmaItem);
+}
+
+// 초단기실황(관측값)의 기온·풍속·강수형태. 실패하면 null을 돌려 예보값으로 대신하게 한다.
+async function fetchObserved(kst: Date, point: GridPoint) {
+  const observed = new Date(kst.getTime() - NOW_DELAY_MS);
+  const base = { date: toDateKey(observed), hour: observed.getUTCHours() };
+  try {
+    const values = Object.fromEntries(
+      (await requestKma('getUltraSrtNcst', base, point)).map((item) => [
+        String(field(item, 'category')),
+        Number(field(item, 'obsrValue')),
+      ])
+    );
+    if (!Number.isFinite(values.T1H)) return null;
+    return { temp: values.T1H, wind: values.WSD ?? 0, pty: values.PTY ?? 0 };
+  } catch {
+    return null;
+  }
 }
 
 function toGrid(items: KmaItem[]): Grid {
@@ -236,14 +270,18 @@ function buildDay(
   };
 }
 
-export async function fetchForecast(now: Date): Promise<Forecast> {
+export async function fetchForecast(
+  now: Date,
+  point: GridPoint
+): Promise<Forecast> {
   const kst = toKst(now);
   const latest = latestBase(kst);
   const early = dayBase(kst);
   const isSameBase = latest.date === early.date && latest.hour === early.hour;
-  const [earlyItems, latestItems] = await Promise.all([
-    fetchItems(early),
-    isSameBase ? [] : fetchItems(latest),
+  const [earlyItems, latestItems, observed] = await Promise.all([
+    fetchItems(early, point),
+    isSameBase ? [] : fetchItems(latest, point),
+    fetchObserved(kst, point),
   ]);
   // 같은 시각이면 최신 발표분이 덮어쓰도록 뒤에 둔다.
   const grid = toGrid([...earlyItems, ...latestItems]);
@@ -254,7 +292,22 @@ export async function fetchForecast(now: Date): Promise<Forecast> {
     Math.floor(tomorrow.getTime() / DAY_MS) * DAY_MS
   );
 
+  // 하늘 상태는 실황에 없어서 이번 시각 예보를 쓰고, 지금 비·눈이 관측되면 그쪽을 따른다.
+  const forecastNow = hourAt(grid, toDateKey(kst), kst.getUTCHours());
+  const nowWeather: NowWeather | null = observed
+    ? {
+        temp: observed.temp,
+        feel: feelsLike(observed.temp, observed.wind),
+        sky:
+          observed.pty > 0
+            ? toSky(1, observed.pty)
+            : (forecastNow?.sky ?? 'sunny'),
+      }
+    : forecastNow;
+  if (!nowWeather) throw new Error('지금 날씨 정보가 없어요');
+
   return {
+    now: nowWeather,
     today: buildDay(
       grid,
       kst,
