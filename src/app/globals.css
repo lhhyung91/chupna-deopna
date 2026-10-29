@@ -109,7 +109,9 @@
   --font-num: var(--font-grotesk), sans-serif;
 }
 
+/* 375px 기준으로 짠 화면을 그보다 좁은 폰에선 rem 전체를 같은 비율로 줄여 배치가 그대로 유지되게 한다 */
 html {
+  font-size: clamp(13.5px, 4.2667vw, 16px);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
