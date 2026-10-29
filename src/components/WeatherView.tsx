@@ -1,23 +1,22 @@
 'use client';
 
 import { AlertButton } from '@/components/AlertButton';
-import { BannerList } from '@/components/BannerList';
 import { FeedbackCard } from '@/components/FeedbackCard';
 import { Header, type Tab } from '@/components/Header';
 import { HourlyForecast } from '@/components/HourlyForecast';
-import { OutfitCard, type OutfitLine } from '@/components/OutfitCard';
+import { OutfitCard } from '@/components/OutfitCard';
 import { OutfitGuide } from '@/components/OutfitGuide';
-import { WeatherHero } from '@/components/WeatherHero';
+import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
 import { formatTemp } from '@/lib/format';
 import type { Place } from '@/lib/location';
 import {
-  compareMornings,
-  getBanners,
-  getEveningNote,
   getLevelIndex,
-  getWetBanner,
+  getSkyNote,
+  getTake,
   LEVELS,
+  needsUmbrella,
+  type Take,
 } from '@/lib/outfit';
 import type { Forecast } from '@/lib/weather';
 import { AnimatePresence, motion, MotionConfig } from 'motion/react';
@@ -34,7 +33,9 @@ type Props = {
 export function WeatherView({ forecast, place, evening, initialTab }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
-  const { feeling, offset, save } = useFeedback(forecast.today.dateKey);
+  const { feeling, offset, nextOffset, save } = useFeedback(
+    forecast.today.dateKey
+  );
 
   // 홈 화면 앱을 켜둔 채 오래 두면 예보가 낡으므로, 다시 볼 때 서버 데이터를 다시 받는다.
   useEffect(() => {
@@ -47,24 +48,22 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
   }, [router]);
 
   const isToday = tab === 'today';
+  // 저녁 오늘 탭은 내일 얘기 없이 오늘 출퇴근을 돌아본다
+  const review = isToday && evening;
   const day = isToday ? forecast.today : forecast.tomorrow;
-  // 아침에 입고 나갈 옷이 먼저라 출근길로 고르고, 퇴근길은 아래 한 줄로 따로 알려준다.
+  const dayOffset = isToday ? offset : nextOffset;
   const [morning, eveningCommute] = day.commutes;
-  const levelIndex = getLevelIndex(morning.feel - offset);
+  // 아침에 입고 나갈 옷이 먼저라 출근길로 고른다
+  const levelIndex = getLevelIndex(morning.feel - dayOffset);
   const level = LEVELS[levelIndex];
-  const banners = getBanners(day);
-  // 비·눈은 날씨 옆 출퇴근 칸이 알려주고, 강풍·일교차는 옷 아래에 둔다
-  const wet = getWetBanner(banners);
-  const eveningNote = getEveningNote(morning, eveningCommute, offset);
-  // 한 줄에 한 가지씩 모은다. 팁(히트텍 등)은 출근 단계 선택 사항이라 퇴근 얘기처럼 읽혀 온도별 표에만 둔다
-  const lines: OutfitLine[] = [
-    ...(isToday
-      ? []
-      : [{ text: compareMornings(forecast.today.commutes[0], morning) }]),
-    ...(eveningNote
-      ? [{ lead: eveningNote.lead, text: ` ${eveningNote.text}` }]
-      : []),
-  ];
+  const take: Take = review
+    ? [
+        `아침 체감 ${formatTemp(morning.feel)}, 퇴근길 ${formatTemp(eveningCommute.feel)}였어요.`,
+        feeling
+          ? '기록했어요. 다음 추천에 반영할게요'
+          : '오늘 옷차림이 어땠는지 알려주세요',
+      ]
+    : getTake(day, dayOffset, isToday ? undefined : forecast.today.commutes[0]);
 
   // 저녁엔 피드백을 맨 위로 올린다. CSS order 대신 DOM 순서를 바꿔야 탭 이동 순서도 맞는다.
   const feedback = isToday && (
@@ -79,7 +78,8 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
         dateLabel={day.dateLabel}
         tab={tab}
         onTabChange={setTab}
-        action={<AlertButton offset={offset} place={place} />}
+        // 알림은 내일 옷을 알려주니 오늘 누른 피드백까지 반영한다
+        action={<AlertButton offset={nextOffset} place={place} />}
       />
       <div className="flex flex-col gap-3">
         {evening && feedback}
@@ -92,25 +92,34 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
             transition={{ duration: 1, ease: 'easeOut' }}
             className="grid grid-cols-6 gap-3"
           >
-            {/* 날씨를 먼저 보고 옷으로 이어지게 위에 둔다 */}
-            <WeatherHero
-              now={forecast.now}
+            <SummaryCard
+              now={isToday ? forecast.now : undefined}
               day={day}
-              isToday={isToday}
-              wet={wet}
+              note={
+                review
+                  ? '오늘 하루 정리'
+                  : getSkyNote(day, isToday ? forecast.now.sky : undefined)
+              }
+              take={take}
+              past={review}
             />
             <OutfitCard
-              title={isToday ? '오늘 뭐 입지?' : '내일 뭐 입지?'}
-              basis={`출근길 ${formatTemp(morning.feel)}처럼 느껴져요`}
+              title={
+                review
+                  ? '오늘 추천했던 옷'
+                  : isToday
+                    ? '오늘 뭐 입지?'
+                    : '내일 뭐 입지?'
+              }
+              basis={`${review ? '오늘 ' : ''}출근길 체감 ${formatTemp(morning.feel)} 기준`}
               items={level.items}
-              lines={lines}
+              umbrella={needsUmbrella(day)}
             />
-            <BannerList banners={banners.filter((banner) => banner !== wet)} />
             <HourlyForecast hourly={day.hourly} highlightFirst={isToday} />
           </motion.div>
         </AnimatePresence>
         {!evening && feedback}
-        <OutfitGuide currentIndex={levelIndex} offset={offset} />
+        <OutfitGuide currentIndex={levelIndex} offset={dayOffset} />
       </div>
     </MotionConfig>
   );

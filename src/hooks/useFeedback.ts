@@ -48,11 +48,18 @@ export function useFeedback(dateKey: string) {
   // 서버 렌더 땐 기록이 없는 것으로 보고, 하이드레이션 후 localStorage 값으로 바뀐다.
   const records = parse(useSyncExternalStore(subscribe, readRaw, () => null));
 
-  // 오늘 누른 피드백은 내일 추천부터 반영한다.
-  const score = Object.entries(records)
-    .filter(([date]) => date !== dateKey)
-    .reduce((sum, [, f]) => sum + (f === 'cold' ? 1 : f === 'hot' ? -1 : 0), 0);
-  const offset = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, score));
+  const offsetOf = (entries: [string, Feeling][]) => {
+    const score = entries.reduce(
+      (sum, [, f]) => sum + (f === 'cold' ? 1 : f === 'hot' ? -1 : 0),
+      0
+    );
+    return Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, score));
+  };
+  // 오늘 추천은 아침에 보여준 그대로 두고, 오늘 누른 피드백은 내일 탭과 저녁 알림부터 반영한다.
+  const offset = offsetOf(
+    Object.entries(records).filter(([date]) => date !== dateKey)
+  );
+  const nextOffset = offsetOf(Object.entries(records));
 
   const save = (feeling: Feeling) => {
     const recent = Object.entries({ ...records, [dateKey]: feeling })
@@ -69,5 +76,5 @@ export function useFeedback(dateKey: string) {
     listeners.forEach((listener) => listener());
   };
 
-  return { feeling: records[dateKey] ?? null, offset, save };
+  return { feeling: records[dateKey] ?? null, offset, nextOffset, save };
 }

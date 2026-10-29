@@ -39,12 +39,15 @@
   - `src/lib/kakao.ts`: 좌표 → "서울 중구" (카카오 로컬 `coord2regioncode`)
   - `src/app/actions.ts`의 `updatePlace`가 쿠키를 바꾸면 화면이 새 동네로 다시 그려진다.
   - `src/components/PlaceHeading.tsx`: 이름 버튼. 권한이 이미 허용돼 있으면 열 때마다 조용히 따라간다.
-- 화면 순서: 헤더 → 지금 날씨 6 : 출근 → 퇴근 4(`WeatherHero`, 비·눈이면 오른쪽 칸 색이 바뀜) → 옷차림 → 강풍·일교차 배너 → 시간대별 → 피드백 → 온도별 옷차림 표
+- 화면 순서: 헤더 → 요약(`SummaryCard`) → 옷차림(비·눈이면 `+ 우산` 칸) → 시간대별 → 피드백 → 온도별 옷차림 표
+  - 요약: 지금 기온·하늘 / 출근 → 퇴근 체감과 차이 배지 / 두 줄 한마디
+  - 저녁(18시~) 오늘 탭: 피드백이 맨 위, 요약은 오늘 하루 정리(과거형), 옷 제목은 "오늘 추천했던 옷"
 - `src/lib/outfit.ts`
   - `LEVELS`: 출근길 체감 기준 10단계. 흔한 기온별 표보다 경계를 3° 낮춰 둠.
-  - `getEveningNote`: 퇴근길 안내 한 줄
-  - `getBanners`: 우산 > 눈 > 강풍 > 일교차 순서
-- `src/hooks/useFeedback.ts`: 춥다/덥다 피드백을 localStorage에 14일 저장해 ±3°(`MAX_OFFSET`) 보정
+  - `getTake`: 요약 두 줄 한마디. 눈 > 비 > 강풍 > 일교차 중 하나만, 없으면 퇴근길 안내(`getEveningTip`)
+  - `getCommuteDelta`: 출근 → 퇴근 체감 차이와 문구. `isRainy`(60% 이상 또는 하늘이 비)가 우산·비 표시 기준
+  - `getBanners`: 저녁 알림 문구에만 쓴다
+- `src/hooks/useFeedback.ts`: 춥다/덥다 피드백을 localStorage에 14일 저장해 ±3°(`MAX_OFFSET`) 보정. 오늘 누른 건 오늘 추천은 그대로 두고 내일 탭·알림(`nextOffset`)부터 반영
 - 저녁 알림 (웹 푸시)
   - `src/lib/alert.ts`: 문구. 내일 비·눈이 오거나 출근길 체감이 오늘과 5° 이상 다를 때만 보낸다.
   - `src/lib/pushStore.ts`: Upstash Redis에 구독과 보정값을 저장

@@ -7,7 +7,7 @@ export default function Loading() {
       <Header action={<div className="size-11 rounded-2xl bg-skeleton" />} />
       {/* 칸 높이는 375px 실제 화면에 맞춰, 다 그려질 때 내용이 밀리지 않게 한다 */}
       <div aria-busy="true" className="flex flex-col gap-3">
-        <div className="flex h-36 items-center justify-center gap-2 rounded-[18px] bg-skeleton text-sm text-muted">
+        <div className="flex h-57.5 items-center justify-center gap-2 rounded-[18px] bg-skeleton text-sm text-muted">
           <svg
             width="20"
             height="20"
@@ -32,7 +32,8 @@ export default function Loading() {
           </svg>
           날씨 불러오는 중…
         </div>
-        <div className="h-65 rounded-[18px] bg-skeleton" />
+        {/* 옷 칸은 비 없는 날(3칸) 높이에 맞춘다 */}
+        <div className="h-50 rounded-[18px] bg-skeleton" />
         <div className="h-49 rounded-[18px] bg-skeleton" />
       </div>
     </>

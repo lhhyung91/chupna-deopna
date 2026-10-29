@@ -1,11 +1,12 @@
 import type { ClothingKind } from '@/lib/outfit';
 import Image from 'next/image';
 
-type Props = { kind: ClothingKind; size: 32 | 76; priority?: boolean };
+type Props = { kind: ClothingKind; size: 32 | 56 | 76; priority?: boolean };
 
 // 화면 크기는 rem으로 잡아 좁은 폰에서 글자와 같이 줄어들게 한다
 const SIZE_CLASS: Record<Props['size'], string> = {
   32: 'size-8',
+  56: 'size-14',
   76: 'size-19',
 };
 
