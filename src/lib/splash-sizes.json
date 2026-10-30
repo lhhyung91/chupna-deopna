@@ -1,28 +1,73 @@
 [
-  { "device": "16·17 Pro Max", "width": 440, "height": 956, "ratio": 3 },
-  { "device": "16·17 Pro, 17", "width": 402, "height": 874, "ratio": 3 },
-  { "device": "Air", "width": 420, "height": 912, "ratio": 3 },
+  {
+    "device": "16·17 Pro Max",
+    "width": 440,
+    "height": 956,
+    "ratio": 3,
+    "statusBar": 62
+  },
+  {
+    "device": "16·17 Pro, 17",
+    "width": 402,
+    "height": 874,
+    "ratio": 3,
+    "statusBar": 62
+  },
+  { "device": "Air", "width": 420, "height": 912, "ratio": 3, "statusBar": 62 },
   {
     "device": "14·15 Pro Max, 15·16 Plus",
     "width": 430,
     "height": 932,
-    "ratio": 3
+    "ratio": 3,
+    "statusBar": 59
   },
-  { "device": "14·15 Pro, 15, 16", "width": 393, "height": 852, "ratio": 3 },
+  {
+    "device": "14·15 Pro, 15, 16",
+    "width": 393,
+    "height": 852,
+    "ratio": 3,
+    "statusBar": 59
+  },
   {
     "device": "12·13 Pro Max, 14 Plus",
     "width": 428,
     "height": 926,
-    "ratio": 3
+    "ratio": 3,
+    "statusBar": 47
   },
-  { "device": "12·13·14, 12·13 Pro", "width": 390, "height": 844, "ratio": 3 },
+  {
+    "device": "12·13·14, 12·13 Pro",
+    "width": 390,
+    "height": 844,
+    "ratio": 3,
+    "statusBar": 47
+  },
   {
     "device": "X·XS·11 Pro, 12·13 mini",
     "width": 375,
     "height": 812,
-    "ratio": 3
+    "ratio": 3,
+    "statusBar": 47
   },
-  { "device": "XS Max, 11 Pro Max", "width": 414, "height": 896, "ratio": 3 },
-  { "device": "XR, 11", "width": 414, "height": 896, "ratio": 2 },
-  { "device": "SE 2·3, 8", "width": 375, "height": 667, "ratio": 2 }
+  {
+    "device": "XS Max, 11 Pro Max",
+    "width": 414,
+    "height": 896,
+    "ratio": 3,
+    "statusBar": 44
+  },
+  {
+    "device": "XR, 11",
+    "width": 414,
+    "height": 896,
+    "ratio": 2,
+    "statusBar": 48
+  },
+  {
+    "device": "SE 2·3, 8",
+    "width": 375,
+    "height": 667,
+    "ratio": 2,
+    "statusBar": 20
+  }
 ]
