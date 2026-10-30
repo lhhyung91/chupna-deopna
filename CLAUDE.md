@@ -24,7 +24,10 @@
   - `h-[88px]` 대신 `h-22`, `text-base leading-[22px]` 대신 `text-base/5.5`, `w-14 h-14` 대신 `size-14`
   - 임의 값은 스케일에 없을 때만 쓴다.
 - 인라인 `style` 금지, 모바일(320·375px)부터 생각한다. 주석은 한국어 한 줄로 "왜"만 쓴다.
-- 화면 확인은 `npm run build && npx next start -p 3100`으로 한다. dev 서버는 Turbopack CSS 캐시가 낡을 때가 있다.
+- 화면 확인은 사용자가 띄워 둔 `localhost:3000` dev 서버로 한다. 3100 등 다른 서버를 따로 띄우지 않는다.
+  - 먼저 `lsof -iTCP:3000 -sTCP:LISTEN`으로 3000이 떠 있는지 본다. 꺼져 있을 때만 다른 방법을 쓴다.
+  - 3000의 CSS가 낡아 보이면(Turbopack 캐시) 사용자에게 `rm -rf .next` 후 dev 서버 재시작을 제안한다.
+  - `npm run build`는 검사 단계에서 계속 돌린다. 빌드 뒤 3000 화면이 깨지면 사용자에게 알린다.
 - **작업 단위가 끝나면 노션 기록을 먼저 제안**한다.
   - 기록 위치: 노션 "작업 내역" > [chupna-deopna (춥나덥나)](https://app.notion.com/p/40792c61ae85814f81cfe1b97725b77a)
   - 형식: `## MM-DD — 제목` / `> 결과 한 줄` / 요청·진행·커밋 / `<toggle>자세히</toggle>`, 최신이 위
