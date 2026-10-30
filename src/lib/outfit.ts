@@ -196,17 +196,24 @@ export const isRainy = ({ pop, sky }: { pop: number; sky: Sky }) =>
 // 옷 카드의 "+ 우산" 칸. 출퇴근 중 한 번이라도 비·눈이면 챙긴다.
 export const needsUmbrella = (day: DayWeather) => day.commutes.some(isRainy);
 
-// 내일 탭 첫 줄. 저녁에 내일 옷을 고를 때 오늘 아침과 얼마나 다른지가 가장 궁금하다.
-export function compareMornings(
-  today: CommuteWeather,
-  tomorrow: CommuteWeather
-) {
+// 내일 탭은 오늘 아침과, 오늘 탭 출근 전엔 어제 아침과 견준다. 입던 옷에서 더할지 뺄지가 가장 빠른 판단이다.
+export type MorningCompare = { label: '오늘 아침' | '어제 아침'; feel: number };
+
+export function compareMornings(base: MorningCompare, target: CommuteWeather) {
   // 화면에 보이는 반올림 값끼리 비교해야 문장 숫자와 칸 숫자가 맞는다
-  const diff = Math.round(tomorrow.feel) - Math.round(today.feel);
-  const word = diff < 0 ? '추워요' : '따뜻해요';
-  if (Math.abs(diff) >= 5) return `오늘 아침보다 ${Math.abs(diff)}° ${word}`;
-  if (Math.abs(diff) >= 2) return `오늘 아침보다 조금 ${word}`;
-  return '오늘 아침과 비슷해요';
+  const diff = Math.round(target.feel) - Math.round(base.feel);
+  // 1°는 예보 오차·반올림 안이라 몸으로 느끼기 어렵다
+  if (Math.abs(diff) <= 1) return `${base.label}과 비슷해요`;
+  // 차이 배지와 같은 20° 기준으로, 더운 날엔 더위로 말한다
+  const hot = Math.round(target.feel) >= 20;
+  const word = hot
+    ? diff > 0
+      ? '더워요'
+      : '덜 더워요'
+    : diff > 0
+      ? '따뜻해요'
+      : '추워요';
+  return `${base.label}보다 ${Math.abs(diff)}° ${word}`;
 }
 
 // 비·눈 배너 하나. 우산 배너는 눈도 "비 N%"로 적어서, 눈이 오면 눈 배너를 먼저 고른다.
@@ -337,7 +344,7 @@ export type Take = [situation: string, action: string];
 export function getTake(
   day: DayWeather,
   offset: number,
-  todayMorning?: CommuteWeather
+  compare?: MorningCompare
 ): Take {
   const [morning, evening] = day.commutes;
 
@@ -366,9 +373,9 @@ export function getTake(
   }
 
   return [
-    // 내일 탭은 오늘 아침과 얼마나 다른지가 가장 궁금하다
-    todayMorning
-      ? `${compareMornings(todayMorning, morning)}.`
+    // 견줄 아침이 있으면 그 차이가 하루 전체 느낌보다 먼저다
+    compare
+      ? `${compareMornings(compare, morning)}.`
       : `하루 종일 ${feelWord(morning, evening)}.`,
     getEveningTip(morning, evening, offset) ?? '추천대로 입으면 돼요',
   ];

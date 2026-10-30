@@ -10,12 +10,14 @@ import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
 import { formatTemp } from '@/lib/format';
 import type { Place } from '@/lib/location';
+import { MORNINGS_COOKIE, nextMornings } from '@/lib/mornings';
 import {
   getLevelIndex,
   getSkyNote,
   getTake,
   LEVELS,
   needsUmbrella,
+  type MorningCompare,
   type Take,
 } from '@/lib/outfit';
 import type { Forecast } from '@/lib/weather';
@@ -27,10 +29,18 @@ type Props = {
   forecast: Forecast;
   place: Place;
   evening: boolean;
+  // 오늘 탭 출근 전에만 있다. 어제 앱을 안 열었으면 없다
+  yesterdayFeel?: number;
   initialTab: Tab;
 };
 
-export function WeatherView({ forecast, place, evening, initialTab }: Props) {
+export function WeatherView({
+  forecast,
+  place,
+  evening,
+  yesterdayFeel,
+  initialTab,
+}: Props) {
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
   const { feeling, offset, nextOffset, save } = useFeedback(
@@ -47,6 +57,17 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
       document.removeEventListener('visibilitychange', refreshWhenVisible);
   }, [router]);
 
+  // 서버 액션으로 쿠키를 쓰면 화면을 다시 그려서, 브라우저에서 바로 적는다
+  const todayKey = forecast.today.dateKey;
+  const todayFeel = forecast.today.commutes[0].feel;
+  useEffect(() => {
+    const current = document.cookie
+      .split('; ')
+      .find((cookie) => cookie.startsWith(`${MORNINGS_COOKIE}=`))
+      ?.slice(MORNINGS_COOKIE.length + 1);
+    document.cookie = `${MORNINGS_COOKIE}=${nextMornings(current, todayKey, todayFeel)}; max-age=${3 * 24 * 60 * 60}; path=/; samesite=lax`;
+  }, [todayKey, todayFeel]);
+
   const isToday = tab === 'today';
   // 저녁 오늘 탭은 내일 얘기 없이 오늘 출퇴근을 돌아본다
   const review = isToday && evening;
@@ -56,6 +77,11 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
   // 아침에 입고 나갈 옷이 먼저라 출근길로 고른다
   const levelIndex = getLevelIndex(morning.feel - dayOffset);
   const level = LEVELS[levelIndex];
+  const compare: MorningCompare | undefined = isToday
+    ? yesterdayFeel === undefined
+      ? undefined
+      : { label: '어제 아침', feel: yesterdayFeel }
+    : { label: '오늘 아침', feel: todayFeel };
   // 한 줄에 들어가야 해서 "체감"은 뺀다. 위 출퇴근 숫자가 이미 체감이다
   const take: Take = review
     ? [
@@ -64,7 +90,7 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
           ? '기록했어요. 다음에 반영할게요'
           : '옷차림이 어땠는지 알려주세요',
       ]
-    : getTake(day, dayOffset, isToday ? undefined : forecast.today.commutes[0]);
+    : getTake(day, dayOffset, compare);
 
   // 저녁엔 피드백을 맨 위로 올린다. CSS order 대신 DOM 순서를 바꿔야 탭 이동 순서도 맞는다.
   const feedback = isToday && (

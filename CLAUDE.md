@@ -47,6 +47,7 @@
   - `getTake`: 요약 두 줄 한마디. 눈 > 비 > 강풍 > 일교차 중 하나만, 없으면 퇴근길 안내(`getEveningTip`). 각 줄은 칸 안 한 줄에 들어가게 쓴다
   - `getCommuteDelta`: 출근 → 퇴근 체감 차이와 문구. `isRainy`(60% 이상 또는 하늘이 비)가 우산·비 표시 기준
   - `getBanners`: 저녁 알림 문구에만 쓴다
+- `src/lib/mornings.ts`: 쿠키 `mornings`에 오늘·어제 출근 체감을 남긴다. 오늘 탭은 출근 전(09시대까지)에만 "어제 아침보다"로 견준다
 - `src/hooks/useFeedback.ts`: 춥다/덥다 피드백을 localStorage에 14일 저장해 ±3°(`MAX_OFFSET`) 보정. 오늘 누른 건 오늘 추천은 그대로 두고 내일 탭·알림(`nextOffset`)부터 반영
 - 저녁 알림 (웹 푸시)
   - `src/lib/alert.ts`: 문구. 내일 비·눈이 오거나 출근길 체감이 오늘과 5° 이상 다를 때만 보낸다.
