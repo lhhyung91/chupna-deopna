@@ -1,6 +1,7 @@
 'use client';
 
 import { SplashScreen } from '@/components/SplashScreen';
+import { SPLASH_FULL_EVERY_MS, SPLASH_SHOWN_KEY } from '@/lib/splash';
 import {
   createContext,
   type ReactNode,
@@ -16,16 +17,13 @@ const MIN_MS = 2000;
 const MAX_WAIT_MS = 3000;
 // 걷힐 때 아래 화면 전체가 천천히 드러나게 한다. 짧으면 새로고침 때 내용이 툭 나타난다
 const FADE_MS = 500;
-// 기상청 단기예보가 3시간마다 새로 나와서, 그만큼 지났을 때만 로딩 화면을 다 보여준다
-const FULL_EVERY_MS = 3 * 60 * 60 * 1000;
-const SHOWN_KEY = 'splash-shown-at';
 
 // 마지막으로 다 보여준 지 3시간이 지났으면 이번에 다 보여주고 시각을 남긴다
 function takeFullTurn() {
   try {
-    const last = Number(localStorage.getItem(SHOWN_KEY)) || 0;
-    if (Date.now() - last < FULL_EVERY_MS) return false;
-    localStorage.setItem(SHOWN_KEY, String(Date.now()));
+    const last = Number(localStorage.getItem(SPLASH_SHOWN_KEY)) || 0;
+    if (Date.now() - last < SPLASH_FULL_EVERY_MS) return false;
+    localStorage.setItem(SPLASH_SHOWN_KEY, String(Date.now()));
   } catch {}
   return true;
 }
@@ -39,6 +37,15 @@ export function SplashProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<'show' | 'leaving' | 'gone'>('show');
   // 서버 HTML은 기록을 몰라서 늘 로딩 화면을 그리고, 다 보여줄지는 브라우저에서 한 번만 정한다(화면에는 안 쓰는 값)
   const full = useRef<boolean | null>(null);
+
+  // 다시 열 때 저장된 화면을 바로 띄우는 서비스 워커(public/sw.js). dev에선 고친 코드가 안 보이게 되므로 배포본에서만 쓴다
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') return;
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (phase === 'gone' || (phase === 'show' && hold === null)) return;
