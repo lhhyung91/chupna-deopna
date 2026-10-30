@@ -1,6 +1,7 @@
 'use client';
 
 import { PlaceHeading } from '@/components/PlaceHeading';
+import type { Locate } from '@/hooks/useLocate';
 import { haptic } from '@/lib/haptic';
 import type { Place } from '@/lib/location';
 import { motion } from 'motion/react';
@@ -15,6 +16,9 @@ const TABS: { id: Tab; label: string }[] = [
 
 type Props = {
   place?: Place;
+  // 쿠키에 동네가 없으면 처음 온 사람이라 위치 버튼을 알려준다
+  placeSaved?: boolean;
+  locate?: Locate;
   dateLabel?: string;
   tab?: Tab;
   onTabChange?: (tab: Tab) => void;
@@ -23,6 +27,8 @@ type Props = {
 
 export function Header({
   place,
+  placeSaved = true,
+  locate,
   dateLabel,
   tab = 'today',
   onTabChange,
@@ -31,9 +37,14 @@ export function Header({
   return (
     <header className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
-        {/* 로딩 화면은 빌드 때 만들어져 동네·날짜를 몰라서 회색 막대로 둔다 */}
-        {place && dateLabel ? (
-          <PlaceHeading place={place} dateLabel={dateLabel} />
+        {/* 에러 화면은 동네를 몰라서 회색 막대로 둔다 */}
+        {place && locate && dateLabel ? (
+          <PlaceHeading
+            place={place}
+            placeSaved={placeSaved}
+            locate={locate}
+            dateLabel={dateLabel}
+          />
         ) : (
           <div className="flex flex-col gap-2 pt-1">
             <div className="h-7 w-36 rounded-full bg-skeleton" />

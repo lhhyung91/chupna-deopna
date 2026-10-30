@@ -9,6 +9,7 @@ import { OutfitGuide } from '@/components/OutfitGuide';
 import { SplashScreen } from '@/components/SplashScreen';
 import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
+import { useLocate } from '@/hooks/useLocate';
 import { useSplash } from '@/hooks/useSplash';
 import { formatTemp } from '@/lib/format';
 import type { Place } from '@/lib/location';
@@ -33,6 +34,7 @@ type Props = {
   evening: boolean;
   // 어제 앱을 안 열었으면 없다
   yesterdayFeel?: number;
+  placeSaved: boolean;
   initialTab: Tab;
 };
 
@@ -41,10 +43,13 @@ export function WeatherView({
   place,
   evening,
   yesterdayFeel,
+  placeSaved,
   initialTab,
 }: Props) {
   const router = useRouter();
-  const splash = useSplash();
+  const location = useLocate(place);
+  // 열 때 조용히 위치를 확인하는 동안은 로딩 화면 뒤에서 끝내, 첫 화면이 곧바로 바뀌지 않게 한다
+  const splash = useSplash(location.settling);
   const [tab, setTab] = useState(initialTab);
   const { feeling, offset, nextOffset, save } = useFeedback(
     forecast.today.dateKey
@@ -105,18 +110,23 @@ export function WeatherView({
     <MotionConfig reducedMotion="user">
       <Header
         place={place}
+        placeSaved={placeSaved}
+        locate={location}
         dateLabel={day.dateLabel}
         tab={tab}
         onTabChange={setTab}
         // 알림은 내일 옷을 알려주니 오늘 누른 피드백까지 반영한다
         action={<AlertButton offset={nextOffset} place={place} />}
       />
-      <div className="flex flex-col gap-3">
+      {/* 새 동네 예보가 올 때까지 흐리게 둬서, 지금 보이는 게 곧 바뀐다는 걸 알린다 */}
+      <div
+        className={`flex flex-col gap-3 transition-opacity duration-300 ${location.busy ? 'opacity-50' : ''}`}
+      >
         {evening && feedback}
-        {/* 탭마다 새로 그려야 같은 시각 칸(06시)을 스냅이 다시 따라가지 않는다. 기다림 없이 들어오기만 한다 */}
+        {/* 탭마다 새로 그려야 같은 시각 칸(06시)을 스냅이 다시 따라가지 않는다. 동네가 바뀌어도 같은 페이드로 들어온다 */}
         <AnimatePresence initial={false}>
           <motion.div
-            key={tab}
+            key={`${tab}-${place.nx}-${place.ny}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1.4, ease: 'easeOut' }}

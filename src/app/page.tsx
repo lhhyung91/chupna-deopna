@@ -11,7 +11,8 @@ export default async function Home({ searchParams }: PageProps<'/'>) {
   const now = new Date();
   const jar = await cookies();
   // 폰 위치를 잡은 적이 있으면 그 동네, 아니면 기본 동네 예보를 그린다.
-  const place = parsePlace(jar.get(PLACE_COOKIE)?.value) ?? DEFAULT_PLACE;
+  const savedPlace = parsePlace(jar.get(PLACE_COOKIE)?.value);
+  const place = savedPlace ?? DEFAULT_PLACE;
   // 어제 연 날 남긴 출근 체감. 요약 하늘 아래 "어제보다"에 쓴다
   const yesterdayFeel = parseMornings(jar.get(MORNINGS_COOKIE)?.value)[
     yesterdayKey(now)
@@ -28,6 +29,7 @@ export default async function Home({ searchParams }: PageProps<'/'>) {
       place={place}
       evening={isEvening(now)}
       yesterdayFeel={yesterdayFeel}
+      placeSaved={savedPlace !== null}
       initialTab={day === 'tomorrow' ? 'tomorrow' : 'today'}
     />
   );
