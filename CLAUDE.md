@@ -44,7 +44,7 @@
   - 저녁(18시~) 오늘 탭: 피드백이 맨 위, 요약은 오늘 하루 정리(과거형), 옷 제목은 "오늘 추천했던 옷"
 - `src/lib/outfit.ts`
   - `LEVELS`: 출근길 체감 기준 10단계. 흔한 기온별 표보다 경계를 3° 낮춰 둠.
-  - `getTake`: 요약 두 줄 한마디. 눈 > 비 > 강풍 > 일교차 중 하나만, 없으면 퇴근길 안내(`getEveningTip`)
+  - `getTake`: 요약 두 줄 한마디. 눈 > 비 > 강풍 > 일교차 중 하나만, 없으면 퇴근길 안내(`getEveningTip`). 각 줄은 칸 안 한 줄에 들어가게 쓴다
   - `getCommuteDelta`: 출근 → 퇴근 체감 차이와 문구. `isRainy`(60% 이상 또는 하늘이 비)가 우산·비 표시 기준
   - `getBanners`: 저녁 알림 문구에만 쓴다
 - `src/hooks/useFeedback.ts`: 춥다/덥다 피드백을 localStorage에 14일 저장해 ±3°(`MAX_OFFSET`) 보정. 오늘 누른 건 오늘 추천은 그대로 두고 내일 탭·알림(`nextOffset`)부터 반영

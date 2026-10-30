@@ -60,7 +60,7 @@ export function SummaryCard({ now, day, note, take, past }: Props) {
   return (
     <section
       aria-label={now ? '오늘 요약' : '내일 요약'}
-      className="col-span-6 flex flex-col gap-3 card px-4 pt-3.5 pb-4"
+      className="col-span-6 flex flex-col gap-2.5 card px-4 pt-3.5 pb-4"
     >
       <div className="flex items-center gap-2">
         <WeatherIcon kind={sky} size={44} />
@@ -126,9 +126,10 @@ export function SummaryCard({ now, day, note, take, past }: Props) {
         <Commute commute={evening} end />
       </div>
 
-      <p className="rounded-xl bg-well px-3 py-2.5 text-sm/5 break-keep shadow-well">
-        <b className="block">{take[0]}</b>
-        {take[1]}
+      {/* 문구 길이와 상관없이 날마다 같은 높이로 둔다 */}
+      <p className="flex min-h-16 flex-col justify-center gap-0.5 rounded-[0.875rem] border border-hint-line bg-hint px-3 py-2.5 break-keep shadow-hint">
+        <b className="text-[0.9375rem]/5">{take[0]}</b>
+        <span className="text-sm/5 font-medium text-hint-sub">{take[1]}</span>
       </p>
     </section>
   );
