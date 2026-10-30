@@ -6,8 +6,10 @@ import { Header, type Tab } from '@/components/Header';
 import { HourlyForecast } from '@/components/HourlyForecast';
 import { OutfitCard } from '@/components/OutfitCard';
 import { OutfitGuide } from '@/components/OutfitGuide';
+import { SplashScreen } from '@/components/SplashScreen';
 import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
+import { useSplash } from '@/hooks/useSplash';
 import { formatTemp } from '@/lib/format';
 import type { Place } from '@/lib/location';
 import { MORNINGS_COOKIE, nextMornings } from '@/lib/mornings';
@@ -42,6 +44,7 @@ export function WeatherView({
   initialTab,
 }: Props) {
   const router = useRouter();
+  const splash = useSplash();
   const [tab, setTab] = useState(initialTab);
   const { feeling, offset, nextOffset, save } = useFeedback(
     forecast.today.dateKey
@@ -150,6 +153,7 @@ export function WeatherView({
         {/* 탭을 바꾸면 표를 닫힌 상태로 다시 시작한다 */}
         <OutfitGuide key={tab} currentIndex={levelIndex} offset={dayOffset} />
       </div>
+      {splash !== 'gone' && <SplashScreen leaving={splash === 'leaving'} />}
     </MotionConfig>
   );
 }
