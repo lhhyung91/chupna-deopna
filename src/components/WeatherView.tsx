@@ -147,7 +147,8 @@ export function WeatherView({
           </motion.div>
         </AnimatePresence>
         {!evening && feedback}
-        <OutfitGuide currentIndex={levelIndex} offset={dayOffset} />
+        {/* 탭을 바꾸면 표를 닫힌 상태로 다시 시작한다 */}
+        <OutfitGuide key={tab} currentIndex={levelIndex} offset={dayOffset} />
       </div>
     </MotionConfig>
   );
