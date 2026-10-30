@@ -44,6 +44,8 @@ export const metadata: Metadata = {
     capable: true,
     startupImage: startupImages,
   },
+  // Next는 capable을 표준 이름(mobile-web-app-capable)으로만 내보내는데, iOS 시작 그림은 apple- 이름이 있어야 쓰인다
+  other: { 'apple-mobile-web-app-capable': 'yes' },
 };
 
 export const viewport: Viewport = {
