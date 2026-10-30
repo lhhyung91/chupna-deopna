@@ -1,7 +1,11 @@
 'use client';
 
 import { SplashScreen } from '@/components/SplashScreen';
-import { SPLASH_FULL_EVERY_MS, SPLASH_SHOWN_KEY } from '@/lib/splash';
+import {
+  APP_HEIGHT_KEY,
+  SPLASH_FULL_EVERY_MS,
+  SPLASH_SHOWN_KEY,
+} from '@/lib/splash';
 import {
   createContext,
   type ReactNode,
@@ -46,6 +50,18 @@ export function SplashProvider({ children }: { children: ReactNode }) {
       .register('/sw.js', { scope: '/', updateViaCache: 'none' })
       .catch(() => {});
   }, []);
+
+  // 로딩 화면이 걷힐 땐 앱 높이가 자리 잡은 뒤라, 그 실제 높이를 남겨 다음에 열 때 로딩 화면 높이로 쓴다(layout.tsx)
+  useEffect(() => {
+    if (phase !== 'gone') return;
+    const standalone =
+      ('standalone' in navigator && navigator.standalone === true) ||
+      matchMedia('(display-mode: standalone)').matches;
+    if (!standalone || innerHeight <= innerWidth) return;
+    try {
+      localStorage.setItem(APP_HEIGHT_KEY, String(innerHeight));
+    } catch {}
+  }, [phase]);
 
   useEffect(() => {
     if (phase === 'gone' || (phase === 'show' && hold === null)) return;

@@ -300,3 +300,8 @@ body {
 :root[data-splash='skip'] [data-splash-screen] {
   display: none;
 }
+
+/* 홈 화면 앱은 layout.tsx 스크립트가 실제 높이를 넣어 준다. 일반 브라우저는 그때 화면 높이를 쓴다 */
+[data-splash-frame] {
+  height: var(--app-h, 100%);
+}

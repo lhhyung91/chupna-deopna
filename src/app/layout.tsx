@@ -1,8 +1,10 @@
 import { SplashProvider } from '@/components/SplashGate';
 import { SITE_URL } from '@/lib/config';
 import {
+  APP_HEIGHT_KEY,
   SPLASH_FULL_EVERY_MS,
   SPLASH_SHOWN_KEY,
+  STATUS_BARS,
   startupImages,
 } from '@/lib/splash';
 import type { Metadata, Viewport } from 'next';
@@ -60,19 +62,19 @@ export const viewport: Viewport = {
   ],
 };
 
-// 3시간 안에 다시 열면 저장된 화면(sw.js)이 바로 뜨므로, 첫 그림 전에 로딩 화면을 숨겨 잠깐 비치지 않게 한다
-const SKIP_SPLASH = `try{var t=+localStorage.getItem('${SPLASH_SHOWN_KEY}');if(t&&Date.now()-t<${SPLASH_FULL_EVERY_MS})document.documentElement.dataset.splash='skip'}catch(e){}`;
+// 첫 그림 전: 3시간 안이면 로딩 화면을 숨기고(sw.js가 저장본을 띄움), 홈 화면 앱이 첫 순간 높이를 잘못 잡아도 로딩 화면이 안 움직이게 실제 높이로 고정한다
+const BEFORE_PAINT = `try{var d=document.documentElement,t=+localStorage.getItem('${SPLASH_SHOWN_KEY}');if(t&&Date.now()-t<${SPLASH_FULL_EVERY_MS})d.dataset.splash='skip';if(navigator.standalone||matchMedia('(display-mode: standalone)').matches){var h=+localStorage.getItem('${APP_HEIGHT_KEY}');if(!h){var b=${JSON.stringify(STATUS_BARS)}[screen.width+'x'+screen.height+'@'+devicePixelRatio];if(b)h=screen.height-b}if(h)d.style.setProperty('--app-h',h+'px')}}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    // 위 스크립트가 data-splash를 먼저 달아서, React가 서버 HTML과 다르다고 경고하지 않게 한다
+    // 위 스크립트가 data-splash·--app-h를 먼저 달아서, React가 서버 HTML과 다르다고 경고하지 않게 한다
     <html
       lang="ko"
       className={`${noto.variable} ${blackHan.variable} ${grotesk.variable} antialiased`}
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SKIP_SPLASH }} />
+        <script dangerouslySetInnerHTML={{ __html: BEFORE_PAINT }} />
       </head>
       <body className="font-sans">
         <SplashProvider>
