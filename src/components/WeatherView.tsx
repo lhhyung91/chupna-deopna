@@ -88,8 +88,8 @@ export function WeatherView({ forecast, place, evening, initialTab }: Props) {
         <AnimatePresence initial={false}>
           <motion.div
             key={tab}
-            initial={{ opacity: 0, x: isToday ? -16 : 16 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 1, ease: 'easeOut' }}
             className="grid grid-cols-6 gap-3"
           >
