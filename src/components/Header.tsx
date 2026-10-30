@@ -60,16 +60,16 @@ export function Header({
                 haptic();
                 onTabChange?.(id);
               }}
-              className={`relative h-11 tactile rounded-xl text-base ${selected ? 'font-bold text-bg' : 'font-medium text-muted enabled:hover:text-ink'}`}
+              className={`relative h-11 rounded-xl text-base ${selected ? 'font-bold text-bg' : 'font-medium text-muted enabled:hover:text-ink'}`}
             >
-              {/* 선택 알약을 버튼마다 그리지 않고 하나(layoutId)를 두 버튼 사이로 미끄러지게 한다 */}
+              {/* 선택 알약 하나(layoutId)를 두 버튼 사이로 미끄러지게 한다. 눌림 효과(tactile)는 알약까지 대각선으로 끌고 가서 이 토글엔 쓰지 않는다 */}
               {selected && (
                 <motion.span
                   layoutId="day-tab-pill"
                   transition={{
                     type: 'spring',
                     visualDuration: 0.4,
-                    bounce: 0.15,
+                    bounce: 0,
                   }}
                   className="absolute inset-0 rounded-[10px] border-2 border-ink bg-ink"
                 />
