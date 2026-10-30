@@ -77,6 +77,10 @@
     curl -H "Authorization: Bearer $(grep ^CRON_SECRET= .env.local | cut -d= -f2-)" "https://chupna-deopna.vercel.app/api/cron/evening-alert?force=1"
     ```
 - 아이폰 웹 푸시는 **홈 화면에 추가한 앱에서만** 된다. Claude 앱 안의 브라우저는 서비스 워커와 알림이 막혀 있어 로컬에서 수신을 확인할 수 없다.
+- iOS 시작 화면: `public/splash/logo_splash_<가로>x<세로>_{dark,light}.png` 22장
+  - 원본은 `scripts/splash/`의 투명 몽실이다. 크기 표는 `src/lib/splash-sizes.json`이다.
+  - 그림을 바꾸면 `node scripts/make_splash.mjs`로 다시 만든다.
+  - iOS는 홈 화면에 추가할 때 시작 그림을 읽는다. 바꾼 뒤엔 앱을 지웠다 다시 추가해야 보일 수 있다(알림 다시 켜기, 피드백 기록 초기화).
 - 공유 미리보기는 `src/app/opengraph-image.jpg`다. 카톡은 미리보기를 캐시하니 바꾼 뒤 카카오 공유 디버거에서 캐시를 지운다.
 - 아이콘은 `public/icons/icon_<형태>_{light,dark}.png`다. 이름은 의미가 아니라 형태 기준이다.
 

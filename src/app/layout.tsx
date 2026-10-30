@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/lib/config';
+import { startupImages } from '@/lib/splash';
 import type { Metadata, Viewport } from 'next';
 import { Black_Han_Sans, Noto_Sans_KR, Space_Grotesk } from 'next/font/google';
 import './globals.css';
@@ -37,7 +38,12 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: { card: 'summary_large_image' },
-  appleWebApp: { title: '춥나덥나', capable: true },
+  // 시작 그림이 없으면 iOS가 첫 화면이 그려질 때까지 빈 화면(다크에선 검정)을 보여준다
+  appleWebApp: {
+    title: '춥나덥나',
+    capable: true,
+    startupImage: startupImages,
+  },
 };
 
 export const viewport: Viewport = {
