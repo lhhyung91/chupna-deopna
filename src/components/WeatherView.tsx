@@ -116,7 +116,7 @@ export function WeatherView({
             key={tab}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
+            transition={{ duration: 1.4, ease: 'easeOut' }}
             className="grid grid-cols-6 gap-3"
           >
             <SummaryCard
