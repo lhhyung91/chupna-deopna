@@ -173,8 +173,12 @@ export function AlertButton({ offset, place }: Props) {
               </button>
             </form>
           </div>
+          {/* 조건과 시각을 줄로 나눠, 좁은 폰에서 아무 데서나 꺾이지 않게 한다 */}
           <p className="-mt-2 text-sm break-keep text-muted">
-            내일 비가 오거나 오늘과 5° 넘게 차이 날 때만 저녁 8시쯤 알려줘요
+            <span className="block">
+              내일 비가 오거나 오늘과 5° 넘게 다를 때만
+            </span>
+            저녁 8시쯤 알려줘요
           </p>
           {supported !== false && (
             <div className="flex items-center justify-between gap-4 rounded-2xl bg-well p-4 shadow-well">
