@@ -14,7 +14,8 @@ import {
 const MIN_MS = 1200;
 // 위치 확인이 오래 걸려도 이 이상은 막지 않는다. 그 뒤엔 이름 자리 점이 이어 받는다
 const MAX_WAIT_MS = 3000;
-const FADE_MS = 300;
+// 걷힐 때 아래 화면 전체가 천천히 드러나게 한다. 짧으면 새로고침 때 내용이 툭 나타난다
+const FADE_MS = 500;
 // 기상청 단기예보가 3시간마다 새로 나와서, 그만큼 지났을 때만 로딩 화면을 다 보여준다
 const FULL_EVERY_MS = 3 * 60 * 60 * 1000;
 const SHOWN_KEY = 'splash-shown-at';

@@ -123,12 +123,19 @@ export function WeatherView({
       >
         {evening && feedback}
         {/* 탭마다 새로 그려야 같은 시각 칸(06시)을 스냅이 다시 따라가지 않는다. 동네가 바뀌어도 같은 페이드로 들어온다 */}
-        <AnimatePresence initial={false}>
+        {/* 이전 내용이 흐려진 뒤 새 내용이 나와야 바뀌는 게 보인다. 같은 자리에 바로 들어오면 길게 페이드해도 순식간에 바뀐 것처럼 보인다 */}
+        <AnimatePresence initial={false} mode="wait">
           <motion.div
             key={`${tab}-${place.nx}-${place.ny}`}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.4, ease: 'easeOut' }}
+            animate={{
+              opacity: 1,
+              transition: { duration: 0.5, ease: 'easeOut' },
+            }}
+            exit={{
+              opacity: 0,
+              transition: { duration: 0.25, ease: 'easeIn' },
+            }}
             className="grid grid-cols-6 gap-3"
           >
             <SummaryCard

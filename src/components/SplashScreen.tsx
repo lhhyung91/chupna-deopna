@@ -6,7 +6,7 @@ type Props = { leaving?: boolean };
 export function SplashScreen({ leaving = false }: Props) {
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg pb-18 text-ink transition-opacity duration-300 ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg pb-18 text-ink transition-opacity duration-500 ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
     >
       <div
         aria-hidden="true"
