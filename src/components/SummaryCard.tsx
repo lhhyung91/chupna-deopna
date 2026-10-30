@@ -112,6 +112,7 @@ export function SummaryCard({ now, day, compare, note, take, past }: Props) {
         className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
       >
         <Commute commute={morning} end={false} />
+        {/* 차이는 배지 숫자와 색이 말한다. 글자로 쓰면 위 "어제보다"와 같은 비교로 읽힌다 */}
         <div className="flex min-w-0 flex-col items-center gap-px">
           <span
             className={`rounded-full border-2 border-ink px-2.5 py-0.5 font-num text-[0.9375rem]/5 font-bold tabular-nums ${deltaClass(delta)}`}
@@ -133,9 +134,6 @@ export function SummaryCard({ now, day, compare, note, take, past }: Props) {
             >
               <path d="M3 2l6 5-6 5" />
             </svg>
-          </span>
-          <span className="text-[0.6875rem]/3.5 font-bold whitespace-nowrap text-muted">
-            {text}
           </span>
         </div>
         <Commute commute={evening} end />
