@@ -295,3 +295,8 @@ body {
     animation: none;
   }
 }
+
+/* 3시간 안에 다시 열 땐 저장된 화면이 바로 뜨므로 로딩 화면을 그리지 않는다(layout.tsx 첫 그림 전 스크립트) */
+:root[data-splash='skip'] [data-splash-screen] {
+  display: none;
+}

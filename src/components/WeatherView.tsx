@@ -31,6 +31,8 @@ type Props = {
   forecast: Forecast;
   place: Place;
   evening: boolean;
+  // 서버가 이 화면을 그린 시각. 저장된 화면(sw.js)으로 열렸는지 알아보는 데 쓴다
+  renderedAt: number;
   // 어제 앱을 안 열었으면 없다
   yesterdayFeel?: number;
   placeSaved: boolean;
@@ -41,6 +43,7 @@ export function WeatherView({
   forecast,
   place,
   evening,
+  renderedAt,
   yesterdayFeel,
   placeSaved,
   initialTab,
@@ -63,6 +66,11 @@ export function WeatherView({
     return () =>
       document.removeEventListener('visibilitychange', refreshWhenVisible);
   }, [router]);
+
+  // 저장된 화면으로 열렸으면(그린 지 1분 넘음) 바로 새 날씨를 받아 숫자만 바꾼다
+  useEffect(() => {
+    if (Date.now() - renderedAt > 60_000) router.refresh();
+  }, [router, renderedAt]);
 
   // 서버 액션으로 쿠키를 쓰면 화면을 다시 그려서, 브라우저에서 바로 적는다
   const todayKey = forecast.today.dateKey;

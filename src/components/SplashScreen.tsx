@@ -6,6 +6,7 @@ type Props = { leaving?: boolean };
 export function SplashScreen({ leaving = false }: Props) {
   return (
     <div
+      data-splash-screen
       className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg pb-18 text-ink transition-opacity duration-500 ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
     >
       <div

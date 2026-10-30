@@ -28,6 +28,7 @@ export default async function Home({ searchParams }: PageProps<'/'>) {
       forecast={forecast}
       place={place}
       evening={isEvening(now)}
+      renderedAt={now.getTime()}
       yesterdayFeel={yesterdayFeel}
       placeSaved={savedPlace !== null}
       initialTab={day === 'tomorrow' ? 'tomorrow' : 'today'}

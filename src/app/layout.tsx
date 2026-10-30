@@ -1,6 +1,10 @@
 import { SplashProvider } from '@/components/SplashGate';
 import { SITE_URL } from '@/lib/config';
-import { startupImages } from '@/lib/splash';
+import {
+  SPLASH_FULL_EVERY_MS,
+  SPLASH_SHOWN_KEY,
+  startupImages,
+} from '@/lib/splash';
 import type { Metadata, Viewport } from 'next';
 import { Black_Han_Sans, Noto_Sans_KR, Space_Grotesk } from 'next/font/google';
 import './globals.css';
@@ -56,12 +60,20 @@ export const viewport: Viewport = {
   ],
 };
 
+// 3시간 안에 다시 열면 저장된 화면(sw.js)이 바로 뜨므로, 첫 그림 전에 로딩 화면을 숨겨 잠깐 비치지 않게 한다
+const SKIP_SPLASH = `try{var t=+localStorage.getItem('${SPLASH_SHOWN_KEY}');if(t&&Date.now()-t<${SPLASH_FULL_EVERY_MS})document.documentElement.dataset.splash='skip'}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
+    // 위 스크립트가 data-splash를 먼저 달아서, React가 서버 HTML과 다르다고 경고하지 않게 한다
     <html
       lang="ko"
       className={`${noto.variable} ${blackHan.variable} ${grotesk.variable} antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SKIP_SPLASH }} />
+      </head>
       <body className="font-sans">
         <SplashProvider>
           <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-5 px-5 pt-12 pb-8">
