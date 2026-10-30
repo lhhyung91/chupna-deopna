@@ -29,7 +29,7 @@ type Props = {
   forecast: Forecast;
   place: Place;
   evening: boolean;
-  // 오늘 탭 출근 전에만 있다. 어제 앱을 안 열었으면 없다
+  // 어제 앱을 안 열었으면 없다
   yesterdayFeel?: number;
   initialTab: Tab;
 };
@@ -80,8 +80,8 @@ export function WeatherView({
   const compare: MorningCompare | undefined = isToday
     ? yesterdayFeel === undefined
       ? undefined
-      : { label: '어제 아침', feel: yesterdayFeel }
-    : { label: '오늘 아침', feel: todayFeel };
+      : { label: '어제', feel: yesterdayFeel }
+    : { label: '오늘', feel: todayFeel };
   // 한 줄에 들어가야 해서 "체감"은 뺀다. 위 출퇴근 숫자가 이미 체감이다
   const take: Take = review
     ? [
@@ -90,7 +90,7 @@ export function WeatherView({
           ? '기록했어요. 다음에 반영할게요'
           : '옷차림이 어땠는지 알려주세요',
       ]
-    : getTake(day, dayOffset, compare);
+    : getTake(day, dayOffset);
 
   // 저녁엔 피드백을 맨 위로 올린다. CSS order 대신 DOM 순서를 바꿔야 탭 이동 순서도 맞는다.
   const feedback = isToday && (
@@ -122,6 +122,7 @@ export function WeatherView({
             <SummaryCard
               now={isToday ? forecast.now : undefined}
               day={day}
+              compare={compare}
               note={
                 review
                   ? '오늘 하루 정리'

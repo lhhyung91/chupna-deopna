@@ -73,10 +73,6 @@ export const kstHour = (date: Date) => toKst(date).getUTCHours();
 
 export const isEvening = (date: Date) => kstHour(date) >= EVENING_HOUR;
 
-// 출근 시간대(08–09시)가 끝나기 전
-export const isBeforeWork = (date: Date) =>
-  kstHour(date) <= COMMUTES[0].endHour;
-
 export const yesterdayKey = (date: Date) =>
   toDateKey(new Date(toKst(date).getTime() - DAY_MS));
 

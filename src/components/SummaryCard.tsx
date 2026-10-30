@@ -1,12 +1,20 @@
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { formatTemp, precipName, SKY_LABEL } from '@/lib/format';
-import { getCommuteDelta, isRainy, type Take } from '@/lib/outfit';
+import {
+  compareMornings,
+  getCommuteDelta,
+  isRainy,
+  type MorningCompare,
+  type Take,
+} from '@/lib/outfit';
 import type { CommuteWeather, DayWeather, NowWeather } from '@/lib/weather';
 
 type Props = {
   // 내일 탭엔 지금 기온이 없다
   now?: NowWeather;
   day: DayWeather;
+  // 어제(내일 탭은 오늘) 출근 체감. 어제 앱을 안 열었으면 없다
+  compare?: MorningCompare;
   note: string | null;
   take: Take;
   // 저녁 오늘 탭: 오늘 출퇴근을 돌아보는 말투로 쓴다
@@ -52,10 +60,11 @@ function Commute({ commute, end }: { commute: CommuteWeather; end: boolean }) {
   );
 }
 
-export function SummaryCard({ now, day, note, take, past }: Props) {
+export function SummaryCard({ now, day, compare, note, take, past }: Props) {
   const sky = now?.sky ?? day.sky;
   const [morning, evening] = day.commutes;
   const { delta, text } = getCommuteDelta(morning, evening, past);
+  const vsMorning = compare && compareMornings(compare, morning, past);
 
   return (
     <section
@@ -76,6 +85,12 @@ export function SummaryCard({ now, day, note, take, past }: Props) {
             </span>{' '}
             <span className="font-bold">{SKY_LABEL[sky]}</span>
           </span>
+          {vsMorning && (
+            <span className="text-xs whitespace-nowrap text-muted tabular-nums">
+              <span aria-hidden="true">{vsMorning.text}</span>
+              <span className="sr-only">{vsMorning.spoken}</span>
+            </span>
+          )}
           {note && <span className="text-xs text-muted">{note}</span>}
         </p>
         {/* 한 줄이 기본이고, 기온·하늘 글자가 길어 칸이 모자라면 "/" 뒤에서 두 줄로 내려간다 */}

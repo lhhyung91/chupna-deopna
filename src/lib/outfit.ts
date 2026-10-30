@@ -196,24 +196,43 @@ export const isRainy = ({ pop, sky }: { pop: number; sky: Sky }) =>
 // 옷 카드의 "+ 우산" 칸. 출퇴근 중 한 번이라도 비·눈이면 챙긴다.
 export const needsUmbrella = (day: DayWeather) => day.commutes.some(isRainy);
 
-// 내일 탭은 오늘 아침과, 오늘 탭 출근 전엔 어제 아침과 견준다. 입던 옷에서 더할지 뺄지가 가장 빠른 판단이다.
-export type MorningCompare = { label: '오늘 아침' | '어제 아침'; feel: number };
+// 요약 하늘 아래 한 줄. 입던 옷에서 더할지 뺄지가 가장 빠른 판단이라 어제(내일 탭은 오늘) 출근길과 견준다.
+export type MorningCompare = { label: '어제' | '오늘'; feel: number };
 
-export function compareMornings(base: MorningCompare, target: CommuteWeather) {
+// [지금 말투, 저녁에 돌아볼 때 말투]
+const COMPARE_TEXT = {
+  warmer: ['따뜻해요', '따뜻했어요'],
+  colder: ['추워요', '추웠어요'],
+  hotter: ['더워요', '더웠어요'],
+  cooler: ['덜 더워요', '덜 더웠어요'],
+  same: ['비슷해요', '비슷했어요'],
+} as const;
+
+export function compareMornings(
+  base: MorningCompare,
+  target: CommuteWeather,
+  past: boolean
+) {
+  const tense = past ? 1 : 0;
   // 화면에 보이는 반올림 값끼리 비교해야 문장 숫자와 칸 숫자가 맞는다
   const diff = Math.round(target.feel) - Math.round(base.feel);
   // 1°는 예보 오차·반올림 안이라 몸으로 느끼기 어렵다
-  if (Math.abs(diff) <= 1) return `${base.label}과 비슷해요`;
+  if (Math.abs(diff) <= 1) {
+    const particle = base.label === '어제' ? '와' : '과';
+    const same = `${base.label}${particle} ${COMPARE_TEXT.same[tense]}`;
+    return { text: same, spoken: same };
+  }
   // 차이 배지와 같은 20° 기준으로, 더운 날엔 더위로 말한다
   const hot = Math.round(target.feel) >= 20;
-  const word = hot
-    ? diff > 0
-      ? '더워요'
-      : '덜 더워요'
-    : diff > 0
-      ? '따뜻해요'
-      : '추워요';
-  return `${base.label}보다 ${Math.abs(diff)}° ${word}`;
+  const word =
+    diff > 0
+      ? COMPARE_TEXT[hot ? 'hotter' : 'warmer']
+      : COMPARE_TEXT[hot ? 'cooler' : 'colder'];
+  // 화면은 지금 기온·최고·최저와 한 줄에 들어가야 해서 화살표로 줄이고, 스크린리더엔 말로 읽힌다
+  return {
+    text: `${base.label}보다 ${diff > 0 ? '▲' : '▼'}${Math.abs(diff)}°`,
+    spoken: `${base.label}보다 ${Math.abs(diff)}° ${word[tense]}`,
+  };
 }
 
 // 비·눈 배너 하나. 우산 배너는 눈도 "비 N%"로 적어서, 눈이 오면 눈 배너를 먼저 고른다.
@@ -283,12 +302,10 @@ function firstWetHour(hourly: HourlyItem[]) {
   return null;
 }
 
-// 하늘 문구 아래 한 줄. 비가 언제 오는지가 가장 궁금하고(지금 오는 중이면 생략), 없으면 일교차를 알린다.
+// 하늘 문구 아래 줄. 비가 언제 오는지(지금 오는 중이면 생략). 일교차는 두 줄 한마디가 말한다.
 export function getSkyNote(day: DayWeather, nowSky?: Sky) {
   const start = nowSky && isWet(nowSky) ? null : firstWetHour(day.hourly);
-  if (start) return `${start.label}부터 ${precipName(start.sky)}`;
-  if (day.max - day.commutes[0].temp >= TEMP_GAP) return '일교차 커요';
-  return null;
+  return start ? `${start.label}부터 ${precipName(start.sky)}` : null;
 }
 
 // [지금 말투, 저녁에 돌아볼 때 말투]. 20° 넘으면 추위보다 더위를 말한다.
@@ -341,11 +358,7 @@ export type Take = [situation: string, action: string];
 
 // 요약 카드 맨 아래 두 줄. 위험한 것부터(눈 > 비 > 강풍 > 일교차) 하나만 고른다.
 // 강풍은 체감온도에 이미 들어가 옷에 반영되므로 비보다 뒤에 둔다.
-export function getTake(
-  day: DayWeather,
-  offset: number,
-  compare?: MorningCompare
-): Take {
+export function getTake(day: DayWeather, offset: number): Take {
   const [morning, evening] = day.commutes;
 
   const snowy = day.commutes.filter((c) => isSnowy(c.sky));
@@ -373,10 +386,7 @@ export function getTake(
   }
 
   return [
-    // 견줄 아침이 있으면 그 차이가 하루 전체 느낌보다 먼저다
-    compare
-      ? `${compareMornings(compare, morning)}.`
-      : `하루 종일 ${feelWord(morning, evening)}.`,
+    `하루 종일 ${feelWord(morning, evening)}.`,
     getEveningTip(morning, evening, offset) ?? '추천대로 입으면 돼요',
   ];
 }
