@@ -38,7 +38,10 @@ export function PlaceHeading({ place, dateLabel }: Props) {
         if (silent) return;
         setStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'failed');
       },
-      { timeout: 10_000, maximumAge: 10 * 60 * 1000 }
+      // 누를 땐 방금 위치가 필요하다. 브라우저에 저장된 값은 이동 전 위치일 수 있어 쓰지 않는다
+      silent
+        ? { timeout: 10_000, maximumAge: 10 * 60 * 1000 }
+        : { timeout: 15_000, maximumAge: 0 }
     );
   };
 
