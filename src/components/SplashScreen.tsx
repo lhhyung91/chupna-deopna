@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 type Props = { leaving?: boolean };
 
-// 앱을 켤 때 덮는 로딩 화면. 빌드 때 만든 로딩(loading.tsx)과 메인이 같은 화면을 그려 이어져 보인다
+// 앱을 켤 때 덮는 로딩 화면. 첫 장면부터 이름·문구가 다 보여야 iOS 시작 화면 다음에 한 번에 나타난다
 export function SplashScreen({ leaving = false }: Props) {
   return (
     <div
@@ -41,11 +41,11 @@ export function SplashScreen({ leaving = false }: Props) {
           aria-hidden="true"
           className="-mt-7.5 h-3 w-32 splash-floor rounded-full"
         />
-        {/* 메인 화면 h1(동네 이름)과 잠깐 겹치므로 제목 태그를 쓰지 않는다 */}
-        <p className="mt-7 splash-up font-display text-[2.5rem]/11 tracking-[-0.5px]">
+        {/* 메인 화면 h1(동네 이름)과 겹쳐 있으므로 제목 태그를 쓰지 않는다 */}
+        <p className="mt-7 font-display text-[2.5rem]/11 tracking-[-0.5px]">
           춥나덥나
         </p>
-        <p className="mt-1.5 splash-up-late text-[0.9375rem]/5.5 font-medium text-muted">
+        <p className="mt-1.5 text-[0.9375rem]/5.5 font-medium text-muted">
           오늘 뭐 입지?
         </p>
       </div>

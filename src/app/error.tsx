@@ -1,6 +1,7 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { useSplashHold } from '@/components/SplashGate';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { haptic } from '@/lib/haptic';
 import { formatDateLabel } from '@/lib/weather';
@@ -9,6 +10,8 @@ import { useEffect } from 'react';
 type Props = { error: unknown; retry: () => void };
 
 export default function ErrorPage({ error, retry }: Props) {
+  // 에러 화면이 로딩 화면에 가려지지 않게 바로 걷게 한다
+  useSplashHold(false);
   useEffect(() => {
     console.error(error);
   }, [error]);

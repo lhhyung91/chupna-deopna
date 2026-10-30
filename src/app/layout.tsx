@@ -1,3 +1,4 @@
+import { SplashProvider } from '@/components/SplashGate';
 import { SITE_URL } from '@/lib/config';
 import { startupImages } from '@/lib/splash';
 import type { Metadata, Viewport } from 'next';
@@ -62,9 +63,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       className={`${noto.variable} ${blackHan.variable} ${grotesk.variable} antialiased`}
     >
       <body className="font-sans">
-        <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-5 px-5 pt-12 pb-8">
-          {children}
-        </main>
+        <SplashProvider>
+          <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-5 px-5 pt-12 pb-8">
+            {children}
+          </main>
+        </SplashProvider>
       </body>
     </html>
   );

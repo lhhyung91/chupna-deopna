@@ -1,6 +1,4 @@
-import { SplashScreen } from '@/components/SplashScreen';
-
-// 서버가 날씨를 받는 동안 보인다. 메인이 같은 로딩 화면을 덮은 채 시작해서 넘어갈 때 끊기지 않는다
+// 로딩 화면은 레이아웃(SplashProvider)이 이미 덮고 있다. 여기선 스트리밍 경계만 만든다
 export default function Loading() {
-  return <SplashScreen />;
+  return null;
 }

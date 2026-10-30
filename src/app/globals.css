@@ -206,29 +206,26 @@ body {
   }
 }
 
-/* 로딩 화면 구름 등장. steps(1)이라 부드럽게 잇지 않고 일부러 끊겨 보이게 한다 */
+/* 로딩 화면 구름 글리치. 구름이 사라져 보이지 않게 가장자리만 얇게 잘리고, steps(1)이라 일부러 끊겨 튄다 */
 @keyframes splash-glitch {
   0% {
-    opacity: 0;
-    transform: translateX(-8px);
-    clip-path: inset(42% 0 44% 0);
+    transform: none;
+    clip-path: inset(0);
   }
   15% {
-    opacity: 1;
     transform: translateX(6px);
-    clip-path: inset(8% 0 70% 0);
+    clip-path: inset(0 0 14% 0);
   }
   30% {
     transform: translateX(-4px);
-    clip-path: inset(62% 0 8% 0);
+    clip-path: inset(10% 0 0 0);
   }
   45% {
     transform: translateX(2px);
-    clip-path: inset(20% 0 30% 0);
+    clip-path: inset(0 0 6% 0);
   }
   60%,
   100% {
-    opacity: 1;
     transform: none;
     clip-path: inset(0);
   }
@@ -244,13 +241,6 @@ body {
   50% {
     transform: scaleX(0.86);
     opacity: 0.7;
-  }
-}
-
-@keyframes splash-up {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
   }
 }
 
@@ -291,20 +281,6 @@ body {
 
 @utility splash-glow {
   background: radial-gradient(closest-side, var(--splash-glow), transparent);
-}
-
-@utility splash-up {
-  animation: splash-up 0.35s ease-out 0.3s both;
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-@utility splash-up-late {
-  animation: splash-up 0.35s ease-out 0.42s both;
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 @utility splash-dot {
