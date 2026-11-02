@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 type Props = { leaving?: boolean };
 
-// 앱을 켤 때 덮는 로딩 화면. 첫 장면부터 이름·문구가 다 보여야 iOS 시작 화면 다음에 한 번에 나타난다
+// 앱을 켤 때 덮는 로딩 화면. iOS 시작 그림을 이 화면 그대로 찍어 두어서, 움직임 없이 그대로 이어져야 넘어가는 순간이 안 보인다
 export function SplashScreen({ leaving = false }: Props) {
   return (
     <div
@@ -19,33 +19,29 @@ export function SplashScreen({ leaving = false }: Props) {
           className="pointer-events-none absolute top-1/2 left-1/2 -mt-67.5 -ml-52.5 size-105 rounded-full splash-glow"
         />
         <div className="relative flex flex-col items-center">
-          <div className="splash-glitch">
-            <div className="size-52 splash-bob">
-              {/* 이미 줄여 둔 WebP라 다시 변환하지 않는다 */}
-              <Image
-                src="/splash/cloud-light-512.webp"
-                alt=""
-                width={208}
-                height={208}
-                unoptimized
-                priority
-                className="size-52 dark:hidden"
-              />
-              <Image
-                src="/splash/cloud-dark-512.webp"
-                alt=""
-                width={208}
-                height={208}
-                unoptimized
-                priority
-                className="hidden size-52 dark:block"
-              />
-            </div>
-          </div>
+          {/* 이미 줄여 둔 WebP라 다시 변환하지 않는다 */}
+          <Image
+            src="/splash/cloud-light-512.webp"
+            alt=""
+            width={208}
+            height={208}
+            unoptimized
+            priority
+            className="size-52 dark:hidden"
+          />
+          <Image
+            src="/splash/cloud-dark-512.webp"
+            alt=""
+            width={208}
+            height={208}
+            unoptimized
+            priority
+            className="hidden size-52 dark:block"
+          />
           {/* 그림 아래 투명 여백만큼 끌어올려 구름 바로 밑에 둔다 */}
           <div
             aria-hidden="true"
-            className="-mt-7.5 h-3 w-32 splash-floor rounded-full"
+            className="-mt-7.5 h-3 w-32 rounded-full splash-floor"
           />
           {/* 메인 화면 h1(동네 이름)과 겹쳐 있으므로 제목 태그를 쓰지 않는다 */}
           <p className="mt-7 font-display text-[2.5rem]/11 tracking-[-0.5px]">
@@ -60,10 +56,11 @@ export function SplashScreen({ leaving = false }: Props) {
           aria-live="polite"
           className="absolute inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5"
         >
+          {/* 시작 그림을 찍을 때 점이 흐린 첫 프레임이었다 */}
           <span aria-hidden="true" className="flex gap-1.5">
-            <span className="size-1.5 splash-dot rounded-full bg-splash-dot" />
-            <span className="size-1.5 splash-dot rounded-full bg-splash-dot" />
-            <span className="size-1.5 splash-dot rounded-full bg-splash-dot" />
+            <span className="size-1.5 scale-80 rounded-full bg-splash-dot opacity-25" />
+            <span className="size-1.5 scale-80 rounded-full bg-splash-dot opacity-25" />
+            <span className="size-1.5 scale-80 rounded-full bg-splash-dot opacity-25" />
           </span>
           <span className="text-[0.8125rem]/4.5 font-medium text-muted">
             날씨 가져오는 중…

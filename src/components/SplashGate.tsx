@@ -1,36 +1,19 @@
 'use client';
 
 import { SplashScreen } from '@/components/SplashScreen';
-import {
-  APP_HEIGHT_KEY,
-  SPLASH_FULL_EVERY_MS,
-  SPLASH_SHOWN_KEY,
-} from '@/lib/splash';
+import { APP_HEIGHT_KEY, LAST_OPENED_KEY } from '@/lib/splash';
 import {
   createContext,
   type ReactNode,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 
-// 구름이 한 번 올라갔다 내려오고 점이 한 바퀴 넘게 돌아, 로딩 화면이 스쳐 지나가지 않게 한다
-const MIN_MS = 2000;
 // 위치 확인이 오래 걸려도 이 이상은 막지 않는다. 그 뒤엔 이름 자리 점이 이어 받는다
 const MAX_WAIT_MS = 3000;
 // 걷힐 때 아래 화면 전체가 천천히 드러나게 한다. 짧으면 새로고침 때 내용이 툭 나타난다
 const FADE_MS = 500;
-
-// 마지막으로 다 보여준 지 3시간이 지났으면 이번에 다 보여주고 시각을 남긴다
-function takeFullTurn() {
-  try {
-    const last = Number(localStorage.getItem(SPLASH_SHOWN_KEY)) || 0;
-    if (Date.now() - last < SPLASH_FULL_EVERY_MS) return false;
-    localStorage.setItem(SPLASH_SHOWN_KEY, String(Date.now()));
-  } catch {}
-  return true;
-}
 
 // null: 페이지가 아직 안 그려짐, true: 그려졌지만 위치 확인을 기다려 달라, false: 걷어도 됨
 const HoldContext = createContext<(hold: boolean) => void>(() => {});
@@ -39,8 +22,14 @@ const HoldContext = createContext<(hold: boolean) => void>(() => {});
 export function SplashProvider({ children }: { children: ReactNode }) {
   const [hold, setHold] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<'show' | 'leaving' | 'gone'>('show');
-  // 서버 HTML은 기록을 몰라서 늘 로딩 화면을 그리고, 다 보여줄지는 브라우저에서 한 번만 정한다(화면에는 안 쓰는 값)
-  const full = useRef<boolean | null>(null);
+
+  // sw.js가 첫 화면(/)을 열 때마다 새로 저장하므로, 같은 때를 남겨 다음에 로딩 화면을 숨길지 정한다(layout.tsx)
+  useEffect(() => {
+    if (location.pathname !== '/' || location.search) return;
+    try {
+      localStorage.setItem(LAST_OPENED_KEY, String(Date.now()));
+    } catch {}
+  }, []);
 
   // 다시 열 때 저장된 화면을 바로 띄우는 서비스 워커(public/sw.js). dev에선 고친 코드가 안 보이게 되므로 배포본에서만 쓴다
   useEffect(() => {
@@ -65,13 +54,12 @@ export function SplashProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (phase === 'gone' || (phase === 'show' && hold === null)) return;
-    if (full.current === null) full.current = takeFullTurn();
-    // 앱을 연 순간부터 잰다. 서버를 기다린 시간도 포함된다. 3시간 안에 다시 열면 그려지는 대로 바로 걷는다
+    // 날씨가 그려지면 바로 걷는다. 위치 확인 시간은 앱을 연 순간부터 잰다
     const wait =
       phase === 'leaving'
         ? FADE_MS
-        : full.current
-          ? (hold ? MAX_WAIT_MS : MIN_MS) - performance.now()
+        : hold
+          ? MAX_WAIT_MS - performance.now()
           : 0;
     const timer = setTimeout(
       () => setPhase(phase === 'leaving' ? 'gone' : 'leaving'),

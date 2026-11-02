@@ -20,10 +20,9 @@ const SIZES = JSON.parse(
 // 상태 표시줄 칸은 theme-color(앱 바탕색)로 칠해진다
 const BACKGROUNDS = { dark: '#141413', light: '#f1efe8' };
 
-// 첫 장면 그대로 찍는다: 움직임을 멈추고, 점은 애니메이션 첫 프레임처럼 흐리게, dev 표시는 숨긴다
+// dev 표시는 숨기고 찍는다
 const FREEZE_CSS = `
   nextjs-portal { display: none !important; }
-  .splash-dot { opacity: 0.25 !important; transform: scale(0.8) !important; }
 `;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

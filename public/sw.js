@@ -1,6 +1,6 @@
 // 저녁 알림과, 다시 열 때 저장된 화면부터 보여주기를 맡는 서비스 워커.
 const CACHE = 'chupna-deopna-v1';
-// 로딩 화면 정책(SplashGate)과 같은 3시간. 그 안에 다시 열면 서버를 기다리지 않는다
+// layout.tsx가 로딩 화면을 숨기는 기준(SPLASH_SKIP_WITHIN_MS)과 같은 3시간. 그 안에 다시 열면 서버를 기다리지 않는다
 const FRESH_MS = 3 * 60 * 60 * 1000;
 const CACHED_AT = 'x-cached-at';
 
@@ -50,7 +50,8 @@ async function openHome(event) {
   return fromServer.catch(() => saved ?? Response.error());
 }
 
-// 해시가 붙은 파일은 바뀌지 않아서, 저장해 두면 배포 뒤에도 저장된 옛 화면이 쓰던 파일을 불러올 수 있다
+// 해시가 붙은 파일은 바뀌지 않아서, 저장해 두면 배포 뒤에도 저장된 옛 화면이 쓰던 파일을 불러올 수 있다.
+// 로딩 화면 구름도 첫 그림에 바로 있어야 늦게 튀어나오지 않는다
 async function openStatic(request) {
   const cache = await caches.open(CACHE);
   const saved = await cache.match(request);
@@ -71,7 +72,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(openHome(event));
     return;
   }
-  if (url.pathname.startsWith('/_next/static/')) {
+  if (
+    url.pathname.startsWith('/_next/static/') ||
+    url.pathname.startsWith('/splash/cloud-')
+  ) {
     event.respondWith(openStatic(request));
   }
 });
