@@ -230,7 +230,7 @@ export function compareMornings(
       : COMPARE_TEXT[hot ? 'cooler' : 'colder'];
   // 화면은 지금 기온·최고·최저와 한 줄에 들어가야 해서 화살표로 줄이고, 스크린리더엔 말로 읽힌다
   return {
-    text: `${base.label}보다 ${diff > 0 ? '▲' : '▼'}${Math.abs(diff)}°`,
+    text: `${base.label}보다 ${Math.abs(diff)}°${diff > 0 ? `↑` : '↓'}`,
     spoken: `${base.label}보다 ${Math.abs(diff)}° ${word[tense]}`,
   };
 }
