@@ -10,6 +10,7 @@ import { useSplashHold } from '@/components/SplashGate';
 import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useLocate } from '@/hooks/useLocate';
+import { useOutfitPicks } from '@/hooks/useOutfitPicks';
 import { formatTemp } from '@/lib/format';
 import { haptic } from '@/lib/haptic';
 import type { Place } from '@/lib/location';
@@ -65,6 +66,8 @@ export function WeatherView({
   const { feeling, offset, nextOffset, save } = useFeedback(
     forecast.today.dateKey
   );
+  // 퇴근길 안내도 옷 카드에서 고른 옷 이름으로 말한다
+  const { choose } = useOutfitPicks();
 
   // 홈 화면 앱을 켜둔 채 오래 두면 예보가 낡으므로, 다시 볼 때 서버 데이터를 다시 받는다.
   useEffect(() => {
@@ -114,7 +117,7 @@ export function WeatherView({
           ? '기록했어요. 다음에 반영할게요'
           : '옷차림이 어땠는지 알려주세요',
       ]
-    : getTake(day, dayOffset);
+    : getTake(day, dayOffset, choose);
 
   // 시간대별은 이미 옆으로 스크롤하는 칸이라 빼고, 세로 스크롤 중 대각선으로 움직여도 탭이 바뀌지 않게 가로가 확실히 클 때만 넘긴다
   const swipe = (event: PointerEvent, { offset, velocity }: PanInfo) => {
@@ -195,8 +198,9 @@ export function WeatherView({
                     ? '오늘 뭐 입지?'
                     : '내일 뭐 입지?'
               }
-              basis={`${review ? '오늘 ' : ''}${morning.phrase} 체감 ${formatTemp(morning.feel)} 기준`}
-              items={level.items}
+              basisLabel={`${review ? '오늘 ' : ''}${morning.phrase} 체감`}
+              basisTemp={formatTemp(morning.feel)}
+              level={level}
               umbrella={needsUmbrella(day)}
               tab={tab}
             />

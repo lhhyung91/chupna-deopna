@@ -38,10 +38,21 @@ const STRONG_WIND = 9;
 export type OutfitLevel = {
   minFeel: number;
   items: ClothingItem[];
+  // 옷 카드 ↻ 버튼으로 차례로 넘기는 다른 조합. 기본 추천(items)과 따뜻함이 비슷한 것만 둔다
+  alternatives?: ClothingItem[][];
   tip?: string;
 };
 
 const THERMAL_TIP = '안에 히트텍 입으면 좋아요';
+const TEE: ClothingItem = { label: '반팔', kind: 'tee' };
+const SWEATSHIRT: ClothingItem = { label: '맨투맨', kind: 'sweatshirt' };
+const KNIT: ClothingItem = { label: '니트', kind: 'knit' };
+const WINDBREAKER: ClothingItem = { label: '바람막이', kind: 'windbreaker' };
+const ZIP_JACKET: ClothingItem = { label: '자켓', kind: 'zip_jacket' };
+const COAT: ClothingItem = { label: '코트', kind: 'coat' };
+const PUFFER: ClothingItem = { label: '패딩', kind: 'puffer' };
+const PANTS: ClothingItem = { label: '긴바지', kind: 'pants' };
+const FLEECE_PANTS: ClothingItem = { label: '기모 바지', kind: 'wide_pants' };
 const OUTERS = new Set<ClothingKind>([
   'cardigan',
   'windbreaker',
@@ -58,83 +69,61 @@ const OUTERS = new Set<ClothingKind>([
 export const LEVELS: OutfitLevel[] = [
   {
     minFeel: 22,
-    items: [
-      { label: '반팔', kind: 'tee' },
-      { label: '반바지', kind: 'shorts' },
+    items: [TEE, { label: '반바지', kind: 'shorts' }],
+    alternatives: [
+      [
+        { label: '민소매', kind: 'tank' },
+        { label: '면반바지', kind: 'shorts_button' },
+      ],
     ],
   },
-  {
-    minFeel: 20,
-    items: [
-      { label: '반팔', kind: 'tee' },
-      { label: '긴바지', kind: 'pants' },
-    ],
-  },
+  { minFeel: 20, items: [TEE, PANTS] },
   {
     minFeel: 17,
-    items: [
-      { label: '가디건', kind: 'cardigan' },
-      { label: '반팔', kind: 'tee' },
-      { label: '긴바지', kind: 'pants' },
-    ],
+    items: [{ label: '가디건', kind: 'cardigan' }, TEE, PANTS],
+    alternatives: [[WINDBREAKER, TEE, PANTS]],
   },
   {
     minFeel: 14,
-    items: [
-      { label: '맨투맨', kind: 'sweatshirt' },
-      { label: '긴바지', kind: 'pants' },
-    ],
+    items: [SWEATSHIRT, PANTS],
+    alternatives: [[KNIT, PANTS]],
   },
+  // 가장 따뜻한 "자켓 + 니트"는 한 단계 위(9~10°) 기본 조합이라 여기 두지 않는다
   {
     minFeel: 11,
-    items: [
-      { label: '바람막이', kind: 'windbreaker' },
-      { label: '맨투맨', kind: 'sweatshirt' },
-      { label: '긴바지', kind: 'pants' },
+    items: [WINDBREAKER, SWEATSHIRT, PANTS],
+    alternatives: [
+      [ZIP_JACKET, SWEATSHIRT, PANTS],
+      [WINDBREAKER, KNIT, PANTS],
     ],
   },
   {
     minFeel: 9,
-    items: [
-      { label: '자켓', kind: 'zip_jacket' },
-      { label: '니트', kind: 'knit' },
-      { label: '긴바지', kind: 'pants' },
-    ],
-    tip: '플리스도 좋아요',
+    items: [ZIP_JACKET, KNIT, PANTS],
+    alternatives: [[{ label: '플리스', kind: 'fleece' }, SWEATSHIRT, PANTS]],
   },
-  // 경량 패딩이 바람을 더 막아서 코트보다 한 단계 추운 날에 둔다(사용자 체감 기준).
+  // 경량 패딩이 바람을 더 막아서 코트보다 한 단계 추운 날에 둔다(사용자 체감 기준). 그래서 둘은 서로의 대안으로 두지 않는다.
   {
     minFeel: 6,
-    items: [
-      { label: '코트', kind: 'coat' },
-      { label: '니트', kind: 'knit' },
-      { label: '긴바지', kind: 'pants' },
-    ],
+    items: [COAT, KNIT, PANTS],
+    alternatives: [[COAT, SWEATSHIRT, PANTS]],
   },
   {
     minFeel: 2,
-    items: [
-      { label: '경량 패딩', kind: 'light_puffer' },
-      { label: '니트', kind: 'knit' },
-      { label: '긴바지', kind: 'pants' },
-    ],
+    items: [{ label: '경량 패딩', kind: 'light_puffer' }, KNIT, PANTS],
     tip: '추우면 안에 히트텍을 입어보세요',
   },
   {
     minFeel: -3,
-    items: [
-      { label: '패딩', kind: 'puffer' },
-      { label: '니트', kind: 'knit' },
-      { label: '긴바지', kind: 'pants' },
-    ],
+    items: [PUFFER, KNIT, PANTS],
+    alternatives: [[PUFFER, KNIT, FLEECE_PANTS]],
     tip: THERMAL_TIP,
   },
   {
     minFeel: -Infinity,
-    items: [
-      { label: '패딩', kind: 'puffer' },
-      { label: '니트', kind: 'knit' },
-      { label: '기모 바지', kind: 'wide_pants' },
+    items: [PUFFER, KNIT, FLEECE_PANTS],
+    alternatives: [
+      [PUFFER, KNIT, { label: '방한 바지', kind: 'puffer_pants' }],
     ],
     tip: THERMAL_TIP,
   },
@@ -157,21 +146,26 @@ export function levelRange(index: number) {
   return `${formatTemp(minFeel).slice(0, -1)}~${max}`;
 }
 
-const outerOf = (level: OutfitLevel) =>
-  level.items.find((item) => OUTERS.has(item.kind));
+const outerOf = (items: ClothingItem[]) =>
+  items.find((item) => OUTERS.has(item.kind));
+
+// 단계 → 실제로 보여줄 조합(↻ 버튼으로 고른 조합, useOutfitPicks). 서버(저녁 알림)에선 기본 추천 그대로
+export type ChooseOutfit = (level: OutfitLevel) => ClothingItem[];
+const asRecommended: ChooseOutfit = (level) => level.items;
 
 // 옷은 출근길 기준이라, 퇴근길에 그 옷으로 달라지는 점만 짧게 알려준다. 덜 추워지는 건 차이 배지가 이미 말한다.
 export function getEveningTip(
   morning: CommuteWeather,
   evening: CommuteWeather,
-  offset: number
+  offset: number,
+  choose: ChooseOutfit = asRecommended
 ): string | null {
   const morningIndex = getLevelIndex(morning.feel - offset);
   const eveningIndex = getLevelIndex(evening.feel - offset);
   if (morningIndex === eveningIndex) return null;
 
-  const morningOuter = outerOf(LEVELS[morningIndex]);
-  const eveningOuter = outerOf(LEVELS[eveningIndex]);
+  const morningOuter = outerOf(choose(LEVELS[morningIndex]));
+  const eveningOuter = outerOf(choose(LEVELS[eveningIndex]));
   const when = `${evening.phrase}엔`;
 
   // 겉옷 이름 뒤 조사는 받침마다 달라져서 붙이지 않는다. 단계 번호가 작을수록 따뜻한 단계다
@@ -366,7 +360,11 @@ export type Take = [situation: string, action: string];
 
 // 요약 카드 맨 아래 두 줄. 위험한 것부터(눈 > 비 > 강풍 > 일교차) 하나만 고른다.
 // 강풍은 체감온도에 이미 들어가 옷에 반영되므로 비보다 뒤에 둔다.
-export function getTake(day: DayWeather, offset: number): Take {
+export function getTake(
+  day: DayWeather,
+  offset: number,
+  choose: ChooseOutfit = asRecommended
+): Take {
   const [morning, evening] = day.commutes;
 
   const snowy = day.commutes.filter((c) => isSnowy(c.sky));
@@ -404,6 +402,6 @@ export function getTake(day: DayWeather, offset: number): Take {
 
   return [
     `하루 종일 ${feelWord(morning, evening)}.`,
-    getEveningTip(morning, evening, offset) ?? '추천대로 입어보세요',
+    getEveningTip(morning, evening, offset, choose) ?? '추천대로 입어보세요',
   ];
 }

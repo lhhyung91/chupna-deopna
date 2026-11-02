@@ -11,6 +11,9 @@ export const ENTRANCE = {
   fade: { duration: 0.25, delay: 0.2, ease: 'easeOut' },
 } satisfies Record<string, Transition>;
 
+// 옷 타일을 눌러 다른 옷으로 바꿀 때 그림만 짧게 팝한다
+export const SWAP_POP: Transition = { duration: 0.3, ease: POP };
+
 export const tileEntrance = (index: number): Transition => ({
   duration: 0.42,
   delay: 0.45 + index * 0.06,
