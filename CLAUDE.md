@@ -96,6 +96,10 @@
   - 크기 표·상태 표시줄 높이는 `src/lib/splash-sizes.json`. 웹 화면은 상태 표시줄 아래에서 시작해서 그만큼 내려 붙인다.
   - 로딩 화면을 바꾸면 3000 dev 서버를 켠 채 `node scripts/make_splash.mjs`로 다시 찍는다(설치된 크롬을 씀).
   - iOS는 홈 화면에 추가할 때 시작 그림을 읽는다. 바꾼 뒤엔 앱을 지웠다 다시 추가해야 보일 수 있다(알림 다시 켜기, 피드백 기록 초기화).
+- 바탕 노이즈: `src/app/texture_noise.png`(128px 타일, 점 불투명도 최대 10%)를 `globals.css`의 `body`·`card`에만 깐다
+  - 자기 바탕색이 있는 칸(한마디·옷 타일·알약·배지)은 매끈하게 남는다. 로딩 화면도 시작 그림과 같아야 해서 매끈하다
+  - 세기를 바꾸려면 `scripts/make_noise.mjs`의 `MAX_ALPHA`를 고치고 `node scripts/make_noise.mjs`. 작은 회색 글씨 대비가 점 위에서도 4.5:1 넘게 둔다(10%에서 약 6:1)
+  - CSS에서 상대 경로로 불러와 `/_next/static/media/`로 나가서 서비스 워커가 저장한다
 - 공유 미리보기는 `src/app/opengraph-image.jpg`다. 카톡은 미리보기를 캐시하니 바꾼 뒤 카카오 공유 디버거에서 캐시를 지운다.
 - 아이콘은 `public/icons/icon_<형태>_{light,dark}.png`다. 이름은 의미가 아니라 형태 기준이다.
 

@@ -141,8 +141,9 @@ html {
   touch-action: manipulation;
 }
 
+/* 바탕·카드 면에만 까는 은은한 노이즈. 자기 바탕색이 있는 칸(한마디·옷 타일·알약·배지)과 로딩 화면은 매끈하게 남는다 */
 body {
-  background: var(--bg);
+  background: url('./texture_noise.png') var(--bg);
   color: var(--ink);
 }
 
@@ -161,6 +162,7 @@ body {
 
 @utility card {
   @apply rounded-[18px] border-[2.5px] border-ink bg-card shadow-card;
+  background-image: url('./texture_noise.png');
 }
 
 /* 누르면 3px 눌렸다가 스프링으로 복귀. Tailwind의 translate-* 와 겹치지 않게 개별 속성을 쓴다 */
