@@ -118,7 +118,7 @@ export const LEVELS: OutfitLevel[] = [
       { label: '니트', kind: 'knit' },
       { label: '긴바지', kind: 'pants' },
     ],
-    tip: '추우면 안에 히트텍 입어요',
+    tip: '추우면 안에 히트텍을 입어보세요',
   },
   {
     minFeel: -3,
@@ -177,13 +177,13 @@ export function getEveningTip(
   // 겉옷 이름 뒤 조사는 받침마다 달라져서 붙이지 않는다. 단계 번호가 작을수록 따뜻한 단계다
   if (eveningIndex < morningIndex) {
     return morningOuter && !eveningOuter
-      ? `${when} ${morningOuter.label} 벗어도 돼요`
+      ? `${when} 풀리니 ${morningOuter.label} 없이도 괜찮아요`
       : null;
   }
   if (!morningOuter && eveningOuter) {
-    return `${when} ${eveningOuter.label} 챙겨요`;
+    return `${when} 추워지니 ${eveningOuter.label} 챙겨 가세요`;
   }
-  return `${when} 한 겹 더 챙겨요`;
+  return `${when} 추워지니 한 겹 더 챙겨 가세요`;
 }
 
 const isWet = (sky: Sky) =>
@@ -257,7 +257,7 @@ export function getBanners(day: DayWeather): Banner[] {
     banners.push({
       kind: 'umbrella',
       title: `${when} 비 ${wettest.pop}%`,
-      text: '우산 챙겨요',
+      text: '우산 챙겨 가세요',
     });
   }
 
@@ -277,7 +277,7 @@ export function getBanners(day: DayWeather): Banner[] {
     banners.push({
       kind: 'tempGap',
       title: `아침 ${formatTemp(morning.temp)} → 낮 ${formatTemp(day.max)}`,
-      text: '낮엔 겉옷 벗어요',
+      text: '낮엔 겉옷 없이도 괜찮아요',
     });
   }
 
@@ -373,16 +373,22 @@ export function getTake(day: DayWeather, offset: number): Take {
   if (snowy.length > 0 || isSnowy(day.sky)) {
     return [
       `${whenOf(snowy, day.weekend, '낮')}에 눈 소식.`,
-      '미끄럽지 않은 신발 신어요',
+      '미끄럽지 않은 신발을 신어보세요',
     ];
   }
 
   const rainy = day.commutes.filter(isRainy);
   if (rainy.length > 0) {
     if (rainy.length === 1 && rainy[0] === evening && morning.feel <= 10) {
-      return [`아침엔 쌀쌀, ${evening.phrase}엔 비.`, '겉옷 입고 우산 챙겨요'];
+      return [
+        `아침엔 쌀쌀, ${evening.phrase}엔 비.`,
+        '겉옷 입고 우산 챙겨 가세요',
+      ];
     }
-    return [`${whenOf(rainy, day.weekend, '')}에 비가 와요.`, '우산 챙겨요'];
+    return [
+      `${whenOf(rainy, day.weekend, '')}에 비가 와요.`,
+      '우산 챙겨 가세요',
+    ];
   }
 
   if (day.commutes.some((c) => c.wind >= STRONG_WIND)) {
@@ -392,7 +398,7 @@ export function getTake(day: DayWeather, offset: number): Take {
   if (day.max - morning.temp >= TEMP_GAP) {
     return [
       `낮엔 ${formatTemp(day.max)}까지 올라요.`,
-      '벗기 쉬운 겉옷으로 입어요',
+      '벗기 쉬운 겉옷을 입어보세요',
     ];
   }
 

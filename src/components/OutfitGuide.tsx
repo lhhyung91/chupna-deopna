@@ -51,7 +51,7 @@ export function OutfitGuide({ currentIndex, offset, basis }: Props) {
           onClick={toggle}
           className="flex w-full items-center justify-between gap-2 p-5 font-bold"
         >
-          온도별로 이렇게 입어요
+          온도별로 이렇게 입어보세요
           <motion.svg
             width="20"
             height="20"
