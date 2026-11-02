@@ -172,7 +172,7 @@ export function getEveningTip(
 
   const morningOuter = outerOf(LEVELS[morningIndex]);
   const eveningOuter = outerOf(LEVELS[eveningIndex]);
-  const when = `${evening.label}길엔`;
+  const when = `${evening.phrase}엔`;
 
   // 겉옷 이름 뒤 조사는 받침마다 달라져서 붙이지 않는다. 단계 번호가 작을수록 따뜻한 단계다
   if (eveningIndex < morningIndex) {
@@ -240,6 +240,8 @@ export const getWetBanner = (banners: Banner[]) =>
   banners.find((banner) => banner.kind === 'snow') ??
   banners.find((banner) => banner.kind === 'umbrella');
 
+const bothPhrase = (weekend: boolean) => (weekend ? '아침·저녁' : '출퇴근길');
+
 // 놓치면 곤란한 순서(우산 > 눈 > 강풍 > 일교차)로 쌓는다.
 export function getBanners(day: DayWeather): Banner[] {
   const banners: Banner[] = [];
@@ -249,10 +251,12 @@ export function getBanners(day: DayWeather): Banner[] {
   if (rainy.length > 0) {
     const wettest = rainy.reduce((a, b) => (b.pop > a.pop ? b : a));
     const when =
-      rainy.length === day.commutes.length ? '출퇴근' : wettest.label;
+      rainy.length === day.commutes.length
+        ? bothPhrase(day.weekend)
+        : wettest.phrase;
     banners.push({
       kind: 'umbrella',
-      title: `${when}길 비 ${wettest.pop}%`,
+      title: `${when} 비 ${wettest.pop}%`,
       text: '우산 챙겨요',
     });
   }
@@ -280,12 +284,16 @@ export function getBanners(day: DayWeather): Banner[] {
   return banners;
 }
 
-// 출근·퇴근 둘 다면 "출퇴근길", 하나면 그쪽 길
-const whenOf = (commutes: CommuteWeather[], fallback: string) =>
+// 출근·퇴근 둘 다면 "출퇴근길"(주말 "아침·저녁"), 하나면 그쪽
+const whenOf = (
+  commutes: CommuteWeather[],
+  weekend: boolean,
+  fallback: string
+) =>
   commutes.length >= 2
-    ? '출퇴근길'
+    ? bothPhrase(weekend)
     : commutes.length === 1
-      ? `${commutes[0].label}길`
+      ? commutes[0].phrase
       : fallback;
 
 // 오늘 안에 처음 비·눈이 오는 시각. 시간대별 칸은 자정을 넘기면 시각이 작아져서 거기서 멈춘다.
@@ -363,15 +371,18 @@ export function getTake(day: DayWeather, offset: number): Take {
 
   const snowy = day.commutes.filter((c) => isSnowy(c.sky));
   if (snowy.length > 0 || isSnowy(day.sky)) {
-    return [`${whenOf(snowy, '낮')}에 눈 소식.`, '미끄럽지 않은 신발 신어요'];
+    return [
+      `${whenOf(snowy, day.weekend, '낮')}에 눈 소식.`,
+      '미끄럽지 않은 신발 신어요',
+    ];
   }
 
   const rainy = day.commutes.filter(isRainy);
   if (rainy.length > 0) {
     if (rainy.length === 1 && rainy[0] === evening && morning.feel <= 10) {
-      return ['아침엔 쌀쌀, 퇴근길엔 비.', '겉옷 입고 우산 챙겨요'];
+      return [`아침엔 쌀쌀, ${evening.phrase}엔 비.`, '겉옷 입고 우산 챙겨요'];
     }
-    return [`${whenOf(rainy, '')}에 비가 와요.`, '우산 챙겨요'];
+    return [`${whenOf(rainy, day.weekend, '')}에 비가 와요.`, '우산 챙겨요'];
   }
 
   if (day.commutes.some((c) => c.wind >= STRONG_WIND)) {
@@ -387,6 +398,6 @@ export function getTake(day: DayWeather, offset: number): Take {
 
   return [
     `하루 종일 ${feelWord(morning, evening)}.`,
-    getEveningTip(morning, evening, offset) ?? '추천대로 입으면 돼요',
+    getEveningTip(morning, evening, offset) ?? '추천대로 입어보세요',
   ];
 }

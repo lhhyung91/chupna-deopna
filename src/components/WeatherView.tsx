@@ -100,7 +100,7 @@ export function WeatherView({
   // 한 줄에 들어가야 해서 "체감"은 뺀다. 위 출퇴근 숫자가 이미 체감이다
   const take: Take = review
     ? [
-        `아침 ${formatTemp(morning.feel)}, 퇴근길 ${formatTemp(eveningCommute.feel)}였어요.`,
+        `아침 ${formatTemp(morning.feel)}, ${eveningCommute.phrase} ${formatTemp(eveningCommute.feel)}였어요.`,
         feeling
           ? '기록했어요. 다음에 반영할게요'
           : '옷차림이 어땠는지 알려주세요',
@@ -166,7 +166,7 @@ export function WeatherView({
                     ? '오늘 뭐 입지?'
                     : '내일 뭐 입지?'
               }
-              basis={`${review ? '오늘 ' : ''}출근길 체감 ${formatTemp(morning.feel)} 기준`}
+              basis={`${review ? '오늘 ' : ''}${morning.phrase} 체감 ${formatTemp(morning.feel)} 기준`}
               items={level.items}
               umbrella={needsUmbrella(day)}
             />
@@ -175,7 +175,12 @@ export function WeatherView({
         </AnimatePresence>
         {!evening && feedback}
         {/* 탭을 바꾸면 표를 닫힌 상태로 다시 시작한다 */}
-        <OutfitGuide key={tab} currentIndex={levelIndex} offset={dayOffset} />
+        <OutfitGuide
+          key={tab}
+          currentIndex={levelIndex}
+          offset={dayOffset}
+          basis={morning.phrase}
+        />
       </div>
     </MotionConfig>
   );

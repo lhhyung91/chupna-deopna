@@ -21,7 +21,7 @@ export function getEveningAlert(
   const wet = getWetBanner(getBanners(tomorrow));
   // 카드에 보이는 반올림 값끼리 비교해야 알림 숫자와 화면 숫자가 맞는다.
   const diff = Math.round(morning.feel) - Math.round(todayMorning.feel);
-  const feel = `출근길 ${formatTemp(morning.feel)}처럼 느껴져요`;
+  const feel = `${morning.phrase} ${formatTemp(morning.feel)}처럼 느껴져요`;
 
   if (Math.abs(diff) >= BIG_CHANGE) {
     return {

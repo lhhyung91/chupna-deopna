@@ -1,8 +1,21 @@
 export const SITE_URL = 'https://chupna-deopna.vercel.app';
 
+// 주말엔 출퇴근이 아닐 수 있어 아침·저녁으로 부른다. phrase는 문장 속 이름("퇴근길엔")
 export const COMMUTES = [
-  { label: '출근', startHour: 8, endHour: 9 },
-  { label: '퇴근', startHour: 18, endHour: 19 },
+  {
+    label: '출근',
+    phrase: '출근길',
+    weekend: '아침',
+    startHour: 8,
+    endHour: 9,
+  },
+  {
+    label: '퇴근',
+    phrase: '퇴근길',
+    weekend: '저녁',
+    startHour: 18,
+    endHour: 19,
+  },
 ] as const;
 
 // 퇴근 시간이 시작되면 피드백 카드를 맨 위로 올린다.

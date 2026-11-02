@@ -5,7 +5,12 @@ import { levelRange, LEVELS } from '@/lib/outfit';
 import { animate, AnimatePresence, motion } from 'motion/react';
 import { useId, useRef, useState } from 'react';
 
-type Props = { currentIndex: number; offset: number };
+type Props = {
+  currentIndex: number;
+  offset: number;
+  // 옷을 고른 때. 평일 "출근길", 주말 "아침"
+  basis: string;
+};
 
 // 펼침과 화면 이동이 같은 속도로 함께 움직여야 화면이 표를 따라가는 것처럼 보인다
 const PANEL_TRANSITION = { duration: 0.25, ease: 'easeOut' } as const;
@@ -17,7 +22,7 @@ const PANEL = {
 };
 
 // details는 높이 애니메이션이 안 돼서, 펼침 상태를 직접 들고 motion으로 높이를 움직인다.
-export function OutfitGuide({ currentIndex, offset }: Props) {
+export function OutfitGuide({ currentIndex, offset, basis }: Props) {
   const [open, setOpen] = useState(false);
   const listId = useId();
   const sectionRef = useRef<HTMLElement>(null);
@@ -114,7 +119,7 @@ export function OutfitGuide({ currentIndex, offset }: Props) {
                 })}
               </ol>
               <p className="text-xs text-muted">
-                출근길에 느끼는 온도로 골라요
+                {basis}에 느끼는 온도로 골라요
                 {offset > 0 &&
                   `. 추위를 타는 편이라 ${offset}° 따뜻하게 골라요`}
                 {offset < 0 && `. 더위를 타는 편이라 ${-offset}° 가볍게 골라요`}

@@ -23,13 +23,18 @@ export type HourWeather = {
   wind: number;
 };
 
-export type CommuteWeather = HourWeather & { label: string; time: string };
+export type CommuteWeather = HourWeather & {
+  label: string;
+  phrase: string;
+  time: string;
+};
 
 export type HourlyItem = { label: string; temp: number; pop: number; sky: Sky };
 
 export type DayWeather = {
   dateKey: string;
   dateLabel: string;
+  weekend: boolean;
   min: number;
   max: number;
   sky: Sky;
@@ -214,7 +219,8 @@ function hourAt(grid: Grid, date: string, hour: number): HourWeather | null {
 function commuteAt(
   grid: Grid,
   date: string,
-  commute: (typeof COMMUTES)[number]
+  commute: (typeof COMMUTES)[number],
+  weekend: boolean
 ): CommuteWeather {
   const hours = [commute.startHour, commute.endHour]
     .map((hour) => hourAt(grid, date, hour))
@@ -224,7 +230,8 @@ function commuteAt(
   // 두 시간 중 더 춥고 더 궂은 쪽을 기준으로 삼는다.
   const wettest = hours.reduce((a, b) => (b.pop > a.pop ? b : a));
   return {
-    label: commute.label,
+    label: weekend ? commute.weekend : commute.label,
+    phrase: weekend ? commute.weekend : commute.phrase,
     time: `${pad(commute.startHour)}–${pad(commute.endHour)}시`,
     temp: Math.min(...hours.map((h) => h.temp)),
     feel: Math.min(...hours.map((h) => h.feel)),
@@ -240,6 +247,7 @@ function buildDay(
   hourlySlots: { kst: Date; label: string }[]
 ): DayWeather {
   const date = toDateKey(kstDay);
+  const weekend = [0, 6].includes(kstDay.getUTCDay());
   const hours = Array.from({ length: 24 }, (_, h) => hourAt(grid, date, h));
   const known = hours.filter((h) => h !== null);
   const daytime = hours.slice(6, 22).filter((h) => h !== null);
@@ -261,11 +269,12 @@ function buildDay(
   return {
     dateKey: date,
     dateLabel: formatDateLabel(new Date(kstDay.getTime() - KST_OFFSET_MS)),
+    weekend,
     min: min ?? Math.min(...known.map((h) => h.temp)),
     max: max ?? Math.max(...known.map((h) => h.temp)),
     sky,
     pop: Math.max(0, ...known.map((h) => h.pop)),
-    commutes: COMMUTES.map((c) => commuteAt(grid, date, c)),
+    commutes: COMMUTES.map((c) => commuteAt(grid, date, c, weekend)),
     hourly: hourlySlots.flatMap(({ kst, label }) => {
       const h = hourAt(grid, toDateKey(kst), kst.getUTCHours());
       return h ? [{ label, temp: h.temp, pop: h.pop, sky: h.sky }] : [];
