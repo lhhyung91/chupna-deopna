@@ -69,7 +69,11 @@ function Commute({
       <span className="flex items-center gap-1">
         <WeatherIcon kind={commute.sky} size={36} />
         <span className="font-num text-3xl font-bold tracking-[-1.5px] tabular-nums">
-          <RollingNumber value={commute.feel} turn={tab} />
+          <RollingNumber
+            value={commute.feel}
+            turn={tab}
+            align={end ? 'end' : 'start'}
+          />
         </span>
       </span>
       <span className="text-xs font-bold whitespace-nowrap tabular-nums">
