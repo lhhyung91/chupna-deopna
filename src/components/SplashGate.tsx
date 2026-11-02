@@ -17,6 +17,8 @@ const FADE_MS = 500;
 
 // null: 페이지가 아직 안 그려짐, true: 그려졌지만 위치 확인을 기다려 달라, false: 걷어도 됨
 const HoldContext = createContext<(hold: boolean) => void>(() => {});
+// 메인은 로딩 화면 뒤에서 미리 그려지므로, 첫 움직임은 로딩 화면이 걷히기 시작할 때 튼다
+const RevealedContext = createContext(false);
 
 // 로딩 화면을 레이아웃에 한 번만 그린다. 서버를 기다리다 날씨가 와도 같은 요소라 애니메이션이 다시 돌지 않는다
 export function SplashProvider({ children }: { children: ReactNode }) {
@@ -70,7 +72,7 @@ export function SplashProvider({ children }: { children: ReactNode }) {
 
   return (
     <HoldContext value={setHold}>
-      {children}
+      <RevealedContext value={phase !== 'show'}>{children}</RevealedContext>
       {phase !== 'gone' && <SplashScreen leaving={phase === 'leaving'} />}
     </HoldContext>
   );
@@ -83,3 +85,5 @@ export function useSplashHold(hold: boolean) {
     setHold(hold);
   }, [setHold, hold]);
 }
+
+export const useSplashRevealed = () => useContext(RevealedContext);

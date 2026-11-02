@@ -1,15 +1,27 @@
 import { ClothingIcon } from '@/components/ClothingIcon';
+import type { Tab } from '@/components/Header';
 import { WeatherIcon } from '@/components/WeatherIcon';
+import { useEntrance } from '@/hooks/useEntrance';
+import { tileEntrance } from '@/lib/motion';
 import type { ClothingItem } from '@/lib/outfit';
+import { motion } from 'motion/react';
 
 type Props = {
   title: string;
   basis: string;
   items: ClothingItem[];
   umbrella: boolean;
+  // 옷이 같아도 탭을 바꾸면 다시 올라와 "새로 골랐다"는 신호를 준다
+  tab: Tab;
 };
 
-export function OutfitCard({ title, basis, items, umbrella }: Props) {
+const TILE = {
+  hidden: { opacity: 0, y: 14, scale: 0.9 },
+  shown: { opacity: 1, y: 0, scale: 1 },
+};
+
+export function OutfitCard({ title, basis, items, umbrella, tab }: Props) {
+  const { animate, timing } = useEntrance();
   // 우산까지 4칸이면 375px 한 줄에 들어가게 칸과 그림을 줄인다
   const wide = items.length + (umbrella ? 1 : 0) > 3;
   const tile = `flex w-full items-center justify-center rounded-2xl border-2 border-ink shadow-well ${wide ? 'h-19' : 'h-23'}`;
@@ -34,29 +46,43 @@ export function OutfitCard({ title, basis, items, umbrella }: Props) {
       {/* 그림 아래 이름이 보이니 스크린리더엔 조합 한 문장만 읽힌다 */}
       <p className="sr-only">추천 옷차림: {combo.join(' + ')}</p>
       <div
+        key={tab}
         aria-hidden="true"
         className={`grid ${wide ? 'grid-cols-4 gap-2' : 'grid-cols-3 gap-3'}`}
       >
-        {items.map((item) => (
-          <div key={item.label} className="flex flex-col items-center gap-1.5">
+        {items.map((item, index) => (
+          <motion.div
+            key={item.label}
+            variants={TILE}
+            initial="hidden"
+            animate={animate}
+            transition={timing(tileEntrance(index))}
+            className="flex flex-col items-center gap-1.5"
+          >
             <div className={`${tile} tile-ground`}>
               <ClothingIcon kind={item.kind} size={wide ? 56 : 76} priority />
             </div>
             <span className="text-[0.8125rem]/4.5 font-bold whitespace-nowrap">
               {item.label}
             </span>
-          </div>
+          </motion.div>
         ))}
         {/* 입는 옷이 아니라 챙길 물건이라 점선 칸으로 구분한다 */}
         {umbrella && (
-          <div className="flex flex-col items-center gap-1.5">
+          <motion.div
+            variants={TILE}
+            initial="hidden"
+            animate={animate}
+            transition={timing(tileEntrance(items.length))}
+            className="flex flex-col items-center gap-1.5"
+          >
             <div className={`${tile} border-dashed tile-ground-accent`}>
               <WeatherIcon kind="umbrella" size={56} />
             </div>
             <span className="text-[0.8125rem]/4.5 font-black whitespace-nowrap">
               + 우산
             </span>
-          </div>
+          </motion.div>
         )}
       </div>
     </section>

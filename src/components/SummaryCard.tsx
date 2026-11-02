@@ -1,5 +1,9 @@
+import type { Tab } from '@/components/Header';
+import { RollingNumber } from '@/components/RollingNumber';
 import { WeatherIcon } from '@/components/WeatherIcon';
+import { useEntrance } from '@/hooks/useEntrance';
 import { formatTemp, precipName, SKY_LABEL } from '@/lib/format';
+import { ENTRANCE } from '@/lib/motion';
 import {
   compareMornings,
   getCommuteDelta,
@@ -8,6 +12,7 @@ import {
   type Take,
 } from '@/lib/outfit';
 import type { CommuteWeather, DayWeather, NowWeather } from '@/lib/weather';
+import { motion } from 'motion/react';
 
 type Props = {
   // 내일 탭엔 지금 기온이 없다
@@ -19,6 +24,20 @@ type Props = {
   take: Take;
   // 저녁 오늘 탭: 오늘 출퇴근을 돌아보는 말투로 쓴다
   past: boolean;
+  // 움직임을 탭마다 다시 트는 key
+  tab: Tab;
+};
+
+const FADE = { hidden: { opacity: 0 }, shown: { opacity: 1 } };
+const LINE = { hidden: { scaleX: 0 }, shown: { scaleX: 1 } };
+// 선이 끝에 거의 닿을 때 왼쪽 8px에서 제자리로 나타난다
+const ARROW = {
+  hidden: { opacity: 0, x: -8 },
+  shown: { opacity: [0, 0, 1], x: [-8, -8, 0] },
+};
+const BADGE = {
+  hidden: { opacity: 0, scale: 0.4 },
+  shown: { opacity: [0, 1, 1], scale: [0.4, 1.14, 1] },
 };
 
 const formatDelta = (delta: number) =>
@@ -33,7 +52,15 @@ const deltaClass = (delta: number) =>
       : 'bg-chip text-ink';
 
 // 큰 숫자는 옷을 고른 체감이고, 기온과 비·눈 소식은 아래 작은 글씨로 둔다
-function Commute({ commute, end }: { commute: CommuteWeather; end: boolean }) {
+function Commute({
+  commute,
+  end,
+  tab,
+}: {
+  commute: CommuteWeather;
+  end: boolean;
+  tab: Tab;
+}) {
   return (
     <div className={`flex flex-col ${end ? 'items-end' : 'items-start'}`}>
       <span className="text-xs font-bold whitespace-nowrap text-muted">
@@ -42,7 +69,7 @@ function Commute({ commute, end }: { commute: CommuteWeather; end: boolean }) {
       <span className="flex items-center gap-1">
         <WeatherIcon kind={commute.sky} size={36} />
         <span className="font-num text-3xl font-bold tracking-[-1.5px] tabular-nums">
-          {formatTemp(commute.feel)}
+          <RollingNumber value={commute.feel} turn={tab} />
         </span>
       </span>
       <span className="text-xs font-bold whitespace-nowrap tabular-nums">
@@ -60,7 +87,16 @@ function Commute({ commute, end }: { commute: CommuteWeather; end: boolean }) {
   );
 }
 
-export function SummaryCard({ now, day, compare, note, take, past }: Props) {
+export function SummaryCard({
+  now,
+  day,
+  compare,
+  note,
+  take,
+  past,
+  tab,
+}: Props) {
+  const { animate, timing } = useEntrance();
   const sky = now?.sky ?? day.sky;
   const [morning, evening] = day.commutes;
   const { delta, text } = getCommuteDelta(morning, evening, past);
@@ -86,10 +122,17 @@ export function SummaryCard({ now, day, compare, note, take, past }: Props) {
             <span className="font-bold">{SKY_LABEL[sky]}</span>
           </span>
           {vsMorning && (
-            <span className="text-xs whitespace-nowrap text-muted tabular-nums">
+            <motion.span
+              key={tab}
+              variants={FADE}
+              initial="hidden"
+              animate={animate}
+              transition={timing(ENTRANCE.fade)}
+              className="text-xs whitespace-nowrap text-muted tabular-nums"
+            >
               <span aria-hidden="true">{vsMorning.text}</span>
               <span className="sr-only">{vsMorning.spoken}</span>
-            </span>
+            </motion.span>
           )}
           {note && <span className="text-xs text-muted">{note}</span>}
         </p>
@@ -111,17 +154,32 @@ export function SummaryCard({ now, day, compare, note, take, past }: Props) {
         aria-hidden="true"
         className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
       >
-        <Commute commute={morning} end={false} />
+        <Commute commute={morning} end={false} tab={tab} />
         {/* 차이는 배지 숫자와 색이 말한다. 글자로 쓰면 위 "어제보다"와 같은 비교로 읽힌다 */}
-        <div className="flex min-w-0 flex-col items-center gap-px">
-          <span
+        {/* 선이 아침에서 저녁으로 그려진 뒤 배지가 튀어나와 "이만큼 변한다"는 흐름이 보이게 한다 */}
+        <div key={tab} className="flex min-w-0 flex-col items-center gap-px">
+          <motion.span
+            variants={BADGE}
+            initial="hidden"
+            animate={animate}
+            transition={timing(ENTRANCE.badge)}
             className={`rounded-full border-2 border-ink px-2.5 py-0.5 font-num text-[0.9375rem]/5 font-bold tabular-nums ${deltaClass(delta)}`}
           >
             {formatDelta(delta)}
-          </span>
+          </motion.span>
           <span className="relative flex h-3.5 w-full items-center">
-            <span className="h-[2.5px] w-full bg-ink" />
-            <svg
+            <motion.span
+              variants={LINE}
+              initial="hidden"
+              animate={animate}
+              transition={timing(ENTRANCE.line)}
+              className="h-[2.5px] w-full origin-left bg-ink"
+            />
+            <motion.svg
+              variants={ARROW}
+              initial="hidden"
+              animate={animate}
+              transition={timing(ENTRANCE.arrow)}
               width="12"
               height="14"
               viewBox="0 0 12 14"
@@ -133,16 +191,35 @@ export function SummaryCard({ now, day, compare, note, take, past }: Props) {
               className="absolute -right-0.5 text-ink"
             >
               <path d="M3 2l6 5-6 5" />
-            </svg>
+            </motion.svg>
           </span>
         </div>
-        <Commute commute={evening} end />
+        <Commute commute={evening} end tab={tab} />
       </div>
 
       {/* 문구 길이와 상관없이 날마다 같은 높이로 둔다 */}
       <p className="flex min-h-16 flex-col justify-center gap-0.5 rounded-[0.875rem] border border-hint-line bg-hint px-3 py-2.5 break-keep shadow-hint">
-        <b className="text-[0.9375rem]/5">{take[0]}</b>
-        <span className="text-sm/5 font-medium text-hint-sub">{take[1]}</span>
+        {/* 칸은 그대로 두고 글만 페이드한다 */}
+        <motion.b
+          key={`${tab}-0`}
+          variants={FADE}
+          initial="hidden"
+          animate={animate}
+          transition={timing(ENTRANCE.fade)}
+          className="text-[0.9375rem]/5"
+        >
+          {take[0]}
+        </motion.b>
+        <motion.span
+          key={`${tab}-1`}
+          variants={FADE}
+          initial="hidden"
+          animate={animate}
+          transition={timing(ENTRANCE.fade)}
+          className="text-sm/5 font-medium text-hint-sub"
+        >
+          {take[1]}
+        </motion.span>
       </p>
     </section>
   );
