@@ -9,7 +9,11 @@ export const ENTRANCE = {
   arrow: { duration: 0.42, ease: 'easeOut', times: [0, 0.75, 1] },
   badge: { duration: 0.36, delay: 0.34, ease: POP, times: [0, 0.6, 1] },
   fade: { duration: 0.25, delay: 0.2, ease: 'easeOut' },
+  // 핸드오프에 없지만 면적이 커서 탭이 바뀔 때 툭 바뀌는 게 보이는 칸(요약 첫 줄·시간대별). 지연 없이 흐려졌다 나타난다
+  soft: { duration: 0.25, ease: 'easeOut' },
 } satisfies Record<string, Transition>;
+
+export const FADE = { hidden: { opacity: 0 }, shown: { opacity: 1 } };
 
 // 옷 타일을 눌러 다른 옷으로 바꿀 때 그림만 짧게 팝한다
 export const SWAP_POP: Transition = { duration: 0.3, ease: POP };
