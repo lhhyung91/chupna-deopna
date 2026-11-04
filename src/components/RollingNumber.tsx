@@ -36,19 +36,18 @@ type FaceProps = {
   text: string;
   direction: Direction;
   align: Align;
-  animate: string;
   transition: Transition;
 };
 
 // 빠지는 숫자는 칸에서 바로 빼서(absolute) 칸 끝에 붙인다. 겹쳐 두면 칸이 넓은 숫자에 맞춰졌다가 빠진 뒤 줄면서 오른쪽 정렬 칸이 튄다
-function Face({ text, direction, align, animate, transition }: FaceProps) {
+function Face({ text, direction, align, transition }: FaceProps) {
   const isPresent = useIsPresent();
   return (
     <motion.span
       custom={direction}
       variants={ROLL}
       initial="hidden"
-      animate={animate}
+      animate="shown"
       exit="exit"
       transition={transition}
       className={
@@ -64,7 +63,7 @@ function Face({ text, direction, align, animate, transition }: FaceProps) {
 
 // 탭(turn)이 바뀌었을 때만 굴린다. 같은 탭에서 새 날씨가 오면 숫자만 조용히 바뀐다
 export function RollingNumber({ value, turn, align }: Props) {
-  const { animate, timing } = useEntrance();
+  const { timing } = useEntrance();
   const shown = Math.round(value);
   const [roll, setRoll] = useState({
     turn,
@@ -92,7 +91,6 @@ export function RollingNumber({ value, turn, align }: Props) {
           text={formatTemp(value)}
           direction={roll.direction}
           align={align}
-          animate={animate}
           transition={timing(ENTRANCE.number)}
         />
       </AnimatePresence>

@@ -32,7 +32,7 @@ export function OutfitCard({
   umbrella,
   tab,
 }: Props) {
-  const { animate, timing } = useEntrance();
+  const { initial, timing } = useEntrance();
   const { choose, next } = useOutfitPicks();
   const items = choose(level);
   // 우산까지 4칸이면 375px 한 줄에 들어가게 칸과 그림을 줄인다
@@ -96,16 +96,16 @@ export function OutfitCard({
           <motion.div
             key={index}
             variants={TILE}
-            initial="hidden"
-            animate={animate}
+            initial={initial}
+            animate="shown"
             transition={timing(tileEntrance(index))}
             className="flex flex-col items-center gap-1.5"
           >
             <div className={`${tile} tile-ground`}>
-              {/* 옷이 바뀌면 그림이 새로 붙으며 팝한다. 탭을 바꿀 땐 칸이 숨은 채(등장 지연 동안) 끝나서 보이지 않는다 */}
+              {/* 옷이 바뀌면 그림이 새로 붙으며 팝한다. 처음 열 땐 바로 보이고, 탭을 바꿀 땐 칸이 숨은 채(등장 지연 동안) 끝나서 보이지 않는다 */}
               <motion.span
                 key={item.kind}
-                initial={{ scale: 0.8, opacity: 0 }}
+                initial={initial && { scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={timing(SWAP_POP)}
                 className="flex"
@@ -122,8 +122,8 @@ export function OutfitCard({
         {umbrella && (
           <motion.div
             variants={TILE}
-            initial="hidden"
-            animate={animate}
+            initial={initial}
+            animate="shown"
             transition={timing(tileEntrance(items.length))}
             className="flex flex-col items-center gap-1.5"
           >

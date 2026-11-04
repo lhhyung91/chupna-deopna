@@ -9,12 +9,12 @@ type Props = { hourly: HourlyItem[]; highlightFirst: boolean };
 
 // 탭마다 새로 그려지므로(WeatherView의 key) 붙을 때마다 페이드한다
 export function HourlyForecast({ hourly, highlightFirst }: Props) {
-  const { animate, timing } = useEntrance();
+  const { initial, timing } = useEntrance();
   return (
     <motion.section
       variants={FADE}
-      initial="hidden"
-      animate={animate}
+      initial={initial}
+      animate="shown"
       transition={timing(ENTRANCE.soft)}
       aria-label="시간대별 예보"
       className="col-span-6 flex flex-col gap-3 card pt-5 pb-3"

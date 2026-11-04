@@ -99,7 +99,7 @@ export function SummaryCard({
   past,
   tab,
 }: Props) {
-  const { animate, timing } = useEntrance();
+  const { initial, timing } = useEntrance();
   const sky = now?.sky ?? day.sky;
   const [morning, evening] = day.commutes;
   const { delta, text } = getCommuteDelta(morning, evening, past);
@@ -115,8 +115,8 @@ export function SummaryCard({
         <motion.div
           key={tab}
           variants={FADE}
-          initial="hidden"
-          animate={animate}
+          initial={initial}
+          animate="shown"
           transition={timing(ENTRANCE.soft)}
           className="flex items-center gap-2"
         >
@@ -151,8 +151,8 @@ export function SummaryCard({
         <motion.p
           key={`${tab}-note`}
           variants={FADE}
-          initial="hidden"
-          animate={animate}
+          initial={initial}
+          animate="shown"
           transition={timing(ENTRANCE.fade)}
           className="min-h-4 text-xs text-muted tabular-nums"
         >
@@ -180,8 +180,8 @@ export function SummaryCard({
         <div key={tab} className="flex min-w-0 flex-col items-center gap-px">
           <motion.span
             variants={BADGE}
-            initial="hidden"
-            animate={animate}
+            initial={initial}
+            animate="shown"
             transition={timing(ENTRANCE.badge)}
             className={`rounded-full border-2 border-ink px-2.5 py-0.5 font-num text-[0.9375rem]/5 font-bold tabular-nums ${deltaClass(delta)}`}
           >
@@ -190,15 +190,15 @@ export function SummaryCard({
           <span className="relative flex h-3.5 w-full items-center">
             <motion.span
               variants={LINE}
-              initial="hidden"
-              animate={animate}
+              initial={initial}
+              animate="shown"
               transition={timing(ENTRANCE.line)}
               className="h-[2.5px] w-full origin-left bg-ink"
             />
             <motion.svg
               variants={ARROW}
-              initial="hidden"
-              animate={animate}
+              initial={initial}
+              animate="shown"
               transition={timing(ENTRANCE.arrow)}
               width="12"
               height="14"
@@ -223,8 +223,8 @@ export function SummaryCard({
         <motion.b
           key={`${tab}-0`}
           variants={FADE}
-          initial="hidden"
-          animate={animate}
+          initial={initial}
+          animate="shown"
           transition={timing(ENTRANCE.fade)}
           className="text-[0.9375rem]/5"
         >
@@ -233,8 +233,8 @@ export function SummaryCard({
         <motion.span
           key={`${tab}-1`}
           variants={FADE}
-          initial="hidden"
-          animate={animate}
+          initial={initial}
+          animate="shown"
           transition={timing(ENTRANCE.fade)}
           className="text-sm/5 font-medium text-hint-sub"
         >
