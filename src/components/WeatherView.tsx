@@ -133,6 +133,8 @@ export function WeatherView({
     const next: Tab = offset.x < 0 ? 'tomorrow' : 'today';
     if (next === tab) return;
     haptic();
+    // 아래쪽에서 넘겨도 새 탭은 요약부터 보여야 한다. 부드럽게 올리면 긴 스크롤과 등장 움직임이 겹쳐 어지럽다
+    window.scrollTo({ top: 0, behavior: 'instant' });
     setTab(next);
   };
 
