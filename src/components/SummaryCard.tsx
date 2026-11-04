@@ -3,7 +3,7 @@ import { RollingNumber } from '@/components/RollingNumber';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { useEntrance } from '@/hooks/useEntrance';
 import { formatTemp, precipName, SKY_LABEL } from '@/lib/format';
-import { ENTRANCE } from '@/lib/motion';
+import { ENTRANCE, FADE } from '@/lib/motion';
 import {
   compareMornings,
   getCommuteDelta,
@@ -28,7 +28,6 @@ type Props = {
   tab: Tab;
 };
 
-const FADE = { hidden: { opacity: 0 }, shown: { opacity: 1 } };
 const LINE = { hidden: { scaleX: 0 }, shown: { scaleX: 1 } };
 // 선이 끝에 거의 닿을 때 왼쪽 8px에서 제자리로 나타난다
 const ARROW = {
@@ -111,44 +110,61 @@ export function SummaryCard({
       aria-label={now ? '오늘 요약' : '내일 요약'}
       className="col-span-6 flex flex-col gap-2.5 card px-4 pt-3.5 pb-4"
     >
-      <div className="flex items-center gap-2">
-        <WeatherIcon kind={sky} size={44} />
-        {now && (
-          <span className="font-num text-4xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums">
-            {formatTemp(now.temp)}
-          </span>
-        )}
-        <p className="flex shrink-0 flex-col">
-          <span className="whitespace-nowrap">
-            <span className="text-xs font-bold text-muted">
-              {now ? '지금' : '내일'}
+      {/* 비교·비 시각을 아래 한 줄로 따로 둬서, 지금 기온이 없는 내일 탭도 첫 줄 높이가 같다 */}
+      <div className="flex flex-col gap-1">
+        <motion.div
+          key={tab}
+          variants={FADE}
+          initial="hidden"
+          animate={animate}
+          transition={timing(ENTRANCE.soft)}
+          className="flex items-center gap-2"
+        >
+          <WeatherIcon kind={sky} size={44} />
+          {now ? (
+            <>
+              <span className="font-num text-4xl font-bold tracking-[-1px] whitespace-nowrap tabular-nums">
+                {formatTemp(now.temp)}
+              </span>
+              <span className="whitespace-nowrap">
+                <span className="text-xs font-bold text-muted">지금</span>{' '}
+                <span className="font-bold">{SKY_LABEL[sky]}</span>
+              </span>
+            </>
+          ) : (
+            // 내일은 지금 기온이 없어 하늘을 그 자리에 크게 둔다. "내일"은 탭이 이미 말한다
+            <span className="text-4xl font-bold tracking-[-1px] whitespace-nowrap">
+              {SKY_LABEL[sky]}
+            </span>
+          )}
+          {/* 한 줄이 기본이고, 기온·하늘 글자가 길어 칸이 모자라면 "/" 뒤에서 두 줄로 내려간다 */}
+          <p className="ml-auto text-right text-xs text-muted tabular-nums">
+            <span className="whitespace-nowrap">
+              최고 <b className="text-ink">{formatTemp(day.max)}</b> /
             </span>{' '}
-            <span className="font-bold">{SKY_LABEL[sky]}</span>
-          </span>
+            <span className="whitespace-nowrap">
+              최저 <b className="text-ink">{formatTemp(day.min)}</b>
+            </span>
+          </p>
+        </motion.div>
+        {/* 내용이 없어도 한 줄 높이를 남겨, 탭을 넘겨도 카드 높이가 같다 */}
+        <motion.p
+          key={`${tab}-note`}
+          variants={FADE}
+          initial="hidden"
+          animate={animate}
+          transition={timing(ENTRANCE.fade)}
+          className="min-h-4 text-xs text-muted tabular-nums"
+        >
           {vsMorning && (
-            <motion.span
-              key={tab}
-              variants={FADE}
-              initial="hidden"
-              animate={animate}
-              transition={timing(ENTRANCE.fade)}
-              className="text-xs whitespace-nowrap text-muted tabular-nums"
-            >
+            <>
               <span aria-hidden="true">{vsMorning.text}</span>
               <span className="sr-only">{vsMorning.spoken}</span>
-            </motion.span>
+            </>
           )}
-          {note && <span className="text-xs text-muted">{note}</span>}
-        </p>
-        {/* 한 줄이 기본이고, 기온·하늘 글자가 길어 칸이 모자라면 "/" 뒤에서 두 줄로 내려간다 */}
-        <p className="ml-auto text-right text-xs text-muted tabular-nums">
-          <span className="whitespace-nowrap">
-            최고 <b className="text-ink">{formatTemp(day.max)}</b> /
-          </span>{' '}
-          <span className="whitespace-nowrap">
-            최저 <b className="text-ink">{formatTemp(day.min)}</b>
-          </span>
-        </p>
+          {vsMorning && note && <span aria-hidden="true"> · </span>}
+          {note}
+        </motion.p>
       </div>
 
       <p className="sr-only">
