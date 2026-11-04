@@ -61,6 +61,22 @@ async function openStatic(request) {
   return response;
 }
 
+// 옷 그림은 이미지 최적화 경로로만 받아서, 저장해 두지 않으면 로딩 화면이 빨리 걷힐 때 빈 칸이 보인다.
+// 같은 이름으로 그림을 바꿀 수 있어서, 저장본으로 바로 답하고 뒤에서 새로 받아 둔다
+async function openImage(event) {
+  const cache = await caches.open(CACHE);
+  const saved = await cache.match(event.request);
+  const fromServer = fetch(event.request).then(async (response) => {
+    if (response.ok) await cache.put(event.request, response.clone());
+    return response;
+  });
+  if (saved) {
+    event.waitUntil(fromServer.catch(() => {}));
+    return saved;
+  }
+  return fromServer;
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
@@ -77,6 +93,10 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/splash/cloud-')
   ) {
     event.respondWith(openStatic(request));
+    return;
+  }
+  if (url.pathname === '/_next/image') {
+    event.respondWith(openImage(event));
   }
 });
 
