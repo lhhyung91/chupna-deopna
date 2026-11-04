@@ -11,7 +11,7 @@ import {
 } from 'react';
 
 // 위치 확인이 오래 걸려도 이 이상은 막지 않는다. 그 뒤엔 이름 자리 점이 이어 받는다
-const MAX_WAIT_MS = 3000;
+const MAX_WAIT_MS = 1500;
 // 걷힐 때 아래 화면 전체가 천천히 드러나게 한다. 짧으면 새로고침 때 내용이 툭 나타난다
 const FADE_MS = 500;
 
@@ -57,10 +57,12 @@ export function SplashProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (phase === 'gone' || (phase === 'show' && hold === null)) return;
     // 날씨가 그려지면 바로 걷는다. 위치 확인 시간은 앱을 연 순간부터 잰다
+    // 숨은 채 열린 로딩 화면(layout.tsx의 data-splash="skip")은 덮을 게 없어서, 위치를 기다리면 내용만 비어 보인다
+    const covering = document.documentElement.dataset.splash !== 'skip';
     const wait =
       phase === 'leaving'
         ? FADE_MS
-        : hold
+        : hold && covering
           ? MAX_WAIT_MS - performance.now()
           : 0;
     const timer = setTimeout(
@@ -78,7 +80,7 @@ export function SplashProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// 페이지가 그려지면 부른다. hold가 true인 동안(예: 열 때 위치 확인)은 최대 3초까지 로딩 화면을 더 덮어 둔다
+// 페이지가 그려지면 부른다. hold가 true인 동안(예: 열 때 위치 확인)은 최대 1.5초까지 로딩 화면을 더 덮어 둔다
 export function useSplashHold(hold: boolean) {
   const setHold = useContext(HoldContext);
   useEffect(() => {
