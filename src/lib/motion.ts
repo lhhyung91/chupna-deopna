@@ -2,7 +2,7 @@ import type { Transition } from 'motion/react';
 
 const POP = [0.34, 1.56, 0.64, 1] as const;
 
-// 탭을 누른 순간을 0으로 숫자·비교선 → 배지 → 옷 타일 순서로 1초 안에 끝난다(HANDOFF_MOTION)
+// 탭을 누른 순간을 0으로 숫자·비교선 → 배지 순서로 1초 안에 끝난다(HANDOFF_MOTION). 옷 칸은 바뀐 그림만 SWAP_POP
 export const ENTRANCE = {
   number: { duration: 0.36, ease: [0.2, 0.8, 0.2, 1] },
   line: { duration: 0.42, ease: [0.3, 0.7, 0.2, 1] },
@@ -15,11 +15,5 @@ export const ENTRANCE = {
 
 export const FADE = { hidden: { opacity: 0 }, shown: { opacity: 1 } };
 
-// 옷 타일을 눌러 다른 옷으로 바꿀 때 그림만 짧게 팝한다
+// 탭을 넘기거나 ↻로 옷이 바뀐 칸의 그림만 짧게 팝한다
 export const SWAP_POP: Transition = { duration: 0.3, ease: POP };
-
-export const tileEntrance = (index: number): Transition => ({
-  duration: 0.42,
-  delay: 0.45 + index * 0.06,
-  ease: POP,
-});

@@ -1,12 +1,12 @@
-import { ClothingIcon } from '@/components/ClothingIcon';
-import type { Tab } from '@/components/Header';
-import { WeatherIcon } from '@/components/WeatherIcon';
+import { ClothingIcon, preloadClothing } from '@/components/ClothingIcon';
+import { preloadWeatherIcon, WeatherIcon } from '@/components/WeatherIcon';
 import { useEntrance } from '@/hooks/useEntrance';
 import { useOutfitPicks } from '@/hooks/useOutfitPicks';
 import { haptic } from '@/lib/haptic';
-import { SWAP_POP, tileEntrance } from '@/lib/motion';
-import type { OutfitLevel } from '@/lib/outfit';
+import { SWAP_POP } from '@/lib/motion';
+import type { ClothingItem, OutfitLevel } from '@/lib/outfit';
 import { motion } from 'motion/react';
+import { type ReactNode, useEffect } from 'react';
 
 type Props = {
   title: string;
@@ -15,14 +15,28 @@ type Props = {
   basisTemp: string;
   level: OutfitLevel;
   umbrella: boolean;
-  // 옷이 같아도 탭을 바꾸면 다시 올라와 "새로 골랐다"는 신호를 준다
-  tab: Tab;
+  // 다른 탭의 옷. 그림을 미리 받아 둬야 탭을 넘긴 순간 칸이 비지 않는다
+  other: { level: OutfitLevel; umbrella: boolean };
 };
 
-const TILE = {
-  hidden: { opacity: 0, y: 14, scale: 0.9 },
-  shown: { opacity: 1, y: 0, scale: 1 },
-};
+// 우산까지 4칸이면 375px 한 줄에 들어가게 칸과 그림을 줄인다
+const isWide = (items: ClothingItem[], umbrella: boolean) =>
+  items.length + (umbrella ? 1 : 0) > 3;
+
+// 새로 붙는 그림만 커지며 나온다. 투명에서 시작하면 그 사이 칸이 비어 보인다
+function Pop({ children }: { children: ReactNode }) {
+  const { initial, timing } = useEntrance();
+  return (
+    <motion.span
+      initial={initial && { scale: 0.8 }}
+      animate={{ scale: 1 }}
+      transition={timing(SWAP_POP)}
+      className="flex"
+    >
+      {children}
+    </motion.span>
+  );
+}
 
 export function OutfitCard({
   title,
@@ -30,18 +44,23 @@ export function OutfitCard({
   basisTemp,
   level,
   umbrella,
-  tab,
+  other,
 }: Props) {
-  const { initial, timing } = useEntrance();
   const { choose, next } = useOutfitPicks();
   const items = choose(level);
-  // 우산까지 4칸이면 375px 한 줄에 들어가게 칸과 그림을 줄인다
-  const wide = items.length + (umbrella ? 1 : 0) > 3;
+  const wide = isWide(items, umbrella);
   const tile = `flex w-full items-center justify-center rounded-2xl border-2 border-ink shadow-well ${wide ? 'h-19' : 'h-23'}`;
   const combo = [
     ...items.map((item) => item.label),
     ...(umbrella ? ['우산'] : []),
   ];
+
+  const otherItems = choose(other.level);
+  const otherSize = isWide(otherItems, other.umbrella) ? 56 : 76;
+  useEffect(() => {
+    for (const item of otherItems) preloadClothing(item.kind, otherSize);
+    if (other.umbrella) preloadWeatherIcon('umbrella', 56);
+  }, [otherItems, otherSize, other.umbrella]);
 
   return (
     <section
@@ -87,53 +106,34 @@ export function OutfitCard({
       {/* 그림 아래 이름이 보이니 스크린리더엔 조합 한 문장만 읽힌다 */}
       <p className="sr-only">추천 옷차림: {combo.join(' + ')}</p>
       <div
-        key={tab}
         aria-hidden="true"
         className={`grid ${wide ? 'grid-cols-4 gap-2' : 'grid-cols-3 gap-3'}`}
       >
-        {/* 칸 자리(index)를 key로 둬서, 조합을 바꿔도 칸은 그대로 있고 바뀐 그림만 팝한다 */}
+        {/* 탭을 넘기거나 조합을 바꿔도 칸은 그대로 두고 옷이 바뀐 칸의 그림만 팝한다. 칸을 새로 그리면 등장하는 동안 옷 카드가 비어 보였다 */}
         {items.map((item, index) => (
-          <motion.div
-            key={index}
-            variants={TILE}
-            initial={initial}
-            animate="shown"
-            transition={timing(tileEntrance(index))}
-            className="flex flex-col items-center gap-1.5"
-          >
+          <div key={index} className="flex flex-col items-center gap-1.5">
             <div className={`${tile} tile-ground`}>
-              {/* 옷이 바뀌면 그림이 새로 붙으며 팝한다. 처음 열 땐 바로 보이고, 탭을 바꿀 땐 칸이 숨은 채(등장 지연 동안) 끝나서 보이지 않는다 */}
-              <motion.span
-                key={item.kind}
-                initial={initial && { scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={timing(SWAP_POP)}
-                className="flex"
-              >
+              <Pop key={item.kind}>
                 <ClothingIcon kind={item.kind} size={wide ? 56 : 76} priority />
-              </motion.span>
+              </Pop>
             </div>
             <span className="text-[0.8125rem]/4.5 font-bold whitespace-nowrap">
               {item.label}
             </span>
-          </motion.div>
+          </div>
         ))}
         {/* 입는 옷이 아니라 챙길 물건이라 점선 칸으로 구분한다 */}
         {umbrella && (
-          <motion.div
-            variants={TILE}
-            initial={initial}
-            animate="shown"
-            transition={timing(tileEntrance(items.length))}
-            className="flex flex-col items-center gap-1.5"
-          >
+          <div className="flex flex-col items-center gap-1.5">
             <div className={`${tile} border-dashed tile-ground-accent`}>
-              <WeatherIcon kind="umbrella" size={56} />
+              <Pop>
+                <WeatherIcon kind="umbrella" size={56} />
+              </Pop>
             </div>
             <span className="text-[0.8125rem]/4.5 font-black whitespace-nowrap">
               + 우산
             </span>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

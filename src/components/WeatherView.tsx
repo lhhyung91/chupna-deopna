@@ -104,6 +104,11 @@ export function WeatherView({
   // 아침에 입고 나갈 옷이 먼저라 출근길로 고른다
   const levelIndex = getLevelIndex(morning.feel - dayOffset);
   const level = LEVELS[levelIndex];
+  const otherDay = isToday ? forecast.tomorrow : forecast.today;
+  const otherLevel =
+    LEVELS[
+      getLevelIndex(otherDay.commutes[0].feel - (isToday ? nextOffset : offset))
+    ];
   const compare: MorningCompare | undefined = isToday
     ? yesterdayFeel === undefined
       ? undefined
@@ -204,7 +209,7 @@ export function WeatherView({
               basisTemp={formatTemp(morning.feel)}
               level={level}
               umbrella={needsUmbrella(day)}
-              tab={tab}
+              other={{ level: otherLevel, umbrella: needsUmbrella(otherDay) }}
             />
             {/* 탭마다 새로 그려야 같은 시각 칸(06시)을 스냅이 다시 따라가지 않는다 */}
             <HourlyForecast

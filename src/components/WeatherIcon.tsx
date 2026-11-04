@@ -1,3 +1,4 @@
+import { preloadImage } from '@/lib/preloadImage';
 import type { Sky } from '@/lib/weather';
 import Image from 'next/image';
 
@@ -44,4 +45,8 @@ export function WeatherIcon({ kind, size }: Props) {
       className={`shrink-0 ${SIZE_CLASS[size]}`}
     />
   );
+}
+
+export function preloadWeatherIcon(kind: WeatherIconKind, size: Props['size']) {
+  preloadImage(`/icons/${FILES[kind]}.png`, size);
 }

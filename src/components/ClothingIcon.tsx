@@ -1,4 +1,5 @@
 import type { ClothingKind } from '@/lib/outfit';
+import { preloadImage } from '@/lib/preloadImage';
 import Image from 'next/image';
 
 type Props = { kind: ClothingKind; size: 32 | 56 | 76; priority?: boolean };
@@ -34,4 +35,13 @@ export function ClothingIcon({ kind, size, priority = false }: Props) {
       />
     </>
   );
+}
+
+// 탭을 넘긴 순간 받기 시작하면 칸은 있어도 그림이 잠깐 비어서 다른 탭 옷을 미리 받는다
+export function preloadClothing(kind: ClothingKind, size: Props['size']) {
+  // 위 그림과 같은 이유로 지금 테마 그림만 받는다
+  const theme = matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
+  preloadImage(`/icons/icon_${kind}_${theme}.png`, size);
 }
