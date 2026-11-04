@@ -21,11 +21,7 @@ export function HourlyForecast({ hourly, highlightFirst }: Props) {
     >
       <h2 className="px-5 font-bold">시간대별</h2>
       {/* 스냅이 칸을 스크롤 영역 끝(여백 밖)에 붙이지 않도록 scroll-padding을 여백과 맞춘다 */}
-      {/* 이 안에서 옆으로 밀면 시간대를 넘기고, 탭은 넘기지 않는다(WeatherView) */}
-      <ol
-        data-no-swipe
-        className="scrollbar-none flex snap-x snap-mandatory scroll-px-5 gap-2 overflow-x-auto overscroll-x-contain px-5 pt-1 pb-2"
-      >
+      <ol className="scrollbar-none flex snap-x snap-mandatory scroll-px-5 gap-2 overflow-x-auto overscroll-x-contain px-5 pt-1 pb-2">
         {hourly.map((h, i) => {
           const isNow = i === 0 && highlightFirst;
           return (

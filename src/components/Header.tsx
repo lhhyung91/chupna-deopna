@@ -35,8 +35,8 @@ export function Header({
   action,
 }: Props) {
   return (
-    <header className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
+    <>
+      <header className="flex items-start justify-between gap-3">
         {/* 에러 화면은 동네를 몰라서 회색 막대로 둔다 */}
         {place && locate && dateLabel ? (
           <PlaceHeading
@@ -52,44 +52,47 @@ export function Header({
           </div>
         )}
         {action}
+      </header>
+      {/* 내려간 채로도 오늘·내일을 바로 바꾸게 화면 위에 붙인다. 바탕을 깔아야 아래로 지나가는 카드가 비치지 않는다 */}
+      <div className="sticky top-0 z-10 -mx-5 -mt-3 -mb-2 px-5 py-2 page-ground">
+        {/* 두 개 중 하나를 고르는 토글이라 탭 패턴 대신 aria-pressed 버튼 묶음으로 둔다 */}
+        <div
+          role="group"
+          aria-label="날짜 선택"
+          className="grid grid-cols-2 gap-1 rounded-2xl border-2 border-ink bg-well p-1 shadow-well"
+        >
+          {TABS.map(({ id, label }) => {
+            const selected = id === tab;
+            return (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={selected}
+                disabled={!onTabChange}
+                onClick={() => {
+                  haptic();
+                  onTabChange?.(id);
+                }}
+                className={`relative h-11 rounded-xl text-base ${selected ? 'font-bold text-bg' : 'font-medium text-muted enabled:hover:text-ink'}`}
+              >
+                {/* 선택 알약 하나(layoutId)를 두 버튼 사이로 미끄러지게 한다. 눌림 효과(tactile)는 알약까지 대각선으로 끌고 가서 이 토글엔 쓰지 않는다 */}
+                {selected && (
+                  <motion.span
+                    layoutId="day-tab-pill"
+                    transition={{
+                      type: 'spring',
+                      visualDuration: 0.4,
+                      bounce: 0,
+                    }}
+                    className="absolute inset-0 rounded-[10px] border-2 border-ink bg-ink"
+                  />
+                )}
+                <span className="relative">{label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      {/* 두 개 중 하나를 고르는 토글이라 탭 패턴 대신 aria-pressed 버튼 묶음으로 둔다 */}
-      <div
-        role="group"
-        aria-label="날짜 선택"
-        className="grid grid-cols-2 gap-1 rounded-2xl border-2 border-ink bg-well p-1 shadow-well"
-      >
-        {TABS.map(({ id, label }) => {
-          const selected = id === tab;
-          return (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={selected}
-              disabled={!onTabChange}
-              onClick={() => {
-                haptic();
-                onTabChange?.(id);
-              }}
-              className={`relative h-11 rounded-xl text-base ${selected ? 'font-bold text-bg' : 'font-medium text-muted enabled:hover:text-ink'}`}
-            >
-              {/* 선택 알약 하나(layoutId)를 두 버튼 사이로 미끄러지게 한다. 눌림 효과(tactile)는 알약까지 대각선으로 끌고 가서 이 토글엔 쓰지 않는다 */}
-              {selected && (
-                <motion.span
-                  layoutId="day-tab-pill"
-                  transition={{
-                    type: 'spring',
-                    visualDuration: 0.4,
-                    bounce: 0,
-                  }}
-                  className="absolute inset-0 rounded-[10px] border-2 border-ink bg-ink"
-                />
-              )}
-              <span className="relative">{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </header>
+    </>
   );
 }

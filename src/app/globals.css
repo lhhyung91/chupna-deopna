@@ -143,7 +143,7 @@ html {
 
 /* 바탕·카드 면에만 까는 은은한 노이즈. 자기 바탕색이 있는 칸(한마디·옷 타일·알약·배지)과 로딩 화면은 매끈하게 남는다 */
 body {
-  background: url('./texture_noise.png') var(--bg);
+  @apply page-ground;
   color: var(--ink);
 }
 
@@ -158,6 +158,11 @@ body {
   button:not(:disabled) {
     cursor: pointer;
   }
+}
+
+/* 위에 붙는 오늘·내일 탭도 바탕과 같은 면이어야 아래로 지나가는 카드가 비치지 않는다 */
+@utility page-ground {
+  background: url('./texture_noise.png') var(--bg);
 }
 
 @utility card {

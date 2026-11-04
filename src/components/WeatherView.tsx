@@ -12,7 +12,6 @@ import { useFeedback } from '@/hooks/useFeedback';
 import { useLocate } from '@/hooks/useLocate';
 import { useOutfitPicks } from '@/hooks/useOutfitPicks';
 import { formatTemp } from '@/lib/format';
-import { haptic } from '@/lib/haptic';
 import type { Place } from '@/lib/location';
 import { MORNINGS_COOKIE, nextMornings } from '@/lib/mornings';
 import {
@@ -25,12 +24,7 @@ import {
   type Take,
 } from '@/lib/outfit';
 import type { Forecast } from '@/lib/weather';
-import {
-  AnimatePresence,
-  motion,
-  MotionConfig,
-  type PanInfo,
-} from 'motion/react';
+import { AnimatePresence, motion, MotionConfig } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -124,26 +118,9 @@ export function WeatherView({
       ]
     : getTake(day, dayOffset, choose);
 
-  // 시간대별은 이미 옆으로 스크롤하는 칸이라 빼고, 세로 스크롤 중 대각선으로 움직여도 탭이 바뀌지 않게 가로가 확실히 클 때만 넘긴다
-  const swipe = (event: PointerEvent, { offset, velocity }: PanInfo) => {
-    if (
-      event.target instanceof Element &&
-      event.target.closest('[data-no-swipe]')
-    ) {
-      return;
-    }
-    const distance = Math.abs(offset.x);
-    if (distance < Math.abs(offset.y) * 1.5 || distance < 30) return;
-    if (distance < 60 && Math.abs(velocity.x) < 500) return;
-    const next: Tab = offset.x < 0 ? 'tomorrow' : 'today';
-    if (next === tab) return;
-    haptic();
-    // 아래쪽에서 넘겨도 새 탭은 요약부터 보여야 한다. 부드럽게 올리면 긴 스크롤과 등장 움직임이 겹쳐 어지럽다
-    // 사파리는 바닥 튕김·관성 스크롤 중엔 scrollTo를 무시해서, 스크롤을 한 프레임 잠가 끊고 올린다
-    const root = document.documentElement;
-    root.classList.add('overflow-hidden');
+  // 내려간 채 탭을 바꿔도 새 탭은 요약부터 보여야 한다. 부드럽게 올리면 긴 스크롤과 등장 움직임이 겹쳐 어지럽다
+  const changeTab = (next: Tab) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    requestAnimationFrame(() => root.classList.remove('overflow-hidden'));
     setTab(next);
   };
 
@@ -161,15 +138,13 @@ export function WeatherView({
         locate={location}
         dateLabel={day.dateLabel}
         tab={tab}
-        onTabChange={setTab}
+        onTabChange={changeTab}
         // 알림은 내일 옷을 알려주니 오늘 누른 피드백까지 반영한다
         action={<AlertButton offset={nextOffset} place={place} />}
       />
       {/* 새 동네 예보가 올 때까지 흐리게 둬서, 지금 보이는 게 곧 바뀐다는 걸 알린다 */}
-      {/* 옆으로 밀어 탭을 넘긴다. 세로 스크롤과 확대는 브라우저에 맡긴다 */}
-      <motion.div
-        onPanEnd={swipe}
-        className={`flex touch-pan-y touch-pinch-zoom flex-col gap-3 transition-opacity duration-300 ${location.busy ? 'opacity-50' : ''}`}
+      <div
+        className={`flex flex-col gap-3 transition-opacity duration-300 ${location.busy ? 'opacity-50' : ''}`}
       >
         {evening && feedback}
         {/* 탭을 바꿔도 카드는 그대로 둬야 숫자가 이전 값에서 굴러간다. 탭 움직임은 각 카드가 맡고, 동네가 바뀔 때만 전체를 페이드한다 */}
@@ -231,7 +206,7 @@ export function WeatherView({
           offset={dayOffset}
           basis={morning.phrase}
         />
-      </motion.div>
+      </div>
     </MotionConfig>
   );
 }
