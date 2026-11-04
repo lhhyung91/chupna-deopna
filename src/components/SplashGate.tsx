@@ -1,7 +1,7 @@
 'use client';
 
 import { SplashScreen } from '@/components/SplashScreen';
-import { APP_HEIGHT_KEY, LAST_OPENED_KEY } from '@/lib/splash';
+import { APP_HEIGHT_KEY } from '@/lib/splash';
 import {
   createContext,
   type ReactNode,
@@ -10,6 +10,8 @@ import {
   useState,
 } from 'react';
 
+// 저장된 화면(sw.js)은 0.3초 만에도 준비돼서, 최소 시간이 없으면 로딩 화면이 번쩍 스쳐 끊겨 보인다
+const MIN_MS = 1000;
 // 위치 확인이 오래 걸려도 이 이상은 막지 않는다. 그 뒤엔 이름 자리 점이 이어 받는다
 const MAX_WAIT_MS = 1500;
 // 걷힐 때 아래 화면 전체가 천천히 드러나게 한다. 짧으면 새로고침 때 내용이 툭 나타난다
@@ -17,21 +19,13 @@ const FADE_MS = 500;
 
 // null: 페이지가 아직 안 그려짐, true: 그려졌지만 위치 확인을 기다려 달라, false: 걷어도 됨
 const HoldContext = createContext<(hold: boolean) => void>(() => {});
-// 메인은 로딩 화면 뒤에서 미리 그려지므로, 첫 움직임은 로딩 화면이 걷히기 시작할 때 튼다
+// 로딩 화면이 걷힌 뒤 새로 붙는 것(탭 전환·동네 변경)만 등장 움직임을 튼다. 그 전에 그려진 첫 화면은 바로 보인다(useEntrance)
 const RevealedContext = createContext(false);
 
 // 로딩 화면을 레이아웃에 한 번만 그린다. 서버를 기다리다 날씨가 와도 같은 요소라 애니메이션이 다시 돌지 않는다
 export function SplashProvider({ children }: { children: ReactNode }) {
   const [hold, setHold] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<'show' | 'leaving' | 'gone'>('show');
-
-  // sw.js가 첫 화면(/)을 열 때마다 새로 저장하므로, 같은 때를 남겨 다음에 로딩 화면을 숨길지 정한다(layout.tsx)
-  useEffect(() => {
-    if (location.pathname !== '/' || location.search) return;
-    try {
-      localStorage.setItem(LAST_OPENED_KEY, String(Date.now()));
-    } catch {}
-  }, []);
 
   // 다시 열 때 저장된 화면을 바로 띄우는 서비스 워커(public/sw.js). dev에선 고친 코드가 안 보이게 되므로 배포본에서만 쓴다
   useEffect(() => {
@@ -56,15 +50,11 @@ export function SplashProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (phase === 'gone' || (phase === 'show' && hold === null)) return;
-    // 날씨가 그려지면 바로 걷는다. 위치 확인 시간은 앱을 연 순간부터 잰다
-    // 숨은 채 열린 로딩 화면(layout.tsx의 data-splash="skip")은 덮을 게 없어서, 위치를 기다리면 내용만 비어 보인다
-    const covering = document.documentElement.dataset.splash !== 'skip';
+    // 최소 시간·위치 확인 시간은 앱을 연 순간부터 잰다. 서버를 기다린 시간도 포함된다
     const wait =
       phase === 'leaving'
         ? FADE_MS
-        : hold && covering
-          ? MAX_WAIT_MS - performance.now()
-          : 0;
+        : (hold ? MAX_WAIT_MS : MIN_MS) - performance.now();
     const timer = setTimeout(
       () => setPhase(phase === 'leaving' ? 'gone' : 'leaving'),
       Math.max(0, wait)

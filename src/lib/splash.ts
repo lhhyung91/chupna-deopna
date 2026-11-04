@@ -1,9 +1,5 @@
 import SIZES from './splash-sizes.json';
 
-// 마지막으로 연 지 3시간(단기예보 발표 간격) 안이면 저장된 화면(sw.js)이 바로 뜨므로 로딩 화면을 숨긴다. sw.js의 FRESH_MS와 같아야 한다
-export const SPLASH_SKIP_WITHIN_MS = 3 * 60 * 60 * 1000;
-export const LAST_OPENED_KEY = 'last-opened-at';
-
 // 홈 화면 앱이 자리 잡은 뒤 실제로 쓰는 높이. 다음에 열 때 로딩 화면 높이로 쓴다(기종과 상관없이 맞음)
 export const APP_HEIGHT_KEY = 'app-height';
 

@@ -1,6 +1,6 @@
 // 저녁 알림과, 다시 열 때 저장된 화면부터 보여주기를 맡는 서비스 워커.
 const CACHE = 'chupna-deopna-v1';
-// layout.tsx가 로딩 화면을 숨기는 기준(SPLASH_SKIP_WITHIN_MS)과 같은 3시간. 그 안에 다시 열면 서버를 기다리지 않는다
+// 기상청 단기예보 발표 간격(3시간) 안에 다시 열면 서버를 기다리지 않는다. 로딩 화면(최소 1초) 뒤에서 저장본이 먼저 준비된다
 const FRESH_MS = 3 * 60 * 60 * 1000;
 const CACHED_AT = 'x-cached-at';
 

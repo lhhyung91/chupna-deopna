@@ -1,12 +1,6 @@
 import { SplashProvider } from '@/components/SplashGate';
 import { SITE_URL } from '@/lib/config';
-import {
-  APP_HEIGHT_KEY,
-  LAST_OPENED_KEY,
-  SPLASH_SKIP_WITHIN_MS,
-  STATUS_BARS,
-  startupImages,
-} from '@/lib/splash';
+import { APP_HEIGHT_KEY, STATUS_BARS, startupImages } from '@/lib/splash';
 import type { Metadata, Viewport } from 'next';
 import { Black_Han_Sans, Noto_Sans_KR, Space_Grotesk } from 'next/font/google';
 import './globals.css';
@@ -62,12 +56,12 @@ export const viewport: Viewport = {
   ],
 };
 
-// 첫 그림 전: 3시간 안이면 로딩 화면을 숨기고(sw.js가 저장본을 띄움), 홈 화면 앱이 첫 순간 높이를 잘못 잡아도 로딩 화면이 안 움직이게 실제 높이로 고정한다
-const BEFORE_PAINT = `try{var d=document.documentElement,t=+localStorage.getItem('${LAST_OPENED_KEY}');if(t&&Date.now()-t<${SPLASH_SKIP_WITHIN_MS})d.dataset.splash='skip';if(navigator.standalone||matchMedia('(display-mode: standalone)').matches){var h=+localStorage.getItem('${APP_HEIGHT_KEY}');if(!h){var b=${JSON.stringify(STATUS_BARS)}[screen.width+'x'+screen.height+'@'+devicePixelRatio];if(b)h=screen.height-b}if(h)d.style.setProperty('--app-h',h+'px')}}catch(e){}`;
+// 첫 그림 전: 홈 화면 앱이 첫 순간 높이를 잘못 잡아도 로딩 화면이 안 움직이게 실제 높이로 고정한다
+const BEFORE_PAINT = `try{var d=document.documentElement;if(navigator.standalone||matchMedia('(display-mode: standalone)').matches){var h=+localStorage.getItem('${APP_HEIGHT_KEY}');if(!h){var b=${JSON.stringify(STATUS_BARS)}[screen.width+'x'+screen.height+'@'+devicePixelRatio];if(b)h=screen.height-b}if(h)d.style.setProperty('--app-h',h+'px')}}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    // 위 스크립트가 data-splash·--app-h를 먼저 달아서, React가 서버 HTML과 다르다고 경고하지 않게 한다
+    // 위 스크립트가 --app-h를 먼저 달아서, React가 서버 HTML과 다르다고 경고하지 않게 한다
     <html
       lang="ko"
       className={`${noto.variable} ${blackHan.variable} ${grotesk.variable} antialiased`}
