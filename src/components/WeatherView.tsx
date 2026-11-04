@@ -139,7 +139,11 @@ export function WeatherView({
     if (next === tab) return;
     haptic();
     // 아래쪽에서 넘겨도 새 탭은 요약부터 보여야 한다. 부드럽게 올리면 긴 스크롤과 등장 움직임이 겹쳐 어지럽다
+    // 사파리는 바닥 튕김·관성 스크롤 중엔 scrollTo를 무시해서, 스크롤을 한 프레임 잠가 끊고 올린다
+    const root = document.documentElement;
+    root.classList.add('overflow-hidden');
     window.scrollTo({ top: 0, behavior: 'instant' });
+    requestAnimationFrame(() => root.classList.remove('overflow-hidden'));
     setTab(next);
   };
 
