@@ -42,6 +42,9 @@
   - `src/lib/location.ts`: 위경도 → 기상청 격자(`latLonToGrid`), 쿠키 `place`(이름·nx·ny)
   - `src/lib/kakao.ts`: 좌표 → "서울 중구" (카카오 로컬 `coord2regioncode`)
   - `src/app/actions.ts`의 `updatePlace`가 쿠키를 바꾸면 화면이 새 동네로 다시 그려진다.
+- 아이폰 앱용 API (`mobile/` 앱이 부름, 웹 화면은 안 씀)
+  - `GET /api/forecast?nx&ny`: `fetchForecast` 결과 그대로. 저녁 여부·어제 비교는 앱이 계산
+  - `POST /api/place` 본문 `{ lat, lon }`: `src/lib/place.ts`의 `findPlace`(웹 `updatePlace`와 같이 씀). 좌표가 접속 기록에 남지 않게 GET이 아니라 본문으로 받는다
   - `src/hooks/useLocate.ts`: 위치 찾기. 권한이 이미 허용돼 있으면 열 때마다 조용히 따라간다. 새 동네 예보가 올 때까지(`useTransition`) 이름 자리에 "위치 찾는 중"·점, 내용은 흐리게
   - `src/components/PlaceHeading.tsx`: 이름 버튼. 쿠키에 동네가 없으면(처음 방문) "이름을 누르면 지금 위치로 바뀌어요"
 - 로딩 화면(`SplashScreen`): 루트 레이아웃의 `SplashProvider`(`SplashGate.tsx`)가 한 번만 그린다. 서버를 기다리다 날씨가 와도 같은 요소라 다시 깜빡이지 않는다. **열 때마다** 보이고, 앱을 연 순간부터 최소 1초(`MIN_MS`), 열 때 위치 확인 중이면 최대 1.5초 덮는다. 0.5초 페이드. 저장된 화면은 0.3초 만에 준비돼 최소 시간이 없으면 번쩍 스치고, 로딩 화면 없이 저장된 화면을 바로 띄우면 등장 움직임 때문에 1~2초 카드가 비어 보여서 이렇게 정했다. **움직임이 없는 정지 화면**이다. iOS 시작 그림이 이 화면을 찍은 것이라, 움직이면 넘어가는 순간 끊겨 보인다. 문구는 "날씨 가져오는 중…" 하나, 점은 흐리게 고정

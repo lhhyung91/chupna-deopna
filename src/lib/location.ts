@@ -37,7 +37,7 @@ export function latLonToGrid(lat: number, lon: number) {
 export const isInKorea = (lat: number, lon: number) =>
   lat >= 33 && lat <= 39 && lon >= 124 && lon <= 132;
 
-const isGridNumber = (value: unknown): value is number =>
+export const isGridNumber = (value: unknown): value is number =>
   Number.isInteger(value) && Number(value) > 0 && Number(value) < 300;
 
 export function parsePlace(value: string | undefined): Place | null {
