@@ -1,0 +1,20 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      // 루트 src/lib는 안에서 서로를 @/lib/…로 부르므로 웹과 같은 별칭을 그대로 둔다
+      "@/*": ["../src/*"],
+      "~/assets/*": ["./assets/*"],
+      "~/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts",
+    "next-fetch-env.d.ts"
+  ]
+}

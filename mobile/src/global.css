@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 웹 src/app/globals.css의 :root 값을 그대로 옮겼다. 웹 색을 바꾸면 여기도 같이 바꾼다 */
+:root {
+  --bg: #f1efe8;
+  --card: #f1efe8;
+  --well: #e5e2d8;
+  --ink: #111111;
+  --muted: #4a4944;
+  --pop: #1f4fe0;
+  --chip: #ffffff;
+  --well-dark: #c9c5b8;
+  --well-light: #ffffff;
+  --skeleton: #dad7cc;
+  --acc-tile: #fff1d6;
+  --hint: var(--well);
+  --hint-sub: #2e2d2a;
+  --splash-dot: #d45a22;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141413;
+    --card: #1e1e1c;
+    --well: #0f0f0e;
+    --ink: #f1efe8;
+    --muted: #b8b5ab;
+    --pop: #8db8ff;
+    --chip: #141413;
+    --well-dark: #000000;
+    --well-light: #2b2b28;
+    --skeleton: #2a2a27;
+    --acc-tile: #2a2116;
+    --hint: #121211;
+    --hint-sub: #d9d6cd;
+    --splash-dot: #ffa77a;
+  }
+}

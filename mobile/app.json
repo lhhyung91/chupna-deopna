@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "춥나덥나",
+    "slug": "chupna-deopna",
+    "scheme": "chupnadeopna",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F1EFE8",
+          "dark": {
+            "backgroundColor": "#141413"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

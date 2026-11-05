@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // 아이폰 앱은 Expo 설정으로 따로 검사한다
+    'mobile/**',
   ]),
 ]);
 
