@@ -2,12 +2,12 @@ import type { Tab } from '@/components/Header';
 import { RollingNumber } from '@/components/RollingNumber';
 import { WeatherIcon } from '@/components/WeatherIcon';
 import { useEntrance } from '@/hooks/useEntrance';
-import { formatTemp, precipName, SKY_LABEL } from '@/lib/format';
+import { formatTemp, SKY_LABEL } from '@/lib/format';
 import { ENTRANCE, FADE } from '@/lib/motion';
 import {
   compareMornings,
   getCommuteDelta,
-  isRainy,
+  getRainChange,
   type MorningCompare,
   type Take,
 } from '@/lib/outfit';
@@ -50,7 +50,7 @@ const deltaClass = (delta: number) =>
       ? 'bg-delta-down text-on-bright'
       : 'bg-chip text-ink';
 
-// 큰 숫자는 옷을 고른 체감이고, 기온과 비·눈 소식은 아래 작은 글씨로 둔다
+// 큰 숫자는 출퇴근 기온, 아래는 옷을 고른 체감. 비 소식은 가운데 화살표 밑에 둔다
 function Commute({
   commute,
   end,
@@ -69,22 +69,14 @@ function Commute({
         <WeatherIcon kind={commute.sky} size={36} />
         <span className="font-num text-3xl font-bold tracking-[-1.5px] tabular-nums">
           <RollingNumber
-            value={commute.feel}
+            value={commute.temp}
             turn={tab}
             align={end ? 'end' : 'start'}
           />
         </span>
       </span>
-      <span className="text-xs font-bold whitespace-nowrap tabular-nums">
-        체감
-        {isRainy(commute) ? (
-          <span className="text-pop">
-            {' '}
-            · {precipName(commute.sky)} {commute.pop}%
-          </span>
-        ) : (
-          <span className="text-muted"> · 기온 {formatTemp(commute.temp)}</span>
-        )}
+      <span className="text-xs font-bold whitespace-nowrap text-muted tabular-nums">
+        체감 {formatTemp(commute.feel)}
       </span>
     </div>
   );
@@ -103,6 +95,7 @@ export function SummaryCard({
   const sky = now?.sky ?? day.sky;
   const [morning, evening] = day.commutes;
   const { delta, text } = getCommuteDelta(morning, evening, past);
+  const rain = getRainChange(day.commutes);
   const vsMorning = compare && compareMornings(compare, morning, past);
 
   return (
@@ -168,7 +161,7 @@ export function SummaryCard({
       </div>
 
       <p className="sr-only">
-        {`${morning.label} ${morning.time} 체감 ${formatTemp(morning.feel)}, ${evening.label} ${evening.time} 체감 ${formatTemp(evening.feel)}, ${text}`}
+        {`${morning.label} ${morning.time} 기온 ${formatTemp(morning.temp)} 체감 ${formatTemp(morning.feel)}, ${evening.label} ${evening.time} 기온 ${formatTemp(evening.temp)} 체감 ${formatTemp(evening.feel)}, ${text}${rain ? `, ${rain}` : ''}`}
       </p>
       <div
         aria-hidden="true"
@@ -212,6 +205,18 @@ export function SummaryCard({
             >
               <path d="M3 2l6 5-6 5" />
             </motion.svg>
+            {/* 칸 아래가 원래 비어 있어(양쪽 칸이 한 줄 더 높음) 높이를 늘리지 않고 놓는다. 위치를 띄워 배지·선이 위로 밀리지 않게 */}
+            {rain && (
+              <motion.span
+                variants={FADE}
+                initial={initial}
+                animate="shown"
+                transition={timing(ENTRANCE.fade)}
+                className="absolute top-full left-1/2 mt-0.5 -translate-x-1/2 text-xs font-bold whitespace-nowrap text-pop tabular-nums"
+              >
+                {rain}
+              </motion.span>
+            )}
           </span>
         </div>
         <Commute commute={evening} end tab={tab} />

@@ -1,8 +1,8 @@
-import { formatTemp, precipName, SKY_LABEL } from '@/lib/format';
+import { formatTemp, SKY_LABEL } from '@/lib/format';
 import {
   compareMornings,
   getCommuteDelta,
-  isRainy,
+  getRainChange,
   type MorningCompare,
   type Take,
 } from '@/lib/outfit';
@@ -66,18 +66,10 @@ function Commute({
       </Text>
       <View className="flex-row items-center gap-1">
         <WeatherIcon kind={commute.sky} size={36} />
-        <RollingNumber value={commute.feel} turn={tab} />
+        <RollingNumber value={commute.temp} turn={tab} />
       </View>
-      <Text className="font-sans-bold text-xs tabular-nums text-ink">
-        체감
-        {isRainy(commute) ? (
-          <Text className="text-pop">
-            {' '}
-            · {precipName(commute.sky)} {commute.pop}%
-          </Text>
-        ) : (
-          <Text className="text-muted"> · 기온 {formatTemp(commute.temp)}</Text>
-        )}
+      <Text className="font-sans-bold text-xs tabular-nums text-muted">
+        체감 {formatTemp(commute.feel)}
       </Text>
     </View>
   );
@@ -99,6 +91,7 @@ export function SummaryCard({
   const sky = now?.sky ?? day.sky;
   const [morning, evening] = day.commutes;
   const { delta, text } = getCommuteDelta(morning, evening, past);
+  const rain = getRainChange(day.commutes);
   const vsMorning = compare && compareMornings(compare, morning, past);
   const [badgeBg, badgeText] = deltaClass(delta);
 
@@ -157,7 +150,7 @@ export function SummaryCard({
 
       <View
         accessible
-        accessibilityLabel={`${morning.label} ${morning.time} 체감 ${formatTemp(morning.feel)}, ${evening.label} ${evening.time} 체감 ${formatTemp(evening.feel)}, ${text}`}
+        accessibilityLabel={`${morning.label} ${morning.time} 기온 ${formatTemp(morning.temp)} 체감 ${formatTemp(morning.feel)}, ${evening.label} ${evening.time} 기온 ${formatTemp(evening.temp)} 체감 ${formatTemp(evening.feel)}, ${text}${rain ? `, ${rain}` : ''}`}
         className="flex-row items-center gap-2"
       >
         <Commute commute={morning} end={false} tab={tab} />
@@ -187,6 +180,16 @@ export function SummaryCard({
             >
               <ArrowHeadIcon color={ink} />
             </Animated.View>
+            {/* 칸 아래가 원래 비어 있어(양쪽 칸이 한 줄 더 높음) 높이를 늘리지 않고 띄워 놓는다. 글이 칸보다 길 수 있어 양옆으로 넓힌다 */}
+            {rain && (
+              <Animated.Text
+                entering={enter(TEXT_FADE)}
+                numberOfLines={1}
+                className="absolute -left-6 -right-6 top-full mt-0.5 text-center font-sans-bold text-xs tabular-nums text-pop"
+              >
+                {rain}
+              </Animated.Text>
+            )}
           </View>
         </View>
         <Commute commute={evening} end tab={tab} />

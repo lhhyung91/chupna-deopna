@@ -190,6 +190,15 @@ export const isRainy = ({ pop, sky }: { pop: number; sky: Sky }) =>
 // 옷 카드의 "+ 우산" 칸. 출퇴근 중 한 번이라도 비·눈이면 챙긴다.
 export const needsUmbrella = (day: DayWeather) => day.commutes.some(isRainy);
 
+// 요약 카드 화살표 밑 "비 70% → 80%". 출퇴근 중 비·눈이 있을 때만, 화살표처럼 아침 → 저녁 순서로 읽힌다
+export function getRainChange([morning, evening]: CommuteWeather[]) {
+  if (!isRainy(morning) && !isRainy(evening)) return null;
+  const name = [morning, evening].some((c) => precipName(c.sky) === '눈')
+    ? '눈'
+    : '비';
+  return `${name} ${morning.pop}% → ${evening.pop}%`;
+}
+
 // 요약 하늘 아래 한 줄. 입던 옷에서 더할지 뺄지가 가장 빠른 판단이라 어제(내일 탭은 오늘) 출근길과 견준다.
 export type MorningCompare = { label: '어제' | '오늘'; feel: number };
 
@@ -321,14 +330,14 @@ const DELTA_TEXT = {
   bigDown: ['크게 내려요', '크게 내렸어요'],
 } as const;
 
-// 옷을 고른 값과 같은 체감끼리, 화면에 보이는 반올림 값으로 비교한다.
+// 요약 카드 출퇴근 칸의 큰 숫자(기온)끼리, 화면에 보이는 반올림 값으로 비교해 배지와 두 숫자의 차가 같게 한다.
 export function getCommuteDelta(
   morning: CommuteWeather,
   evening: CommuteWeather,
   past: boolean
 ) {
-  const delta = Math.round(evening.feel) - Math.round(morning.feel);
-  const hot = Math.round(evening.feel) >= 20;
+  const delta = Math.round(evening.temp) - Math.round(morning.temp);
+  const hot = Math.round(evening.temp) >= 20;
   const key =
     delta >= 8
       ? 'bigUp'
