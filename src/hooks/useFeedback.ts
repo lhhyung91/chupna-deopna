@@ -1,10 +1,14 @@
-import { MAX_OFFSET } from '@/lib/config';
+import {
+  addFeedback,
+  feedbackOffsets,
+  parseFeedback,
+  type Feeling,
+} from '@/lib/feedback';
 import { useSyncExternalStore } from 'react';
 
-export type Feeling = 'hot' | 'good' | 'cold';
+export type { Feeling };
 
 const STORAGE_KEY = 'outfit-feedback';
-const KEEP_DAYS = 14;
 
 const listeners = new Set<() => void>();
 
@@ -26,55 +30,24 @@ function readRaw() {
   }
 }
 
-const isFeeling = (value: unknown): value is Feeling =>
-  value === 'hot' || value === 'good' || value === 'cold';
-
-function parse(raw: string | null): Record<string, Feeling> {
-  if (!raw) return {};
-  try {
-    const value: unknown = JSON.parse(raw);
-    if (typeof value !== 'object' || value === null) return {};
-    return Object.fromEntries(
-      Object.entries(value).filter((entry): entry is [string, Feeling] =>
-        isFeeling(entry[1])
-      )
-    );
-  } catch {
-    return {};
-  }
-}
-
 export function useFeedback(dateKey: string) {
   // 서버 렌더 땐 기록이 없는 것으로 보고, 하이드레이션 후 localStorage 값으로 바뀐다.
-  const records = parse(useSyncExternalStore(subscribe, readRaw, () => null));
-
-  const offsetOf = (entries: [string, Feeling][]) => {
-    const score = entries.reduce(
-      (sum, [, f]) => sum + (f === 'cold' ? 1 : f === 'hot' ? -1 : 0),
-      0
-    );
-    return Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, score));
-  };
-  // 오늘 추천은 아침에 보여준 그대로 두고, 오늘 누른 피드백은 내일 탭과 저녁 알림부터 반영한다.
-  const offset = offsetOf(
-    Object.entries(records).filter(([date]) => date !== dateKey)
+  const records = parseFeedback(
+    useSyncExternalStore(subscribe, readRaw, () => null)
   );
-  const nextOffset = offsetOf(Object.entries(records));
 
   const save = (feeling: Feeling) => {
-    const recent = Object.entries({ ...records, [dateKey]: feeling })
-      .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-KEEP_DAYS);
     try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(Object.fromEntries(recent))
-      );
+      localStorage.setItem(STORAGE_KEY, addFeedback(records, dateKey, feeling));
     } catch {
       return;
     }
     listeners.forEach((listener) => listener());
   };
 
-  return { feeling: records[dateKey] ?? null, offset, nextOffset, save };
+  return {
+    feeling: records[dateKey] ?? null,
+    ...feedbackOffsets(records, dateKey),
+    save,
+  };
 }

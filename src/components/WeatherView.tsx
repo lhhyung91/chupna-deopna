@@ -11,18 +11,9 @@ import { SummaryCard } from '@/components/SummaryCard';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useLocate } from '@/hooks/useLocate';
 import { useOutfitPicks } from '@/hooks/useOutfitPicks';
-import { formatTemp } from '@/lib/format';
+import { getDayView } from '@/lib/dayView';
 import type { Place } from '@/lib/location';
 import { MORNINGS_COOKIE, nextMornings } from '@/lib/mornings';
-import {
-  getLevelIndex,
-  getSkyNote,
-  getTake,
-  LEVELS,
-  needsUmbrella,
-  type MorningCompare,
-  type Take,
-} from '@/lib/outfit';
 import type { Forecast } from '@/lib/weather';
 import { AnimatePresence, motion, MotionConfig } from 'motion/react';
 import { useRouter } from 'next/navigation';
@@ -90,33 +81,16 @@ export function WeatherView({
   }, [todayKey, todayFeel]);
 
   const isToday = tab === 'today';
-  // 저녁 오늘 탭은 내일 얘기 없이 오늘 출퇴근을 돌아본다
-  const review = isToday && evening;
-  const day = isToday ? forecast.today : forecast.tomorrow;
-  const dayOffset = isToday ? offset : nextOffset;
-  const [morning, eveningCommute] = day.commutes;
-  // 아침에 입고 나갈 옷이 먼저라 출근길로 고른다
-  const levelIndex = getLevelIndex(morning.feel - dayOffset);
-  const level = LEVELS[levelIndex];
-  const otherDay = isToday ? forecast.tomorrow : forecast.today;
-  const otherLevel =
-    LEVELS[
-      getLevelIndex(otherDay.commutes[0].feel - (isToday ? nextOffset : offset))
-    ];
-  const compare: MorningCompare | undefined = isToday
-    ? yesterdayFeel === undefined
-      ? undefined
-      : { label: '어제', feel: yesterdayFeel }
-    : { label: '오늘', feel: todayFeel };
-  // 한 줄에 들어가야 해서 "체감"은 뺀다. 위 출퇴근 숫자가 이미 체감이다
-  const take: Take = review
-    ? [
-        `아침 ${formatTemp(morning.feel)}, ${eveningCommute.phrase} ${formatTemp(eveningCommute.feel)}였어요.`,
-        feeling
-          ? '기록했어요. 다음에 반영할게요'
-          : '옷차림이 어땠는지 알려주세요',
-      ]
-    : getTake(day, dayOffset, choose);
+  const view = getDayView({
+    forecast,
+    isToday,
+    evening,
+    offset,
+    nextOffset,
+    yesterdayFeel,
+    feeling,
+    choose,
+  });
 
   // 내려간 채 탭을 바꿔도 새 탭은 요약부터 보여야 한다. 부드럽게 올리면 긴 스크롤과 등장 움직임이 겹쳐 어지럽다
   const changeTab = (next: Tab) => {
@@ -136,7 +110,7 @@ export function WeatherView({
         place={place}
         placeSaved={placeSaved}
         locate={location}
-        dateLabel={day.dateLabel}
+        dateLabel={view.day.dateLabel}
         tab={tab}
         onTabChange={changeTab}
         // 알림은 내일 옷을 알려주니 오늘 누른 피드백까지 반영한다
@@ -164,36 +138,26 @@ export function WeatherView({
             className="grid grid-cols-6 gap-3"
           >
             <SummaryCard
-              now={isToday ? forecast.now : undefined}
-              day={day}
-              compare={compare}
-              note={
-                review
-                  ? '오늘 하루 정리'
-                  : getSkyNote(day, isToday ? forecast.now.sky : undefined)
-              }
-              take={take}
-              past={review}
+              now={view.now}
+              day={view.day}
+              compare={view.compare}
+              note={view.note}
+              take={view.take}
+              past={view.review}
               tab={tab}
             />
             <OutfitCard
-              title={
-                review
-                  ? '오늘 추천했던 옷'
-                  : isToday
-                    ? '오늘 뭐 입지?'
-                    : '내일 뭐 입지?'
-              }
-              basisLabel={`${review ? '오늘 ' : ''}${morning.phrase} 체감`}
-              basisTemp={formatTemp(morning.feel)}
-              level={level}
-              umbrella={needsUmbrella(day)}
-              other={{ level: otherLevel, umbrella: needsUmbrella(otherDay) }}
+              title={view.outfitTitle}
+              basisLabel={view.basisLabel}
+              basisTemp={view.basisTemp}
+              level={view.level}
+              umbrella={view.umbrella}
+              other={view.other}
             />
             {/* 탭마다 새로 그려야 같은 시각 칸(06시)을 스냅이 다시 따라가지 않는다 */}
             <HourlyForecast
               key={tab}
-              hourly={day.hourly}
+              hourly={view.day.hourly}
               highlightFirst={isToday}
             />
           </motion.div>
@@ -202,9 +166,9 @@ export function WeatherView({
         {/* 탭을 바꾸면 표를 닫힌 상태로 다시 시작한다 */}
         <OutfitGuide
           key={tab}
-          currentIndex={levelIndex}
-          offset={dayOffset}
-          basis={morning.phrase}
+          currentIndex={view.levelIndex}
+          offset={view.dayOffset}
+          basis={view.morning.phrase}
         />
       </div>
     </MotionConfig>
