@@ -16,6 +16,7 @@
   --skeleton: #dad7cc;
   --acc-tile: #fff1d6;
   --hint: var(--well);
+  --hint-line: rgba(17, 17, 17, 0.06);
   --hint-sub: #2e2d2a;
   --splash-dot: #d45a22;
 }
@@ -34,6 +35,7 @@
     --skeleton: #2a2a27;
     --acc-tile: #2a2116;
     --hint: #121211;
+    --hint-line: rgba(241, 239, 232, 0.14);
     --hint-sub: #d9d6cd;
     --splash-dot: #ffa77a;
   }

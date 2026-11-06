@@ -2,7 +2,7 @@
 
 # 춥나덥나 아이폰 앱 (mobile)
 
-웹(루트 Next 앱)과 같은 서버·로직을 쓰는 아이폰 전용 Expo 앱. 지금은 뼈대만 있다. 규칙은 루트 `CLAUDE.md`를 그대로 따른다.
+웹(루트 Next 앱)과 같은 서버·로직을 쓰는 아이폰 전용 Expo 앱. 화면은 웹과 같고 움직임(숫자 굴리기 등)·햅틱은 아직 없다. 규칙은 루트 `CLAUDE.md`를 그대로 따른다.
 
 - 스택: Expo SDK 58(React Native 0.88), expo-router(`src/app`), NativeWind 4.2.7 + Tailwind 3.4, Reanimated 4.7
   - NativeWind 5는 아직 RC라 쓰지 않았다. Tailwind가 웹(v4)과 버전이 달라 설정도 따로다(`tailwind.config.js`, `src/global.css`)
@@ -18,3 +18,15 @@
 - 크기: `inlineRem: 16`으로 1rem = 16pt. 웹과 같은 클래스가 같은 크기다
 - 글꼴: 굵기마다 이름이 달라 `font-bold` 대신 `font-sans-bold`·`font-display`·`font-num` 등을 쓴다(`tailwind.config.js`). 한글 글꼴이 굵기마다 6MB라 처음 열 때 조금 걸린다
 - 에셋: 웹 `public/icons`·`public/splash/cloud-*`·`src/app/texture_noise.png`의 복사본. 웹에서 바꾸면 여기도 다시 복사한다. 옷 그림은 `src/lib/clothingIcons.ts`(라이트·다크)
+- 화면: `src/app/index.tsx`(예보를 기다리고 시작 화면을 걷음) → `src/components/WeatherScreen.tsx`(웹 `WeatherView` 자리). 무엇을 보여줄지는 웹과 같은 `@/lib/dayView`
+  - 오늘·내일 탭은 `ScrollView`의 `stickyHeaderIndices`로 위에 붙는다
+  - 각진 그림자(웹 `shadow-card`·`shadow-btn`)는 `Card.tsx`의 `Raised`가 같은 모양 판을 뒤에 깔아 그린다. RN 그림자는 흐림 없는 그림자를 테두리 모양대로 못 그려서다. 오목한 안쪽 그림자·옷 칸 바닥 그림자는 아직 없다
+- 데이터
+  - 예보·동네는 웹 서버 API(`/api/forecast`, `/api/place`). 개발 중엔 Metro 주소의 IP로 맥의 3000번 dev 서버를 부르니 3000번이 켜져 있어야 한다(`src/lib/api.ts`)
+  - 저장(`src/lib/store.ts`): 앱을 열 때 AsyncStorage를 다 읽어 메모리에 두고 화면은 바로 읽는다. 키는 웹과 같은 이름(`place`·`outfit-feedback`·`outfit-picks`·`mornings`) + 마지막 예보 `forecast`(열자마자 그리고 새로 받음, 앱으로 돌아오면 다시 받음)
+  - 위치: `src/hooks/useLocate.ts`(expo-location). 권한은 이름을 누를 때만 묻고, 이미 허용돼 있으면 열 때 조용히 따라간다
+- 함정
+  - NativeWind: 처음 없던 transform 클래스(`translate-*`·`rotate-*`)가 상태에 따라 생기면 "Couldn't find a LinkingContext" 오류가 난다. 두 상태 모두 transform 클래스를 둔다(`translate-x-0` ↔ `translate-x-[3px]`)
+  - Tailwind 3은 표에 있는 간격만 돼서 웹에서 쓰는 `18`·`19`·`22`·`23`, 줄 높이 `4.5`·`5.5`를 `tailwind.config.js`에 더해 뒀다. 웹에 새 값을 쓰면 여기도 더한다
+  - 한글 줄바꿈은 여러 줄 `Text`에 `lineBreakStrategyIOS="hangul-word"`(웹 `break-keep`)
+  - 시뮬레이터에서 스크롤이 멈추기 전에 누르면 탭이 먹지 않는다(스크롤만 멈춤). 확인할 땐 멈춘 뒤 누른다

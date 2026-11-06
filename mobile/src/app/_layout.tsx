@@ -7,12 +7,13 @@ import { SpaceGrotesk_500Medium } from '@expo-google-fonts/space-grotesk/500Medi
 import { SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk/700Bold';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { hideAsync, preventAutoHideAsync } from 'expo-splash-screen';
+import { preventAutoHideAsync } from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import '~/global.css';
+import { loadStore } from '~/lib/store';
 
-// 글꼴이 오기 전에 그리면 시스템 글꼴로 한 번 보였다가 바뀌어서 시작 화면으로 덮어 둔다
+// 글꼴·저장된 동네와 예보가 오기 전에 그리면 빈 화면이나 시스템 글꼴이 스쳐서 시작 화면으로 덮어 둔다. 걷는 건 첫 화면(index)이 날씨를 그릴 때
 preventAutoHideAsync();
 
 // 웹과 같은 굵기만 부른다. 한글 글꼴은 굵기마다 6MB라 쓰지 않는 굵기는 넣지 않는다
@@ -28,13 +29,13 @@ const FONTS = {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts(FONTS);
-  const ready = loaded || error !== null;
+  const [stored, setStored] = useState(false);
 
   useEffect(() => {
-    if (ready) hideAsync();
-  }, [ready]);
+    loadStore().then(() => setStored(true));
+  }, []);
 
-  if (!ready) return null;
+  if (!(loaded || error !== null) || !stored) return null;
 
   return (
     <>

@@ -1,43 +1,52 @@
-import { levelRange, LEVELS } from '@/lib/outfit';
-import {
-  Image,
-  ImageBackground,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { CLOTHING_ICONS } from '~/lib/clothingIcons';
+import { hideAsync } from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { ImageBackground, Pressable, Text, View } from 'react-native';
+import { Raised } from '~/components/Card';
+import { WeatherScreen } from '~/components/WeatherScreen';
+import { useForecast } from '~/hooks/useForecast';
+import { useLocate } from '~/hooks/useLocate';
 
-// 뼈대 확인용 화면: 웹과 같은 옷차림 기준(LEVELS)·옷 그림·노이즈 바탕·글꼴·색 토큰이 앱에서도 그대로 나오는지 본다
 export default function Home() {
-  const theme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const level = LEVELS[0];
-  const [first] = level.items;
+  const locate = useLocate();
+  const { forecast, stale, failed, retry } = useForecast(locate.place);
+  const ready = forecast !== null || failed;
+
+  // 저장된 예보가 있으면 바로, 처음 열면 예보가 올 때 시작 화면을 걷는다
+  useEffect(() => {
+    if (ready) hideAsync();
+  }, [ready]);
+
+  if (forecast) {
+    return (
+      <WeatherScreen
+        forecast={forecast}
+        locate={locate}
+        busy={locate.locating || stale}
+      />
+    );
+  }
+  if (!failed) return null;
 
   return (
     <ImageBackground
       source={require('~/assets/texture_noise.png')}
       resizeMode="repeat"
-      className="flex-1 bg-bg"
+      className="flex-1 items-center justify-center gap-4 bg-bg px-5"
     >
-      <SafeAreaView className="flex-1 items-center justify-center gap-6 px-5">
-        <Text className="font-display text-5xl text-ink">춥나덥나</Text>
-        <View className="items-center gap-3 rounded-[18px] border-[2.5px] border-ink bg-well px-8 py-6">
-          <Image
-            source={CLOTHING_ICONS[first.kind][theme]}
-            className="size-24"
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-          <Text className="font-sans-bold text-xl text-ink">
-            {level.items.map(({ label }) => label).join(' · ')}
-          </Text>
-          <Text className="font-sans-medium text-base text-muted">
-            출근길 체감 {levelRange(0)}
-          </Text>
-        </View>
-      </SafeAreaView>
+      <Text className="font-sans-bold text-lg text-ink">
+        날씨를 불러오지 못했어요
+      </Text>
+      <Raised depth={3} rounded="rounded-2xl">
+        <Pressable
+          onPress={retry}
+          accessibilityRole="button"
+          className="rounded-2xl border-2 border-ink bg-card px-5 py-3"
+        >
+          <View>
+            <Text className="font-sans-bold text-base text-ink">다시 시도</Text>
+          </View>
+        </Pressable>
+      </Raised>
     </ImageBackground>
   );
 }
