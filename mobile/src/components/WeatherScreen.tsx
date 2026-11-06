@@ -7,8 +7,12 @@ import {
   ImageBackground,
   ScrollView,
   type ScrollViewInstance,
-  View,
 } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  useReducedMotion,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FeedbackCard } from '~/components/FeedbackCard';
 import { DayTabs, PlaceHeading, type Tab } from '~/components/Header';
@@ -16,6 +20,7 @@ import { HourlyForecast } from '~/components/HourlyForecast';
 import { OutfitCard } from '~/components/OutfitCard';
 import { OutfitGuide } from '~/components/OutfitGuide';
 import { SummaryCard } from '~/components/SummaryCard';
+import { EntranceProvider } from '~/hooks/useEntrance';
 import { useFeedback } from '~/hooks/useFeedback';
 import type { Locate } from '~/hooks/useLocate';
 import { useOutfitPicks } from '~/hooks/useOutfitPicks';
@@ -25,14 +30,20 @@ const NOISE = require('~/assets/texture_noise.png');
 
 type Props = {
   forecast: Forecast;
+  // 어느 동네 예보인지. 바뀌면 내용 전체를 페이드한다
+  forecastKey: string;
   locate: Locate;
   // 위치를 찾거나 새 동네 예보를 기다리는 중
   busy: boolean;
 };
 
 // 웹 WeatherView와 같은 화면. 무엇을 보여줄지는 웹과 같은 getDayView가 정한다
-export function WeatherScreen({ forecast, locate, busy }: Props) {
+export function WeatherScreen({ forecast, forecastKey, locate, busy }: Props) {
   const [tab, setTab] = useState<Tab>('today');
+  const reduce = useReducedMotion();
+  // 첫 그림이 끝난 뒤부터 새로 붙는 것만 움직인다(useEntrance)
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   const scrollRef = useRef<ScrollViewInstance>(null);
   // 온도별 표 위치와 위에 붙는 탭 높이. 펼칠 때 화면을 옮기는 데만 쓰고 그리는 데는 안 써서 ref로 둔다
   const guideY = useRef(0);
@@ -79,83 +90,99 @@ export function WeatherScreen({ forecast, locate, busy }: Props) {
   const feedback = isToday && (
     <FeedbackCard feeling={feeling} offset={offset} onSelect={save} />
   );
-  const dim = busy ? 'opacity-50' : '';
+  // 새 동네 예보가 올 때까지 흐리게 둬서, 지금 보이는 게 곧 바뀐다는 걸 알린다
+  const dim = {
+    opacity: busy ? 0.5 : 1,
+    transitionProperty: 'opacity',
+    transitionDuration: reduce ? 0 : 300,
+  } as const;
 
   return (
-    <ImageBackground
-      source={NOISE}
-      resizeMode="repeat"
-      className="flex-1 bg-bg"
-    >
-      <SafeAreaView edges={['top']} className="flex-1">
-        <ScrollView
-          ref={scrollRef}
-          stickyHeaderIndices={[1]}
-          contentContainerClassName="gap-3 px-5 pt-6 pb-8"
-        >
-          <PlaceHeading
-            locate={locate}
-            busy={busy}
-            dateLabel={view.day.dateLabel}
-          />
-          {/* 위에 붙는 탭도 바탕과 같은 면이어야 아래로 지나가는 카드가 비치지 않는다 */}
-          <ImageBackground
-            source={NOISE}
-            resizeMode="repeat"
-            onLayout={(event) => {
-              tabsHeight.current = event.nativeEvent.layout.height;
-            }}
-            className="-mx-5 -mt-1 bg-bg px-5 py-2"
+    <EntranceProvider value={ready}>
+      <ImageBackground
+        source={NOISE}
+        resizeMode="repeat"
+        className="flex-1 bg-bg"
+      >
+        <SafeAreaView edges={['top']} className="flex-1">
+          <ScrollView
+            ref={scrollRef}
+            stickyHeaderIndices={[1]}
+            contentContainerClassName="gap-3 px-5 pt-6 pb-8"
           >
-            <DayTabs tab={tab} onChange={changeTab} />
-          </ImageBackground>
-          <View className={`gap-3 ${dim}`}>
-            {evening && feedback}
-            <SummaryCard
-              now={view.now}
-              day={view.day}
-              compare={view.compare}
-              note={view.note}
-              take={view.take}
-              past={view.review}
+            <PlaceHeading
+              locate={locate}
+              busy={busy}
+              dateLabel={view.day.dateLabel}
             />
-            <OutfitCard
-              title={view.outfitTitle}
-              basisLabel={view.basisLabel}
-              basisTemp={view.basisTemp}
-              level={view.level}
-              umbrella={view.umbrella}
-            />
-            {/* 탭마다 새로 그려 시간대 스크롤을 처음으로 되돌린다 */}
-            <HourlyForecast
-              key={tab}
-              hourly={view.day.hourly}
-              highlightFirst={isToday}
-            />
-            {!evening && feedback}
-          </View>
-          <View
-            className={dim}
-            onLayout={(event) => {
-              guideY.current = event.nativeEvent.layout.y;
-            }}
-          >
-            {/* 탭을 바꾸면 표를 닫힌 상태로 다시 시작한다 */}
-            <OutfitGuide
-              key={tab}
-              currentIndex={view.levelIndex}
-              offset={view.dayOffset}
-              basis={view.morning.phrase}
-              onOpen={() =>
-                scrollRef.current?.scrollTo({
-                  // 위에 붙은 탭에 가리지 않게 그 아래로 맞춘다
-                  y: guideY.current - tabsHeight.current - 8,
-                })
-              }
-            />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </ImageBackground>
+            {/* 위에 붙는 탭도 바탕과 같은 면이어야 아래로 지나가는 카드가 비치지 않는다 */}
+            <ImageBackground
+              source={NOISE}
+              resizeMode="repeat"
+              onLayout={(event) => {
+                tabsHeight.current = event.nativeEvent.layout.height;
+              }}
+              className="-mx-5 -mt-1 bg-bg px-5 py-2"
+            >
+              <DayTabs tab={tab} onChange={changeTab} />
+            </ImageBackground>
+            <Animated.View style={dim}>
+              {/* 동네가 바뀌면 이전 내용이 흐려진 뒤 새 내용이 나온다(웹과 같은 0.15·0.3초) */}
+              <Animated.View
+                key={forecastKey}
+                entering={ready ? FadeIn.duration(300) : undefined}
+                exiting={ready ? FadeOut.duration(150) : undefined}
+                className="gap-3"
+              >
+                {evening && feedback}
+                <SummaryCard
+                  now={view.now}
+                  day={view.day}
+                  compare={view.compare}
+                  note={view.note}
+                  take={view.take}
+                  past={view.review}
+                  tab={tab}
+                />
+                <OutfitCard
+                  title={view.outfitTitle}
+                  basisLabel={view.basisLabel}
+                  basisTemp={view.basisTemp}
+                  level={view.level}
+                  umbrella={view.umbrella}
+                />
+                {/* 탭마다 새로 그려 시간대 스크롤을 처음으로 되돌린다 */}
+                <HourlyForecast
+                  key={tab}
+                  hourly={view.day.hourly}
+                  highlightFirst={isToday}
+                />
+                {!evening && feedback}
+              </Animated.View>
+            </Animated.View>
+            <Animated.View
+              style={dim}
+              onLayout={(event) => {
+                guideY.current = event.nativeEvent.layout.y;
+              }}
+            >
+              {/* 탭을 바꾸면 표를 닫힌 상태로 다시 시작한다 */}
+              <OutfitGuide
+                key={tab}
+                currentIndex={view.levelIndex}
+                offset={view.dayOffset}
+                basis={view.morning.phrase}
+                onOpen={() =>
+                  scrollRef.current?.scrollTo({
+                    // 위에 붙은 탭에 가리지 않게 그 아래로 맞춘다
+                    y: guideY.current - tabsHeight.current - 8,
+                  })
+                }
+              />
+            </Animated.View>
+          </ScrollView>
+        </SafeAreaView>
+      </ImageBackground>
+    </EntranceProvider>
   );
 }

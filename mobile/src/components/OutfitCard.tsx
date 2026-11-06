@@ -1,10 +1,14 @@
 import type { OutfitLevel } from '@/lib/outfit';
-import { Pressable, Text, View } from 'react-native';
-import { Card, Raised } from '~/components/Card';
+import type { ReactNode } from 'react';
+import { Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { Card, Tactile } from '~/components/Card';
 import { ClothingIcon } from '~/components/ClothingIcon';
 import { RefreshIcon } from '~/components/Icons';
 import { WeatherIcon } from '~/components/WeatherIcon';
+import { useEntrance } from '~/hooks/useEntrance';
 import { useOutfitPicks } from '~/hooks/useOutfitPicks';
+import { ICON_POP } from '~/lib/motion';
 import { useInk } from '~/lib/theme';
 
 type Props = {
@@ -15,6 +19,15 @@ type Props = {
   level: OutfitLevel;
   umbrella: boolean;
 };
+
+// 새로 붙는 그림만 커지며 나온다. 탭을 넘기거나 ↻로 옷이 바뀐 칸만 키(옷 이름)가 바뀌어 다시 붙는다
+function Pop({ children }: { children: ReactNode }) {
+  return (
+    <Animated.View entering={useEntrance() ? ICON_POP : undefined}>
+      {children}
+    </Animated.View>
+  );
+}
 
 export function OutfitCard({
   title,
@@ -52,16 +65,14 @@ export function OutfitCard({
           </Text>
         </View>
         {level.alternatives && (
-          <Raised depth={3} rounded="rounded-2xl">
-            <Pressable
-              onPress={() => next(level)}
-              accessibilityRole="button"
-              accessibilityLabel="다른 옷 조합 보기"
-              className="size-11 items-center justify-center rounded-2xl border-2 border-ink bg-card"
-            >
-              <RefreshIcon size={22} color={ink} />
-            </Pressable>
-          </Raised>
+          <Tactile
+            onPress={() => next(level)}
+            rounded="rounded-2xl"
+            accessibilityLabel="다른 옷 조합 보기"
+            className="size-11 items-center justify-center bg-card"
+          >
+            <RefreshIcon size={22} color={ink} />
+          </Tactile>
         )}
       </View>
       {/* 그림 아래 이름이 보이니 스크린리더엔 조합 한 문장만 읽힌다 */}
@@ -73,7 +84,9 @@ export function OutfitCard({
         {items.map((item, index) => (
           <View key={index} className="flex-1 items-center gap-1.5">
             <View className={`${tile} bg-well`}>
-              <ClothingIcon kind={item.kind} size={wide ? 56 : 76} />
+              <Pop key={item.kind}>
+                <ClothingIcon kind={item.kind} size={wide ? 56 : 76} />
+              </Pop>
             </View>
             <Text className="font-sans-bold text-[0.8125rem]/4.5 text-ink">
               {item.label}
@@ -84,7 +97,9 @@ export function OutfitCard({
         {umbrella && (
           <View className="flex-1 items-center gap-1.5">
             <View className={`${tile} border-dashed bg-acc-tile`}>
-              <WeatherIcon kind="umbrella" size={56} />
+              <Pop>
+                <WeatherIcon kind="umbrella" size={56} />
+              </Pop>
             </View>
             <Text className="font-sans-black text-[0.8125rem]/4.5 text-ink">
               + 우산

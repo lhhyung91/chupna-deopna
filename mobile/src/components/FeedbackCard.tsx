@@ -1,8 +1,11 @@
 import type { Feeling } from '@/lib/feedback';
-import { Pressable, Text, View } from 'react-native';
-import { Card, Raised } from '~/components/Card';
+import { Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { Card, Tactile } from '~/components/Card';
 import { CheckIcon } from '~/components/Icons';
 import { WeatherIcon } from '~/components/WeatherIcon';
+import { useEntrance } from '~/hooks/useEntrance';
+import { PICK_BOUNCE, PICK_POP } from '~/lib/motion';
 import { useInk } from '~/lib/theme';
 
 const OPTIONS: { id: Feeling; label: string }[] = [
@@ -19,6 +22,7 @@ type Props = {
 
 export function FeedbackCard({ feeling, offset, onSelect }: Props) {
   const ink = useInk();
+  const animate = useEntrance();
   return (
     <Card className="gap-4 p-5">
       <Text
@@ -31,30 +35,35 @@ export function FeedbackCard({ feeling, offset, onSelect }: Props) {
         {OPTIONS.map(({ id, label }) => {
           const pressed = feeling === id;
           // 선택은 색과 위치를 함께 바꾼다: 살구색 + 3px 눌림(각진 그림자가 사라짐)
-          // 이동(translate)은 두 상태 모두 둔다. 처음 없던 transform이 생기면 NativeWind가 컴포넌트를 바꿔 끼우다 오류가 난다
           return (
-            <Raised
-              key={id}
-              depth={3}
-              rounded="rounded-2xl"
-              flat={pressed}
+            // 고르면 버튼이 한 번 통통 튄다(웹 pop). 고를 때만 다시 붙도록 키에 선택 여부를 넣는다
+            <Animated.View
+              key={`${id}-${pressed}`}
+              entering={pressed && animate ? PICK_POP : undefined}
               className="flex-1"
             >
-              <Pressable
+              <Tactile
                 onPress={() => onSelect(id)}
-                accessibilityRole="button"
+                rounded="rounded-2xl"
+                down={pressed}
                 accessibilityState={{ selected: pressed }}
-                className={`h-22 items-center justify-center gap-1 rounded-2xl border-2 border-ink ${pressed ? 'translate-x-[3px] translate-y-[3px] bg-point' : 'translate-x-0 translate-y-0 bg-card'}`}
+                className={`h-22 items-center justify-center gap-1 ${pressed ? 'bg-point' : 'bg-card'}`}
               >
-                {/* 몽실이는 가로로 넓은 구름이라 44에선 표정이 작아서 키운다 */}
-                <WeatherIcon kind={id} size={56} />
+                {/* 키를 바꿔야 다시 고를 때도 튀어 오르는 움직임이 처음부터 재생된다 */}
+                <Animated.View
+                  key={pressed ? 'on' : 'off'}
+                  entering={pressed && animate ? PICK_BOUNCE : undefined}
+                >
+                  {/* 몽실이는 가로로 넓은 구름이라 44에선 표정이 작아서 키운다 */}
+                  <WeatherIcon kind={id} size={56} />
+                </Animated.View>
                 <Text
                   className={`font-sans-bold text-sm ${pressed ? 'text-on-bright' : 'text-ink'}`}
                 >
                   {label}
                 </Text>
-              </Pressable>
-            </Raised>
+              </Tactile>
+            </Animated.View>
           );
         })}
       </View>

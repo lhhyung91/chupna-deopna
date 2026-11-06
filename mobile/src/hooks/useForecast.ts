@@ -50,6 +50,8 @@ export function useForecast(place: Place) {
 
   return {
     forecast: saved?.forecast ?? null,
+    // 어느 동네 예보인지. 동네가 바뀌어 새 예보가 오면 화면 전체를 페이드한다
+    forecastKey: saved?.key ?? key,
     // 다른 동네 예보를 보여주는 중이면 새 동네 예보가 올 때까지 흐리게 둔다
     stale: saved !== null && saved.key !== key,
     failed,

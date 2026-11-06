@@ -2,7 +2,7 @@
 
 # 춥나덥나 아이폰 앱 (mobile)
 
-웹(루트 Next 앱)과 같은 서버·로직을 쓰는 아이폰 전용 Expo 앱. 화면은 웹과 같고 움직임(숫자 굴리기 등)·햅틱은 아직 없다. 규칙은 루트 `CLAUDE.md`를 그대로 따른다.
+웹(루트 Next 앱)과 같은 서버·로직을 쓰는 아이폰 전용 Expo 앱. 화면·움직임·진동이 웹과 같다(위젯·알림은 아직). 규칙은 루트 `CLAUDE.md`를 그대로 따른다.
 
 - 스택: Expo SDK 58(React Native 0.88), expo-router(`src/app`), NativeWind 4.2.7 + Tailwind 3.4, Reanimated 4.7
   - NativeWind 5는 아직 RC라 쓰지 않았다. Tailwind가 웹(v4)과 버전이 달라 설정도 따로다(`tailwind.config.js`, `src/global.css`)
@@ -30,3 +30,10 @@
   - Tailwind 3은 표에 있는 간격만 돼서 웹에서 쓰는 `18`·`19`·`22`·`23`, 줄 높이 `4.5`·`5.5`를 `tailwind.config.js`에 더해 뒀다. 웹에 새 값을 쓰면 여기도 더한다
   - 한글 줄바꿈은 여러 줄 `Text`에 `lineBreakStrategyIOS="hangul-word"`(웹 `break-keep`)
   - 시뮬레이터에서 스크롤이 멈추기 전에 누르면 탭이 먹지 않는다(스크롤만 멈춤). 확인할 땐 멈춘 뒤 누른다
+- 움직임(react-native-reanimated)
+  - 값은 웹 `src/lib/motion.ts`를 `src/lib/motion.ts`가 Reanimated 단위로 바꿔 쓴다. 피드백 pop·bounce만 웹 `globals.css` 키프레임 값을 옮겨 적었다
+  - 처음 열 땐 움직이지 않는다. `WeatherScreen`이 첫 그림 뒤 `ready`를 켜고(`useEntrance`), 그 뒤 새로 붙는 요소(`key={tab}`, ↻로 바뀐 옷)만 `entering`을 준다
+  - 움직이는 값(transition·animation·transformOrigin)은 Reanimated가 `style`로만 받아 그 자리만 `style`을 쓴다. 정적 모양은 클래스
+  - Reanimated CSS 전환의 곡선은 문자열 `cubic-bezier(...)`가 안 되고 `cubicBezier()`로 준다
+  - 동작 줄이기: 들어오는 움직임(Keyframe)은 Reanimated가 알아서 끄고, CSS 전환·반복은 `useReducedMotion`으로 시간을 0으로 둔다
+- 진동: `src/lib/haptic.ts`(expo-haptics 가벼운 탭). 웹 `haptic()`과 같은 자리(날짜 탭·동네 이름·↻·피드백·다시 시도). 버튼 눌림은 `Card.tsx`의 `Tactile`

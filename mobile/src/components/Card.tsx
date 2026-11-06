@@ -1,5 +1,11 @@
 import type { ReactNode } from 'react';
-import { ImageBackground, View } from 'react-native';
+import {
+  type AccessibilityState,
+  ImageBackground,
+  Pressable,
+  View,
+} from 'react-native';
+import { haptic } from '~/lib/haptic';
 
 const OFFSET = {
   3: 'left-[3px] top-[3px] -right-[3px] -bottom-[3px]',
@@ -52,5 +58,53 @@ export function Card({
         {children}
       </ImageBackground>
     </Raised>
+  );
+}
+
+type TactileProps = {
+  onPress: () => void;
+  rounded: string;
+  // 겉 칸 모양·바탕 클래스(테두리는 여기서 붙인다)
+  className?: string;
+  // 고른 상태도 눌린 모양으로 둔다(피드백 버튼)
+  down?: boolean;
+  wrapperClassName?: string;
+  accessibilityLabel?: string;
+  accessibilityState?: AccessibilityState;
+  children: ReactNode;
+};
+
+// 웹 tactile: 누르는 동안 3px 눌리고 각진 그림자가 접힌다. 이동 클래스는 두 상태 모두 둬야 NativeWind 오류가 안 난다(CLAUDE.md)
+export function Tactile({
+  onPress,
+  rounded,
+  className = '',
+  down = false,
+  wrapperClassName,
+  accessibilityLabel,
+  accessibilityState,
+  children,
+}: TactileProps) {
+  return (
+    <Pressable
+      onPress={() => {
+        haptic();
+        onPress();
+      }}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={accessibilityState}
+      className={wrapperClassName}
+    >
+      {({ pressed }) => (
+        <Raised depth={3} rounded={rounded} flat={down || pressed}>
+          <View
+            className={`border-2 border-ink ${rounded} ${down || pressed ? 'translate-x-[3px] translate-y-[3px]' : 'translate-x-0 translate-y-0'} ${className}`}
+          >
+            {children}
+          </View>
+        </Raised>
+      )}
+    </Pressable>
   );
 }

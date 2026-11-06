@@ -1,6 +1,7 @@
 import { levelRange, LEVELS } from '@/lib/outfit';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 import { Card } from '~/components/Card';
 import { ClothingIcon } from '~/components/ClothingIcon';
 import { ChevronIcon } from '~/components/Icons';
@@ -18,6 +19,7 @@ type Props = {
 export function OutfitGuide({ currentIndex, offset, basis, onOpen }: Props) {
   const ink = useInk();
   const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
 
   return (
     <Card>
@@ -30,13 +32,23 @@ export function OutfitGuide({ currentIndex, offset, basis, onOpen }: Props) {
         <Text className="font-sans-bold text-base text-ink">
           온도별로 이렇게 입어보세요
         </Text>
-        <View className={open ? 'rotate-180' : 'rotate-0'}>
+        <Animated.View
+          style={{
+            transform: [{ rotate: open ? '180deg' : '0deg' }],
+            transitionProperty: 'transform',
+            transitionDuration: reduce ? 0 : 250,
+          }}
+        >
           <ChevronIcon size={20} color={ink} />
-        </View>
+        </Animated.View>
       </Pressable>
       {/* 닫힌 동안엔 목록을 그리지 않는다. 펼쳐 놓기 전엔 페이지가 짧아 그 자리로 못 가서, 목록이 자리 잡은 뒤 옮긴다 */}
       {open && (
-        <View onLayout={onOpen} className="gap-3 px-5 pb-5">
+        <Animated.View
+          entering={FadeIn.duration(250)}
+          onLayout={onOpen}
+          className="gap-3 px-5 pb-5"
+        >
           <View className="gap-1">
             {LEVELS.map((level, i) => {
               const current = i === currentIndex;
@@ -87,7 +99,7 @@ export function OutfitGuide({ currentIndex, offset, basis, onOpen }: Props) {
             {offset > 0 && `. 추위를 타는 편이라 ${offset}° 따뜻하게 골라요`}
             {offset < 0 && `. 더위를 타는 편이라 ${-offset}° 가볍게 골라요`}
           </Text>
-        </View>
+        </Animated.View>
       )}
     </Card>
   );
